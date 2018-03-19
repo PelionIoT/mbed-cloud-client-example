@@ -1,0 +1,103 @@
+{
+  "K64F_FreeRTOS_mbedtls": {
+    "comment": "Extra comments\nfor the instructions",
+    "device": {
+      "name": "K64F"
+    },
+    "os": {
+      "name": "FreeRTOS",
+      "version": "8.2.3"
+    },
+    "middleware": {
+      "fatfs": {
+        "version": "0.11"
+      },
+      "lwip": {
+        "version": "1.4.1"
+      },
+      "mbedtls": {
+        "version": "2.4.2",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/ARMmbed/mbedtls.git",
+          "tag": "mbedtls-2.4.2"
+        },
+        "to": "SDK/K64F_FreeRTOS/K64F_FreeRTOS/Middleware/mbedtls",
+        "patch_file": "SDK/K64F_FreeRTOS/K64F_FreeRTOS/Middleware/mbedtls.patch"
+      },
+      "mmcau_2.0.0": {
+        "version": "2.0.0"
+      },
+      "sdmmc_2.0.0": {
+        "version": "2.0.0"
+      }
+    },
+    "from": {
+      "protocol": "git",
+      "location": "git@github.com:ARMmbed/Example-PAL-Port-using-FreeRTOS.git",
+      "tag": "PAL-RR.1.2.5-RC2"
+    },
+    "to": "SDK/K64F_FreeRTOS/K64F_FreeRTOS"
+  },
+  "x86_x64_NativeLinux_mbedtls":
+  {
+    "device": {
+      "name": "x86_x64"
+    },
+    "os": {
+      "name": "Linux_Native"
+    },
+    "middleware": {
+      "mbedtls": {
+        "version": "2.4.2",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/ARMmbed/mbedtls.git",
+          "tag": "mbedtls-2.4.2"
+        },
+        "to": "Middleware/mbedtls/mbedtls"
+      }
+    }
+  },
+  "Yocto_Generic_YoctoLinux_mbedtls":
+  {
+    "device": {
+      "name": "Yocto_Generic"
+    },
+    "os": {
+      "name": "Linux_Yocto",
+      "version": "v2.2"
+    },
+    "middleware": {
+      "mbedtls": {
+        "version": "2.4.2",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/ARMmbed/mbedtls.git",
+          "tag": "mbedtls-2.4.2"
+        },
+        "to": "Middleware/mbedtls/mbedtls"
+      }
+    }
+  },
+    "ARM_OpenWRT_mbedtls":
+  {
+    "device": {
+      "name": "OpenWRT_Generic"
+    },
+    "os": {
+      "name": "Linux_OpenWRT"
+    },
+    "middleware": {
+      "mbedtls": {
+        "version": "2.4.2",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/ARMmbed/mbedtls.git",
+          "tag": "mbedtls-2.4.2"
+        },
+        "to": "Middleware/mbedtls/mbedtls"
+      }
+    }
+  }
+}

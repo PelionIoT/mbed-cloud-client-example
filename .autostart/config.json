@@ -1,0 +1,64 @@
+[
+    {
+        "target": "FRDM-K64F",
+        "configs": [
+            {
+                "title": "Ethernet - IPv4",
+                "appjson": "eth_v4.json",
+                "default": true
+            },
+            {
+                "title": "Ethernet - IPv6",
+                "appjson": "eth_v6.json"
+            },
+            {
+                "title": "Wifi - ESP8266",
+                "appjson": "wifi_esp8266_v4.json"
+            },
+            {
+                "title": "Mesh - Thread",
+                "appjson": "mesh_thread.json"
+            },
+            {
+                "title": "Mesh - 6lowpan",
+                "appjson": "mesh_6lowpan.json"
+            }
+        ]
+    },
+    {
+        "target": "ST-Nucleo-F429ZI",
+        "configs": [
+            {
+                "title": "Ethernet - IPv4",
+                "appjson": "eth_v4.json",
+                "default": true
+            },
+            {
+                "title": "Ethernet - IPv6",
+                "appjson": "eth_v6.json"
+            },
+            {
+                "title": "Wifi - ESP8266",
+                "appjson": "wifi_esp8266_v4.json"
+            }
+        ]
+    },
+    {
+        "target": "ublox-EVK-ODIN-W2",
+        "configs": [
+            {
+                "title": "Wifi",
+                "appjson": "wifi_odin_v4.json",
+                "default": true
+            },
+            {
+                "title": "Ethernet - IPv4",
+                "appjson": "eth_v4.json"
+            },
+            {
+                "title": "Ethernet - IPv6",
+                "appjson": "eth_v6.json"
+            }
+        ]
+    }
+]
