@@ -1,0 +1,6 @@
+source/platform/linux/*
+source/platform/freertos/*
+__x86_x64_NativeLinux_mbedtls/*
+__K64F_FreeRTOS_mbedtls/*
+pal-platform/*
+storage-selector/littlefs/*

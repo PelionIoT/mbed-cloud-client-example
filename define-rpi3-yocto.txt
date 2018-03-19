@@ -1,0 +1,7 @@
+include(${CMAKE_SOURCE_DIR}/define.txt)
+
+add_definitions(-DPAL_FS_MOUNT_POINT_PRIMARY="\\"/mnt/config\\"")
+add_definitions(-DPAL_FS_MOUNT_POINT_SECONDARY="\\"/mnt/config\\"")
+add_definitions(-DPAL_UPDATE_FIRMWARE_DIR="\\"/mnt/cache/firmware\\"")
+add_definitions(-DMBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_LINUX_YOCTO_RPI)
+add_definitions(-DARM_UC_SOCKET_TIMEOUT_MS=5*60*1000)

@@ -1,0 +1,173 @@
+
+#################################################################################
+#  Copyright 2016, 2017 ARM Ltd.
+#  
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#  
+#      http://www.apache.org/licenses/LICENSE-2.0
+#  
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#################################################################################
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+project (mbedCloud)
+
+if( NOT CMAKE_BUILD_TYPE )
+  set( CMAKE_BUILD_TYPE Release CACHE STRING
+       "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+       FORCE )
+endif()
+SET(ORIGINAL_SRC_DIR ${CMAKE_SOURCE_DIR})
+SET (INCLUDE_FILE_NAME ${CMAKE_SOURCE_DIR}/include_file.txt CACHE INTERNAL "" FORCE)
+file(WRITE ${INCLUDE_FILE_NAME} " ")
+include (${CMAKE_TOOLCHAIN_FILE})
+
+if (TOOLCHAIN_FLAGS_FILE)
+message("flags file is ${TOOLCHAIN_FLAGS_FILE}")
+include (${TOOLCHAIN_FLAGS_FILE})
+endif()
+
+get_filename_component(NEW_CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/.. REALPATH)
+SET(CMAKE_SOURCE_DIR ${NEW_CMAKE_SOURCE_DIR} CACHE INTERNAL "" FORCE)
+
+get_filename_component(CMAKE_PLATFORM ../pal-platform/platform.cmake REALPATH)
+include (${CMAKE_PLATFORM})
+
+set(MBED_CLOUD_CLIENT_BUILD_SYS_MIN_VER_CMAKE 2)
+
+
+if (EXTARNAL_DEFINE_FILE)
+    message("**** EXTARNAL_DEFINE_FILE is deprecated due a spell error please use EXTERNAL_DEFINE_FILE instead ****")
+    set(EXTERNAL_DEFINE_FILE ${EXTARNAL_DEFINE_FILE})
+ENDIF()
+
+if (EXTERNAL_DEFINE_FILE)
+    include(${EXTERNAL_DEFINE_FILE})
+ENDIF()
+
+
+
+INCLUDE(CMakeForceCompiler)
+cmake_minimum_required (VERSION 2.6)
+#include (${CMAKE_TOOLCHAIN_FILE})
+
+
+
+# The version number.
+set (Test_VERSION_MAJOR 1)
+set (Test_VERSION_MINOR 0)
+
+# ENABLE ASM
+ENABLE_LANGUAGE(ASM)
+
+file(WRITE dummy.c "int pal_cmake_dummy_refernce_for_building(void) { return 0; }")
+
+
+if(DEFINED PAL_PLATFORM_DEFINED_CONFIGURATION)
+  add_definitions(-DPAL_PLATFORM_DEFINED_CONFIGURATION="${PAL_PLATFORM_DEFINED_CONFIGURATION}")
+endif()
+
+if(DEFINED PAL_USER_DEFINED_CONFIGURATION)
+  add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="${PAL_USER_DEFINED_CONFIGURATION}")
+endif()
+
+if(DEFINED PAL_BOARD_SPECIFIC_CONFIG)
+  add_definitions(-DPAL_BOARD_SPECIFIC_CONFIG="${PAL_BOARD_SPECIFIC_CONFIG}")
+endif()
+
+
+get_filename_component(CMAKE_COMMON ../pal-platform/common.cmake REALPATH)
+get_filename_component(CMAKE_PLATFORM ../pal-platform/platform.cmake REALPATH)
+message ("path to common.cmake is ${CMAKE_COMMON}")
+
+include (${CMAKE_COMMON})
+#init compilation file
+file(WRITE "${COMPILATION_DETAILS_FILE_NAME}" "")
+#include (${CMAKE_PLATFORM})
+
+
+include_directories("${PROJECT_BINARY_DIR}")
+
+
+IF(CMAKE_BUILD_TYPE MATCHES Release)
+    SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/Release)
+    SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/Release)
+ELSEIF(CMAKE_BUILD_TYPE MATCHES Debug)
+    SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/Debug)
+    SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/Debug)
+ENDIF()
+
+
+foreach (_var ${EXTRA_CMAKE_DIRS})
+    get_filename_component(EXTRA_DIR ${_var} NAME)
+    add_subdirectory(${_var} ${CMAKE_BINARY_DIR}/${EXTRA_DIR})
+endforeach()
+
+get_filename_component(CMAKE_SOURCE_DIR_NAME ${CMAKE_SOURCE_DIR} NAME)
+add_subdirectory(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/${CMAKE_SOURCE_DIR_NAME})
+
+# add the executable
+foreach(TEST_LIB ${TEST_LIBS})
+    message ("building ${TEST_LIB} with sources ${SRC_LIBS}")
+
+    if (NOT Additional_SRC)
+        set(Additional_SRC dummy.c)
+    endif()
+
+    add_executable (${TEST_LIB}.elf ${Additional_SRC})
+	if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		TARGET_LINK_LIBRARIES(${TEST_LIB}.elf -Wl,--start-group)
+	endif()
+    target_link_libraries (${TEST_LIB}.elf  ${TEST_LIB} ${SRC_LIBS} ${PLATFORM_LIBS} ) # SRC_LIBS appear twice to resolve linker dependency issues between pal and tls static libraries
+
+    if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        target_link_libraries(${TEST_LIB}.elf debug m)
+        target_link_libraries(${TEST_LIB}.elf debug c)
+        #target_link_libraries(${PROJECT_NAME} debug gcc)
+        target_link_libraries(${TEST_LIB}.elf optimized m)
+        target_link_libraries(${TEST_LIB}.elf optimized c)
+        #target_link_libraries(${PROJECT_NAME} optimized gcc)
+
+        if (${OS_BRAND} MATCHES FreeRTOS)
+            target_link_libraries(${TEST_LIB}.elf optimized nosys)
+            target_link_libraries(${TEST_LIB}.elf debug nosys)
+        endif ()
+    endif()
+
+
+    if (${OS_BRAND} MATCHES Linux)
+        target_link_libraries(${TEST_LIB}.elf optimized rt)
+        target_link_libraries(${TEST_LIB}.elf debug rt)
+        target_link_libraries(${TEST_LIB}.elf optimized pthread)
+        target_link_libraries(${TEST_LIB}.elf debug pthread)
+    endif ()
+
+	if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		TARGET_LINK_LIBRARIES(${TEST_LIB}.elf -Wl,--end-group)
+	endif()
+
+    if (NOT (${OS_BRAND} MATCHES "Linux"))
+        ELF_TO_BIN(${TEST_LIB} ${EXECUTABLE_OUTPUT_PATH})
+    endif()
+
+
+
+    set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES  ${TEST_LIB}.elf)
+    set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES  ${TEST_LIB}.bin)
+endforeach()
+
+
+
+
+
+UNSET(CMAKE_TOOLCHAIN_FILE_CONFIGURED CACHE)
+UNSET(CMAKE_TOOLCHAIN_FILE_CONFIGURED)
+
+
