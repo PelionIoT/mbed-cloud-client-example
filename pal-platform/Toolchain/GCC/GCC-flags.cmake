@@ -145,6 +145,10 @@ if (PAL_MEMORY_STATISTICS)
 	add_definitions("-DPAL_MEMORY_STATISTICS")
 endif()
 
+# This is because of mbedTLS is removing all debug and release compilation flags
+# but keeping the global common flags so need to set all of them... no harm is done
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} @${CMAKE_SOURCE_DIR}/include_file.txt")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} @${CMAKE_SOURCE_DIR}/include_file.txt")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_C_FLAGS "@${CMAKE_SOURCE_DIR}/include_file.txt")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_CXX_FLAGS "@${CMAKE_SOURCE_DIR}/include_file.txt")
 

@@ -1,11 +1,6 @@
 {
     "macros": [
-        "MBEDTLS_USER_CONFIG_FILE=\"mbedTLSConfig_mbedOS.h\"",
         "PAL_USER_DEFINED_CONFIGURATION=\"sotp_fs_config_MbedOS_legacy.h\"",
-        "MBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
-        "MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
-        "PAL_DTLS_PEER_MIN_TIMEOUT=5000",
-        "MBED_CONF_APP_MAIN_STACK_SIZE=4608",
         "PAL_DEVICE_KEY_DERIVATION_BACKWARD_COMPATIBILITY_CALC=1",
         "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FILESYSTEM"
     ],
@@ -24,10 +19,10 @@
         },
         "K64F": {
             "target.mbed_app_start"            : "0x00020400",
-            "sotp-section-1-address"           : "(1016*1024)",
-            "sotp-section-1-size"              : "(   4*1024)",
-            "sotp-section-2-address"           : "(1020*1024)",
-            "sotp-section-2-size"              : "(   4*1024)",
+            "client_app.sotp-section-1-address"    : "(1016*1024)",
+            "client_app.sotp-section-1-size"       : "(   4*1024)",
+            "client_app.sotp-section-2-address"    : "(1020*1024)",
+            "client_app.sotp-section-2-size"       : "(   4*1024)",
             "update-client.application-details": "(0x00020000)"
         }
     },
@@ -47,26 +42,6 @@
         "led-pinname": {
             "help": "PinName for led, which is attached to led blink resource.",
             "value": "LED_RED"
-        },
-        "sotp-section-1-address": {
-            "help": "Flash sector address for SOTP sector 1",
-            "macro_name": "PAL_INTERNAL_FLASH_SECTION_1_ADDRESS",
-            "value": null
-        },
-        "sotp-section-1-size": {
-            "help": "Flash sector size for SOTP sector 1",
-            "macro_name": "PAL_INTERNAL_FLASH_SECTION_1_SIZE",
-            "value": null
-        },
-        "sotp-section-2-address": {
-            "help": "Flash sector address for SOTP sector 2",
-            "macro_name": "PAL_INTERNAL_FLASH_SECTION_2_ADDRESS",
-            "value": null
-        },
-        "sotp-section-2-size": {
-            "help": "Flash sector size for SOTP sector 2",
-            "macro_name": "PAL_INTERNAL_FLASH_SECTION_2_SIZE",
-            "value": null
         }
     }
 }

@@ -25,7 +25,6 @@
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 #include "mbed-client/m2mbase.h"
-#endif
 
 // fixup the compilation on AMRCC for PRIu32
 #define __STDC_FORMAT_MACROS
@@ -47,19 +46,16 @@
 
 #include <assert.h>
 
-void heap_stats()
+void print_heap_stats()
 {
-#ifdef MBED_HEAP_STATS_ENABLED
     mbed_stats_heap_t stats;
     mbed_stats_heap_get(&stats);
     printf("**** current_size: %" PRIu32 "\n", stats.current_size);
     printf("**** max_size    : %" PRIu32 "\n", stats.max_size);
-#endif // MBED_HEAP_STATS_ENABLED
 }
 
-void m2mobject_test_set(M2MObjectList& object_list)
+void create_m2mobject_test_set(M2MObjectList& object_list)
 {
-#ifdef MBED_HEAP_STATS_ENABLED
     printf("*************************************\n");
 
     mbed_stats_heap_t stats;
@@ -121,14 +117,12 @@ void m2mobject_test_set(M2MObjectList& object_list)
     printf("heap used     : %" PRIu32 "\n", stats.current_size - initial);
 
     printf("*************************************\n");
-#endif // MBED_HEAP_STATS_ENABLED
 }
 
 // Note: the mbed-os needs to be compiled with MBED_HEAP_STATS_ENABLED to get
 // functional heap stats, or the mbed_stats_heap_get() will return just zeroes.
-void m2mobject_stats()
+void print_m2mobject_stats()
 {
-#ifdef MBED_HEAP_STATS_ENABLED
     printf("\n*** M2M object sizes in bytes ***\n");
     printf("M2MBase: %" PRIu32 "\n", sizeof(M2MBase));
     printf("M2MObject: %" PRIu32 "\n", sizeof(M2MObject));
@@ -218,6 +212,6 @@ void m2mobject_stats()
         printf("Resource leaked: %" PRIu32 "bytes\n", stats.current_size - before_object);
     }
     printf("*************************************\n\n");
-#endif // MBED_HEAP_STATS_ENABLED
 }
+#endif // MBED_HEAP_STATS_ENABLED
 #endif // TARGET_LIKE_MBED

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2016-2018 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -19,10 +19,7 @@
 #define PAL_DEVICE_KEY_SIZE_IN_BYTES 16
 
 //THIS CODE IS FOR TESTING PURPOSES ONLY. DO NOT USE IN PRODUCTION ENVIRONMENTS. REPLACE WITH A PROPER IMPLEMENTATION BEFORE USE
-#ifdef __cplusplus
-extern "C" {
-#endif
-palStatus_t  pal_plat_osGetRoTFromHW(uint8_t *keyBuf, size_t keyLenBytes)
+palStatus_t pal_plat_osGetRoTFromHW(uint8_t *keyBuf, size_t keyLenBytes)
 {
 #if defined (__CC_ARM)          /* ARM compiler. */
     #warning("PAL_INSECURE- You are using insecure Root Of Trust implementation, DO NOT USE IN PRODUCTION ENVIRONMENTS. REPLACE WITH A PROPER IMPLEMENTATION BEFORE USE")
@@ -50,6 +47,4 @@ palStatus_t  pal_plat_osGetRoTFromHW(uint8_t *keyBuf, size_t keyLenBytes)
 
     return PAL_SUCCESS;
 }
-#ifdef __cplusplus
-}
-#endif
+

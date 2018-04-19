@@ -16,6 +16,6 @@
 
 set (OS_BRAND Linux)
 add_definitions(-DTARGET_IS_PC_LINUX)
-SET(TARGET_NAME TAEGET_X86_X64)
+SET(TARGET_NAME TARGET_X86_X64)
 add_definitions(-DTARGET_X86_X64)
 add_definitions(-D__LINUX__)
