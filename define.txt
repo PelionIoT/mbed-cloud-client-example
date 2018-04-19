@@ -10,6 +10,7 @@ if (NOT (${OS_BRAND} MATCHES "FreeRTOS"))
 else()
     add_definitions(-DMBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\")
     add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\")
+    add_definitions(-DPAL_USER_DEFINED_CONFIGURATION=\"sotp_fs_config_FreeRTOS.h\")
 endif()
 
 SET(PAL_TLS_BSP_DIR ${NEW_CMAKE_SOURCE_DIR}/mbed-cloud-client/mbed-client-pal/Configs/${TLS_LIBRARY})
@@ -26,3 +27,5 @@ endif()
 
 add_definitions(-DPAL_DTLS_PEER_MIN_TIMEOUT=5000)
 add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
+add_definitions(-DPLATFORM_ENABLE_BUTTON=1)
+add_definitions(-DPLATFORM_ENABLE_LED=1)

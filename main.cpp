@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2017 ARM Ltd.
+// Copyright 2016-2018 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,13 +20,14 @@
 #ifdef TARGET_LIKE_MBED
 #include "mbed.h"
 #endif
+#include "application_init.h"
+#include "common_button_and_led.h"
 
-static int main_application(void);
+static void main_application(void);
 
-int main()
+int main(void)
 {
-    // run_application() will first initialize the program and then call main_application()
-    return run_application(&main_application);
+    mcc_platform_run_program(main_application);
 }
 
 // Pointers to the resources that will be created in main_application().
@@ -48,11 +49,11 @@ void blink_callback(void *) {
     printf("LED pattern = %s\n", pattern);
     // The pattern is something like 500:200:500, so parse that.
     // LED blinking is done while parsing.
-    toggle_led();
+    mcc_platform_toggle_led();
     while (*pattern != '\0') {
         // Wait for requested time.
-        do_wait(atoi(pattern));
-        toggle_led();
+        mcc_platform_do_wait(atoi(pattern));
+        mcc_platform_toggle_led();
         // Search for next value.
         pattern = strchr(pattern, ':');
         if(!pattern) {
@@ -60,7 +61,7 @@ void blink_callback(void *) {
         }
         pattern++;
     }
-    led_off();
+    mcc_platform_led_off();
 }
 
 void button_notification_status_callback(const M2MBase& object, const NoticationDeliveryStatus status)
@@ -112,14 +113,20 @@ void factory_reset(void *)
     }
 }
 
-int main_application(void)
+void main_application(void)
 {
-    // IOTMORF-1712: DAPLINK starts the previous application during flashing a new binary
-    // This is workaround to prevent possible deletion of credentials or storage corruption
-    // while replacing the application binary.
-#ifdef TARGET_LIKE_MBED
-    wait(2);
-#endif
+    mcc_platform_sw_build_info();
+    // run_application() will first initialize the program and then call main_application()
+
+    // application_init() runs the following initializations:
+    //  1. trace initialization
+    //  2. platform initialization
+    //  3. print memory statistics if MBED_HEAP_STATS_ENABLED is defined
+    //  4. FCC initialization.
+    if (!application_init()) {
+        printf("Initialization failed, exiting application!\n");
+        return;
+    }
 
     // SimpleClient is used for registering and unregistering resources to a server.
     SimpleM2MClient mbedClient;
@@ -129,7 +136,7 @@ int main_application(void)
 
 #ifdef MBED_HEAP_STATS_ENABLED
     printf("Client initialized\r\n");
-    heap_stats();
+    print_heap_stats();
 #endif
 
     // Create resource for button count. Path of this resource will be: 3200/0/5501.
@@ -152,21 +159,16 @@ int main_application(void)
     mbedClient.add_cloud_resource(5000, 0, 2, "factory_reset", M2MResourceInstance::STRING,
                  M2MBase::POST_ALLOWED, NULL, false, (void*)factory_reset, NULL);
 
-    // Print to screen if available.
-    clear_screen();
-    print_to_screen(0, 3, "Cloud Client: Connecting");
-
     mbedClient.register_and_connect();
 
     // Check if client is registering or registered, if true sleep and repeat.
     while (mbedClient.is_register_called()) {
         static int button_count = 0;
-        do_wait(100);
-        if (button_clicked()) {
+        mcc_platform_do_wait(100);
+        if (mcc_platform_button_clicked()) {
             button_res->set_value(++button_count);
         }
     }
 
     // Client unregistered, exit program.
-    return 0;
 }

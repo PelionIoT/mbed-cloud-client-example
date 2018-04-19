@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include "mbed-cloud-client/MbedCloudClient.h"
 #include "m2mdevice.h"
-#include "setup.h"
+#include "common_setup.h"
 #include "m2mresource.h"
 #include "mbed-client/m2minterface.h"
 #include "key_config_manager.h"
@@ -55,9 +55,9 @@ public:
         _cloud_client.on_unregistered(this, &SimpleM2MClient::client_unregistered);
         _cloud_client.on_error(this, &SimpleM2MClient::error);
 
-        if (init_connection()) {
+        if (!mcc_platform_init_connection()) {
             printf("Network initialized, connecting...\n");
-            bool setup = _cloud_client.setup(get_network_interface());
+            bool setup = _cloud_client.setup(mcc_platform_get_network_interface());
             _register_called = true;
             if (!setup) {
                 printf("Client setup failed\n");
@@ -96,20 +96,16 @@ public:
         if (endpoint == NULL) {
             endpoint = _cloud_client.endpoint_info();
             if (endpoint) {
-                clear_screen();
-                print_to_screen(0, 3, "Cloud Client: Ready");
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
-                print_to_screen(0, 15, endpoint->internal_endpoint_name.c_str());
                 printf("Endpoint Name: %s\r\n", endpoint->internal_endpoint_name.c_str());
 #else
-                print_to_screen(0, 15, endpoint->endpoint_name.c_str());
                 printf("Endpoint Name: %s\r\n", endpoint->endpoint_name.c_str());
 #endif
                 printf("Device Id: %s\r\n", endpoint->internal_endpoint_name.c_str());
             }
         }
 #ifdef MBED_HEAP_STATS_ENABLED
-        heap_stats();
+        print_heap_stats();
 #endif
     }
 
@@ -118,7 +114,7 @@ public:
         _register_called = false;
         printf("\nClient unregistered - Exiting application\n\n");
 #ifdef MBED_HEAP_STATS_ENABLED
-        heap_stats();
+        print_heap_stats();
 #endif
     }
 
@@ -219,20 +215,21 @@ public:
     }
 
     void register_and_connect() {
+#ifdef MBED_HEAP_STATS_ENABLED
         // Add some test resources to measure memory consumption.
         // This code is activated only if MBED_HEAP_STATS_ENABLED is defined.
-        create_m2mobject_test_set(&_obj_list);
-
+        create_m2mobject_test_set(_obj_list);
+#endif
         _cloud_client.add_objects(_obj_list);
 
         // Start registering to the cloud.
         call_register();
 
         // Print memory statistics if the MBED_HEAP_STATS_ENABLED is defined.
-        #ifdef MBED_HEAP_STATS_ENABLED
+#ifdef MBED_HEAP_STATS_ENABLED
             printf("Register being called\r\n");
-            heap_stats();
-        #endif
+            print_heap_stats();
+#endif
     }
 
     MbedCloudClient& get_cloud_client() {

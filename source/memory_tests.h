@@ -22,12 +22,22 @@
 #include "mbed-client/m2minterface.h"
 #include "mbed.h"
 
+//FORWARD DECLARATION
+class M2MObject;
+namespace m2m {
+    template<class ObjectTemplate> class Vector;
+}
+
+using namespace m2m;
+
+typedef Vector<M2MObject *> M2MObjectList;
+
 // A function for creating a batch of resources for memory consumption purposes.
-void m2mobject_test_set(M2MObjectList& object_list);
+void create_m2mobject_test_set(M2MObjectList& object_list);
 
 // Print into serial the m2m object sizes and heap allocation sizes.
-void m2mobject_stats();
+void print_m2mobject_stats();
 
-void heap_stats();
+void print_heap_stats();
 
 #endif // !__MEMORY_TESTS_H__

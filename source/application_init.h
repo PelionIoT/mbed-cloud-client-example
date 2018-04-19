@@ -28,9 +28,7 @@
  *  4. FCC initialization.
  */
 
-extern bool application_init(void);
-extern bool rmFirmwareImages(void);
-extern int reformat_storage(void);
+bool application_init(void);
 
 #endif //APPLICATION_INIT_H
 
