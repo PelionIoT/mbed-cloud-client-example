@@ -44,11 +44,11 @@
         },
         "wifi-ssid": {
             "help": "WiFi SSID",
-            "value": "\"SSID\""
+            "value": "\"Change this to desired SSID\""
         },
         "wifi-password": {
             "help": "WiFi Password",
-            "value": "\"Password\""
+            "value": "\"Change this to desired password\""
         },
         "wifi-tx": {
             "help": "TX pin for serial connection to external device",
