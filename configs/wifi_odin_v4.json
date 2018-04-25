@@ -30,11 +30,11 @@
         },
         "wifi-ssid": {
             "help": "WiFi SSID",
-            "value": "\"SSID\""
+            "value": "\"Change this to desired SSID\""
         },
         "wifi-password": {
             "help": "WiFi Password",
-            "value": "\"Password\""
+            "value": "\"Change this to desired password\""
         },
         "developer-mode": {
             "help": "Enable Developer mode to skip Factory enrollment",
