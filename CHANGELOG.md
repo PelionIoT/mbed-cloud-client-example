@@ -1,5 +1,8 @@
 # Changelog for Mbed Cloud Client Reference Example
 
+## Release R1.3.1.1 (next release)
+* No changes.
+
 ## Release R1.3.1 (19.04.2018)
 
 * Converted the LED blinking callback from a blocking loop to an event-based tasklet.
