@@ -1,12 +1,14 @@
+#!/usr/bin/env python
+
 #################################################################################
-#  Copyright 2016, 2017 ARM Ltd.
-#  
+#  Copyright 2016-2018 ARM Ltd.
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
-#  
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-#  
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS,
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +16,6 @@
 #  limitations under the License.
 #################################################################################
 
-#!/usr/bin/env python
 import json
 import os
 import logging
@@ -26,13 +27,11 @@ import tarfile
 import zipfile
 from string import Template
 import shutil
-import click
-import requests
 import platform
 import tempfile
 from contextlib import contextmanager
-from distutils.spawn import find_executable
-import  shutil
+import requests
+import click
 
 logger = logging.getLogger('pal-platform')
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -110,7 +109,8 @@ def del_rw(action, path, exc):
     Callback function for error handling in shutil.rmtree.
     Will be called whenever shutil.rmtree catches an exception.
 
-    :param action: The internal action used inside shutil.rmtree (os.listdir, os.remove, or os.rmdir)
+    :param action: The internal action used inside shutil.rmtree
+        (os.listdir, os.remove, or os.rmdir)
     :param path: The path of the file/directory
     :param exc: The Exception info
     """
@@ -124,8 +124,9 @@ def del_rw(action, path, exc):
 
 def is_git_pull_required(repo_dir, branch, **stream_kwargs):
     """
-    Check if git pull is required - in case sources are modified, pull will fail, so we check whether pull is
-    required before failing the script
+    Check if git pull is required - in case sources are modified,
+    pull will fail, so we check whether pull is required before
+    failing the script.
     http://stackoverflow.com/questions/3258243/check-if-pull-needed-in-git
 
     :param repo_dir: Directory to check
@@ -161,12 +162,12 @@ def is_git_dir(_dir):
     return os.path.isdir(_dir) and os.path.isdir(os.path.join(_dir, '.git'))
 
 def extract_repo_name(url):
-     """
-     Extract repository remote and name from a git URL, ignoring protocol and .git endings
-     """
-     regex_git_url = r'^(git\://|ssh\://|https?\://|)(([^/:@]+)(\:([^/:@]+))?@)?([^/:]+)[:/](.+?)(\.git|\/?)$'
-     m = re.match(regex_git_url, url)
-     return m.group(7) or url
+    """
+    Extract repository remote and name from a git URL, ignoring protocol and .git endings
+    """
+    regex_git_url = r'^(git\://|ssh\://|https?\://|)(([^/:@]+)(\:([^/:@]+))?@)?([^/:]+)[:/](.+?)(\.git|\/?)$'
+    m = re.match(regex_git_url, url)
+    return m.group(7) or url
 
 
 def git_fetch(git_url, tree_ref, dest_dir, **stream_kwargs):
@@ -401,7 +402,7 @@ def check_cmd(cmd, **kwargs):
         subprocess.check_call(cmd, **kwargs)
     except Exception as e:
         logger.error(e)
-        logger.error( "** failed to run command  %s **", cmd)
+        logger.error("** failed to run command  %s **", cmd)
         sys.exit()
 
 
@@ -419,10 +420,10 @@ def check_output(cmd, **kwargs):
         output = subprocess.check_output(cmd, **kwargs)
     except Exception as e:
         logger.error(e)
-        logger.error( "** failed to run command  %s **", cmd)
+        logger.error("** failed to run command  %s **", cmd)
         sys.exit()
     return output
-    
+
 def check_output_and_raise(cmd, **kwargs):
     """
     Wrapper function for subprocess.check_output
@@ -456,7 +457,7 @@ class GitSource(Source):
             git_fetch(self.location, self.tag, dst, **self.stream_kwargs)
         except Exception as e:
             logger.error(e)
-            logger.error( "** failed to fetch %s from git - please check that remote is correct and avialable **", name)
+            logger.error("** failed to fetch %s from git - please check that remote is correct and avialable **", name)
             sys.exit()
 
 class LocalSource(Source):
@@ -711,8 +712,8 @@ def cli(config, verbose, from_file):
     AVAILABLE_TARGETS = config.targets.keys()
 
     parent_dir = os.path.normpath(os.path.join(from_file, os.pardir))
-    toolchain_dir = os.path.join(parent_dir,  "Toolchain")
-    list  = os.listdir(toolchain_dir)
+    toolchain_dir = os.path.join(parent_dir, "Toolchain")
+    list = os.listdir(toolchain_dir)
     global AVAILABLE_TOOLCHAINS
     AVAILABLE_TOOLCHAINS = list
 
@@ -836,7 +837,7 @@ def clean(config, target_name, keep_sources):
 def runCmakeAndMake(folder, debug, toolchain, outdir, envPair, external, name, numOfBuildThreads):
     logger.info('running cmake')
     #"""cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../pal-platform/Toolchain/ARMGCC/ARMGCC.cmake -DEXTARNAL_DEFINE_FILE=../mbed-client-pal/Examples/PlatformBSP/mbedTLS/mbedTLS_cmake_config.txt"""
-    command  = "cmake"
+    command = "cmake"
     make_params = "-j1"
     argument1 = "-G"
     argument2 = "Unix Makefiles"
@@ -850,20 +851,20 @@ def runCmakeAndMake(folder, debug, toolchain, outdir, envPair, external, name, n
     else:
         argument5 = "-DEXTARNAL_DEFINE_FILE=../mbed-client-pal/Configs/pal_ext_configs.cmake"
     if envPair != None:
-        logger.info('setting environment: %s = %s',  envPair[0], envPair[1])
-        os.environ[envPair[0]]=envPair[1]
+        logger.info('setting environment: %s = %s', envPair[0], envPair[1])
+        os.environ[envPair[0]] = envPair[1]
     if numOfBuildThreads != None:
-        make_params = "-j"+str(numOfBuildThreads)
+        make_params = "-j" + str(numOfBuildThreads)
 
-    p = subprocess.Popen([command, argument1,argument2, argument3, argument4, argument5], cwd=folder)
+    p = subprocess.Popen([command, argument1, argument2, argument3, argument4, argument5], cwd=folder)
     returnCode = p.wait()
-    if returnCode == 0 :
+    if returnCode == 0:
         if name != None:
-            p = subprocess.Popen(["make",make_params, name], cwd=folder)
+            p = subprocess.Popen(["make", make_params, name], cwd=folder)
         else:
             p = subprocess.Popen(["make", make_params], cwd=folder)
         returnCode = p.wait()
-        if returnCode == 0 :
+        if returnCode == 0:
             if debug == 1:
                 copyFrom = os.path.join(folder, "Debug")
             else:
@@ -873,9 +874,9 @@ def runCmakeAndMake(folder, debug, toolchain, outdir, envPair, external, name, n
             shutil.move(copyFrom, outdir)
 
         else:
-            logger.error( "** build failed **")
+            logger.error("** build failed **")
     else:
-        logger.error( "** CMAKE failed **")
+        logger.error("** CMAKE failed **")
 
 
 def getPathForToolChainInPath(toolchain):
@@ -887,27 +888,25 @@ def getPathForToolChainInPath(toolchain):
             found = check_output_and_raise(['where', realname]).strip()
         except Exception as e:
             logger.error(e)
-            logger.error( "** Toolchain %s not found in path  - make sure toolchain executable [%s] is in the path **",toolchain,realname)
+            logger.error("** Toolchain %s not found in path  - make sure toolchain executable [%s] is in the path **", toolchain, realname)
             return None
         separator = "\\"
         double_separator = "\\\\"
     else: # assume linux type OS
         try:
-                found = check_output_and_raise(['which', realname]).strip()
+            found = check_output_and_raise(['which', realname]).strip()
         except Exception as e:
-                logger.error(e)
-                logger.error( "** Toolchain %s not found in path  - make sure toolchain executable [%s] is in the path **", toolchain,realname )
-                return None
+            logger.error(e)
+            logger.error("** Toolchain %s not found in path  - make sure toolchain executable [%s] is in the path **", toolchain, realname)
+            return None
         separator = "/"
         double_separator = "//"
     if found != None:
         parent_dir = found #os.path.normpath(os.path.join(PAL_PLATFORM_ROOT, os.pardir))
-        while parent_dir.endswith(separator+realname) or parent_dir.endswith(separator+realname) or parent_dir.endswith(separator+"bin") or parent_dir.endswith(separator+"bin"+separator) or parent_dir.endswith(double_separator+"bin"+separator) or parent_dir.endswith(separator+"bin"+double_separator)or parent_dir.endswith(double_separator+"bin"+double_separator):
+        while parent_dir.endswith(separator+realname) or parent_dir.endswith(separator+realname) or parent_dir.endswith(separator+"bin") or parent_dir.endswith(separator+"bin"+separator) or parent_dir.endswith(double_separator+"bin"+separator) or parent_dir.endswith(separator+"bin"+double_separator) or parent_dir.endswith(double_separator+"bin"+double_separator):
             parent_dir = os.path.normpath(os.path.join(parent_dir, os.pardir))
         output = parent_dir
     return output
-
-
 
 
 def checkToolchainEnv(toolchain):
@@ -915,10 +914,10 @@ def checkToolchainEnv(toolchain):
     #toolchain_env stucture: key == toolchain name , value is a tupple  with two elements:
     #1. a tuple of relevant environment variables for the toolchain - Note : the first value is the one we want (we will export it if any of the values are found)
     #2. a string with the expected name of compiler binary for path seach
-    toolchainEnv = {"ARMCC":(("ARMCC_DIR","ARM_PATH", "MBED_ARM_PATH"),"armcc"),
-                     "ARMGCC":(("ARMGCC_DIR", "GCC_ARM_PATH", "MBED_GCC_ARM_PATH" ), "arm-none-eabi-gcc"),
-                     "GCC": (("GCC_DIR",), "gcc"),
-                     "GCC-OPENWRT": (("TOOLCHAIN_DIR",), "arm-openwrt-linux-gcc")}
+    toolchainEnv = {"ARMCC":(("ARMCC_DIR", "ARM_PATH", "MBED_ARM_PATH"), "armcc"),
+                    "ARMGCC":(("ARMGCC_DIR", "GCC_ARM_PATH", "MBED_GCC_ARM_PATH"), "arm-none-eabi-gcc"),
+                    "GCC": (("GCC_DIR",), "gcc"),
+                    "GCC-OPENWRT": (("TOOLCHAIN_DIR",), "arm-openwrt-linux-gcc")}
 
     toolchainInfo = toolchainEnv.get(toolchain, None)
     if None == toolchainInfo:
@@ -940,8 +939,7 @@ def checkToolchainEnv(toolchain):
 
 @cli.command(
     context_settings=CONTEXT_SETTINGS,
-    short_help='fullBuild deploy and build the project (run "%s  fullBuild -h" for help)' % PROG_NAME
-)
+    short_help='fullBuild deploy and build the project (run "%s  fullBuild -h" for help)' % PROG_NAME)
 @click.option(
     '--target',
     'target_name',
@@ -959,7 +957,7 @@ def checkToolchainEnv(toolchain):
 @click.option(
     '--external',
     'external',
-    help='The path fo the eternal define CMAKE file to include',
+    help='The path of the eternal define CMAKE file to include',
     required=False,
     type=click.Path()
 )
@@ -979,21 +977,21 @@ def checkToolchainEnv(toolchain):
     'numOfBuildThreads',
     help='-j parallel make parameter (Example: -j4)',
     required=False,
-    type= int
+    type=int
 )
 @pass_config
-def fullbuild(config, target_name, toolchain, external,name, keep_sources, numOfBuildThreads):
+def fullbuild(config, target_name, toolchain, external, name, keep_sources, numOfBuildThreads):
     """deploy and build target files"""
     config.target_name = target_name
     logger.info('fullBuild running for target = %s with toolchain = %s', target_name, toolchain)
 
     ctx = click.get_current_context()
-    ctx.invoke(deploy , target_name=target_name, skip_update=None, instructions=None )
-    ctx.invoke(generate,target_name=target_name)
+    ctx.invoke(deploy, target_name=target_name, skip_update=None, instructions=None)
+    ctx.invoke(generate, target_name=target_name)
 
     envPair = checkToolchainEnv(toolchain)
     if (None == envPair):
-        logger.error( "** Toolchain not found - exiting **")
+        logger.error("** Toolchain not found - exiting **")
         return
     target = Target(config.target_name, config.targets[target_name], config.stream_kwargs)
     out_dir_name = '__' + target.name
@@ -1009,7 +1007,7 @@ def fullbuild(config, target_name, toolchain, external,name, keep_sources, numOf
     isDebug = 0 # generate and build release version
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
-    ctx.invoke(generate,target_name=target_name)
+    ctx.invoke(generate, target_name=target_name)
 
     runCmakeAndMake(out_dir, isDebug, toolchain, output, envPair, external, name, numOfBuildThreads)  # CMAKE + build release version
 

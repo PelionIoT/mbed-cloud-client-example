@@ -30,16 +30,16 @@ typedef void (*main_t)(void);
 //
 // @returns
 //   0 for success, anything else for error
-int mcc_platform_init();
+int mcc_platform_init(void);
 
 // Initialize network connection
-int mcc_platform_init_connection();
+int mcc_platform_init_connection(void);
 
 // Close network connection
-int mcc_platform_close_connection();
+int mcc_platform_close_connection(void);
 
 // Return network interface.
-void *mcc_platform_get_network_interface();
+void *mcc_platform_get_network_interface(void);
 
 // Format storage
 int mcc_platform_reformat_storage(void);
@@ -49,17 +49,20 @@ int mcc_platform_reset_storage(void);
 
 // initialize common details for storage for storing KCM data etc.
 // creates default folders, reformat.
-int mcc_platform_storage_init();
+int mcc_platform_storage_init(void);
 
 // initialize common details for fcc.
 // reset storage to default if required.
-int mcc_platform_fcc_init();
+int mcc_platform_fcc_init(void);
+
+// reverse the resource allocations done by mcc_platform_fcc_init()
+void mcc_platform_fcc_finalize(void);
 
 // Wait
 void mcc_platform_do_wait(int timeout_ms);
 
 // for printing sW build info
-void mcc_platform_sw_build_info();
+void mcc_platform_sw_build_info(void);
 
 /*!
  * @brief mcc_platform_run_program - Start the OS with the main function

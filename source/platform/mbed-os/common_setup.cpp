@@ -26,14 +26,34 @@
 
 #include "mbed.h"
 #include "common_setup.h"
+#include "common_config.h"
+
+// This is for single or dual partition mode. This is supposed to be used with storage for data e.g. SD card.
+// Enable by 1/disable by 0
+#ifndef MCC_PLATFORM_PARTITION_MODE
+#define MCC_PLATFORM_PARTITION_MODE 1
+#endif
+
+// Set to 1 for enabling automatic partitioning storage if required. This is effective only if MCC_PLATFORM_PARTITION_MODE is defined to 1.
+// Partioning will be triggered only if initialization of available partitions fail.
+#ifndef MCC_PLATFORM_AUTO_PARTITION
+#define MCC_PLATFORM_AUTO_PARTITION 0
+#endif
+
+// Set to 1 for enable/0 for disable usage of easy connect. This is effective for mbed-os build.
+#ifndef MCC_PLATFORM_USE_EASY_CONNECT
+#define MCC_PLATFORM_USE_EASY_CONNECT 1
+#endif
+
+#if (MCC_PLATFORM_USE_EASY_CONNECT == 1)
 // these defines needed before including easy connect
 #define MBED_CONF_APP_ESP8266_TX MBED_CONF_APP_WIFI_TX
 #define MBED_CONF_APP_ESP8266_RX MBED_CONF_APP_WIFI_RX
 #include "easy-connect/easy-connect.h"
+#endif
 #include "pal.h"
-#include "common_config.h"
 #include "storage-selector/storage-selector.h"
-#if (MBED_CONF_STORAGE_SELECTOR_STORAGE  == SD_CARD)
+#if (MCC_PLATFORM_PARTITION_MODE == 1)
 #include "MBRBlockDevice.h"
 
 #ifndef PRIMARY_PARTITION_NUMBER
@@ -71,21 +91,26 @@
 #ifndef MOUNT_POINT_SECONDARY
 #define MOUNT_POINT_SECONDARY PAL_FS_MOUNT_POINT_SECONDARY
 #endif
-#endif
+
+// for checking that PRIMARY_PARTITION_SIZE and SECONDARY_PARTITION_SIZE do not overflow.
+static bd_size_t mcc_platform_storage_size = 0;
+#endif // MCC_PLATFORM_PARTITION_MODE
 
 
 /* local help functions. */
 static int mcc_platform_reformat_partition(FileSystem *fs, BlockDevice* part);
 static int mcc_platform_test_filesystem(FileSystem *fs, BlockDevice* part);
+#if (MCC_PLATFORM_PARTITION_MODE == 1)
 static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** part, int number_of_partition, const char* mount_point);
 #if (MCC_PLATFORM_AUTO_PARTITION == 1)
 static int mcc_platform_create_partitions();
+#endif
 #endif
 
 ////////////////////////////////////////
 // PLATFORM SPECIFIC DEFINES & FUNCTIONS
 ////////////////////////////////////////
-static NetworkInterface* network_interface;
+static NetworkInterface* network_interface=NULL;
 
 // Some boards specific sanity checks, better stop early.
 #if defined(TARGET_UBLOX_EVK_ODIN_W2) && defined(DEVICE_EMAC) && defined(MBED_CONF_APP_NETWORK_INTERFACE) && defined (ETHERNET) && (MBED_CONF_APP_NETWORK_INTERFACE == ETHERNET)
@@ -100,10 +125,11 @@ static BlockDevice* bd = NULL;
 BlockDevice* arm_uc_blockdevice = storage_selector();
 #endif
 
-#if (MBED_CONF_STORAGE_SELECTOR_STORAGE  == SD_CARD)
-#if (NUMBER_OF_PARTITIONS > 0)
+// blockdevice and filesystem pointers for storage
 static BlockDevice *part1 = NULL;
 static FileSystem *fs1 = NULL;
+
+#if (MCC_PLATFORM_PARTITION_MODE == 1)
 #if (NUMBER_OF_PARTITIONS == 2)
 static BlockDevice *part2 = NULL;
 static FileSystem *fs2 = NULL;
@@ -111,21 +137,31 @@ static FileSystem *fs2 = NULL;
 #if (NUMBER_OF_PARTITIONS > 2)
 #error "Invalid number of partitions!!!"
 #endif
-#endif
-#endif
+#endif // MCC_PLATFORM_PARTITION_MODE
 
 ////////////////////////////////
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
-int mcc_platform_init_connection() {
-    network_interface = easy_connect(true);
+int mcc_platform_init_connection(void) {
+#if (MCC_PLATFORM_USE_EASY_CONNECT == 1)
+// Perform number of retries if network init fails.
+#ifndef MCC_PLATFORM_CONNECTION_RETRY_COUNT
+#define MCC_PLATFORM_CONNECTION_RETRY_COUNT 3
+#endif
+    int count = 0;
+    do {
+       network_interface = easy_connect(true);
+       count++;
+    }
+    while ((network_interface == NULL) && (count < MCC_PLATFORM_CONNECTION_RETRY_COUNT));
+#endif
     if(network_interface == NULL) {
         return -1;
     }
     return 0;
 }
 
-int mcc_platform_close_connection() {
+int mcc_platform_close_connection(void) {
 
     if (network_interface) {
         const nsapi_error_t err = network_interface->disconnect();
@@ -137,7 +173,7 @@ int mcc_platform_close_connection() {
     return -1;
 }
 
-void* mcc_platform_get_network_interface() {
+void* mcc_platform_get_network_interface(void) {
     return network_interface;
 }
 
@@ -154,7 +190,7 @@ static int mcc_platform_reformat_partition(FileSystem *fs, BlockDevice* part) {
     return status;
 }
 
-int mcc_platform_reformat_storage() {
+int mcc_platform_reformat_storage(void) {
    int status = -1;
 
    printf("Reformat the storage.\n");
@@ -162,13 +198,13 @@ int mcc_platform_reformat_storage() {
 #if (NUMBER_OF_PARTITIONS > 0)
         status = mcc_platform_reformat_partition(fs1, part1);
         if (status != 0) {
-            printf("Formating primary partition failed with 0x%X !!!\n", status);
+            printf("Formatting primary partition failed with 0x%X !!!\n", status);
             return status;
         }
 #if (NUMBER_OF_PARTITIONS == 2)
         status = mcc_platform_reformat_partition(fs2, part2);
         if (status != 0) {
-            printf("Formating secondary partition failed with 0x%X !!!\n", status);
+            printf("Formatting secondary partition failed with 0x%X !!!\n", status);
             return status;
         }
 #endif
@@ -199,6 +235,7 @@ static int mcc_platform_test_filesystem(FileSystem *fs, BlockDevice* part) {
     return status;
 }
 
+#if (MCC_PLATFORM_PARTITION_MODE == 1)
 // bd must be initialized before this function.
 static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** part, int number_of_partition, const char* mount_point) {
     int status;
@@ -224,33 +261,41 @@ static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** 
             return status;
         }
 
-        printf("Formating partition %d ...\n", number_of_partition);
+        printf("Formatting partition %d ...\n", number_of_partition);
         status = mcc_platform_reformat_partition(&(**fs), &(**part));
         if (status != 0) {
-            printf("Formating partition %d fail 0x%X !!!\n", number_of_partition, status);
+            printf("Formatting partition %d failed with 0x%X !!!\n", number_of_partition, status);
             return status;
         }
     }
 
     status = mcc_platform_test_filesystem(&(**fs), &(**part));
     if (status != 0) {
-        printf("Formating partition %d ...\n", number_of_partition);
+        printf("Formatting partition %d ...\n", number_of_partition);
         status = mcc_platform_reformat_partition(&(**fs), &(**part));
         if (status != 0) {
-            printf("Formating partition %d fail 0x%X !!!\n", number_of_partition, status);
+            printf("Formatting partition %d failed with 0x%X !!!\n", number_of_partition, status);
             return status;
         }
     }
 
     return status;
 }
+#endif
 
 // create partitions, initialize and mount partitions
-#if (MCC_PLATFORM_AUTO_PARTITION == 1)
-static int mcc_platform_create_partitions() {
+#if ((MCC_PLATFORM_PARTITION_MODE == 1) && (MCC_PLATFORM_AUTO_PARTITION == 1))
+static int mcc_platform_create_partitions(void) {
     int status;
 
 #if (NUMBER_OF_PARTITIONS > 0)
+    if (mcc_platform_storage_size < PRIMARY_PARTITION_SIZE) {
+        printf("mcc_platform_create_partitions PRIMARY_PARTITION_SIZE too large!!! Storage's size is %" PRIu64 \
+                " and PRIMARY_PARTITION_SIZE is %" PRIu64 "\n",
+                (uint64_t)mcc_platform_storage_size, (uint64_t)PRIMARY_PARTITION_SIZE);
+        assert(0);
+    }
+
     status = MBRBlockDevice::partition(bd, PRIMARY_PARTITION_NUMBER, 0x83, PRIMARY_PARTITION_START, PRIMARY_PARTITION_START + PRIMARY_PARTITION_SIZE);
     printf("Creating primary partition ...\n");
     if (status != 0) {
@@ -264,6 +309,14 @@ static int mcc_platform_create_partitions() {
         return status;
     }
 #if (NUMBER_OF_PARTITIONS == 2)
+    // use cast (uint64_t) for fixing compile warning.
+    if (mcc_platform_storage_size < ((uint64_t)PRIMARY_PARTITION_SIZE + (uint64_t)SECONDARY_PARTITION_SIZE)) {
+        printf("mcc_platform_create_partitions (PRIMARY_PARTITION_SIZE+SECONDARY_PARTITION_SIZE) too large!!! Storage's size is %" PRIu64 \
+                " and (PRIMARY_PARTITION_SIZE+SECONDARY_PARTITION_SIZE) %" PRIu64 "\n",
+                (uint64_t)mcc_platform_storage_size, (uint64_t)(PRIMARY_PARTITION_SIZE+SECONDARY_PARTITION_SIZE));
+        assert(0);
+    }
+
     // use cast (uint64_t) for fixing compile warning.
     status = MBRBlockDevice::partition(bd, SECONDARY_PARTITION_NUMBER, 0x83, SECONDARY_PARTITION_START, (uint64_t) SECONDARY_PARTITION_START + (uint64_t) SECONDARY_PARTITION_SIZE);
     printf("Creating secondary partition ...\n");
@@ -281,12 +334,12 @@ static int mcc_platform_create_partitions() {
 #if (NUMBER_OF_PARTITIONS > 2)
 #error "Invalid number of partitions!!!"
 #endif
-#endif
+#endif // (NUMBER_OF_PARTITIONS > 0)
     return status;
 }
-#endif
+#endif // ((MCC_PLATFORM_PARTITION_MODE == 1) && (MCC_PLATFORM_AUTO_PARTITION == 1))
 
-int mcc_platform_storage_init() {
+int mcc_platform_storage_init(void) {
     static bool init_done=false;
     int status=0;
 
@@ -300,10 +353,15 @@ int mcc_platform_storage_init() {
                 return -1;
             }
 
+#if (MCC_PLATFORM_PARTITION_MODE == 1)
+            // store partition size
+            mcc_platform_storage_size = bd->size();
+#endif
+            printf("mcc_platform_storage_init() - bd->size() = %llu\n", bd->size());
             printf("mcc_platform_storage_init() - BlockDevice init OK.\n");
         }
 
-#if (MBED_CONF_STORAGE_SELECTOR_STORAGE  == SD_CARD)
+#if (MCC_PLATFORM_PARTITION_MODE == 1)
 #if (NUMBER_OF_PARTITIONS > 0)
         status = mcc_platform_init_and_mount_partition(&fs1, &part1, PRIMARY_PARTITION_NUMBER, ((const char*) MOUNT_POINT_PRIMARY+1));
         if (status != 0) {
@@ -331,12 +389,24 @@ int mcc_platform_storage_init() {
             return status;
 #endif
         }
-#endif
+#endif // (NUMBER_OF_PARTITIONS == 2)
 #if (NUMBER_OF_PARTITIONS > 2)
 #error "Invalid number of partitions!!!"
 #endif
-#endif
-#endif
+#endif // (NUMBER_OF_PARTITIONS > 0)
+#else
+    fs1 = filesystem_selector();  /* this also mount fs. */
+    part1 = bd;                   /* required for mcc_platform_reformat_storage */
+    status = mcc_platform_test_filesystem(fs1, bd);
+    if (status != 0) {
+        printf("Formatting ...\n");
+        status = mcc_platform_reformat_partition(fs1, bd);
+        if (status != 0) {
+            printf("Formatting failed with 0x%X !!!\n", status);
+            return status;
+        }
+    }
+#endif // MCC_PLATFORM_PARTITION_MODE
         init_done=true;
     }
     else {
@@ -346,7 +416,7 @@ int mcc_platform_storage_init() {
     return status;
 }
 
-int mcc_platform_init()
+int mcc_platform_init(void)
 {
     return 0;
 }
@@ -363,7 +433,7 @@ int mcc_platform_run_program(main_t mainFunc)
     return 1;
 }
 
-void mcc_platform_sw_build_info() {
+void mcc_platform_sw_build_info(void) {
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
     
     // The Mbed OS' master branch does not define the version numbers at all, so we need

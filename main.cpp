@@ -22,6 +22,10 @@
 #endif
 #include "application_init.h"
 #include "common_button_and_led.h"
+#include "blinky.h"
+
+// event based LED blinker, controlled via pattern_resource
+static Blinky blinky;
 
 static void main_application(void);
 
@@ -33,35 +37,27 @@ int main(void)
 // Pointers to the resources that will be created in main_application().
 static M2MResource* button_res;
 static M2MResource* pattern_res;
-static M2MResource* blink_res;
 
 // Pointer to mbedClient, used for calling close function.
 static SimpleM2MClient *client;
 
 void pattern_updated(const char *)
- {
+{
     printf("PUT received, new value: %s\n", pattern_res->get_value_string().c_str());
 }
 
-void blink_callback(void *) {
+void blink_callback(void *)
+{
     String pattern_string = pattern_res->get_value_string();
     const char *pattern = pattern_string.c_str();
     printf("LED pattern = %s\n", pattern);
+
     // The pattern is something like 500:200:500, so parse that.
     // LED blinking is done while parsing.
-    mcc_platform_toggle_led();
-    while (*pattern != '\0') {
-        // Wait for requested time.
-        mcc_platform_do_wait(atoi(pattern));
-        mcc_platform_toggle_led();
-        // Search for next value.
-        pattern = strchr(pattern, ':');
-        if(!pattern) {
-            break; // while
-        }
-        pattern++;
+    const bool restart_pattern = false;
+    if (blinky.start((char*)pattern_res->value(), pattern_res->value_length(), restart_pattern) == false) {
+        printf("out of memory error\n");
     }
-    mcc_platform_led_off();
 }
 
 void button_notification_status_callback(const M2MBase& object, const NoticationDeliveryStatus status)
@@ -148,7 +144,7 @@ void main_application(void)
                                M2MBase::GET_PUT_ALLOWED, "500:500:500:500", false, (void*)pattern_updated, NULL);
 
     // Create resource for starting the led blinking. Path of this resource will be: 3201/0/5850.
-    blink_res = mbedClient.add_cloud_resource(3201, 0, 5850, "blink_resource", M2MResourceInstance::STRING,
+    mbedClient.add_cloud_resource(3201, 0, 5850, "blink_resource", M2MResourceInstance::STRING,
                              M2MBase::POST_ALLOWED, "", false, (void*)blink_callback, NULL);
 
     // Create resource for unregistering the device. Path of this resource will be: 5000/0/1.

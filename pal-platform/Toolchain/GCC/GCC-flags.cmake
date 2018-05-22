@@ -1,5 +1,5 @@
 #################################################################################
-#  Copyright 2016, 2017 ARM Ltd.
+#  Copyright 2016-2018 ARM Ltd.
 #  
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 #################################################################################
 
 INCLUDE(CMakeForceCompiler)
-
 
 macro(SET_COMPILER_DBG_RLZ_FLAG flag value)
     SET(${flag}_DEBUG "${${flag}_DEBUG} ${value}")
@@ -52,20 +51,13 @@ SET_COMPILER_DBG_RLZ_FLAG (CMAKE_ASM_FLAGS "-fno-builtin")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_ASM_FLAGS "-mapcs")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_ASM_FLAGS "-std=c99")
 
-
 # Debug specific
 SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
 if (PAL_GCOV_SUPPORT)
     SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0  -fprofile-arcs -ftest-coverage")
 endif ()
-# Board specific
-
-# OS specific
 
 # Board specific
-
-
-
 
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_C_FLAGS "-Wall")
 # Board specific
@@ -94,7 +86,6 @@ SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DNDEBUG")
 SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
 ######################################
 
-
 ########### LINKER FLAGS  ###########
 #
 #
@@ -106,10 +97,6 @@ SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -g")
 if (PAL_GCOV_SUPPORT)
     SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -g -O0 -lgcov -fprofile-arcs")
 endif ()
-
-
-
-
 
 ########### RELEASE ###########
 
@@ -131,12 +118,6 @@ SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "-ffreestanding")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "-fno-builtin")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "-Xlinker")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "--gc-sections")
-#SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "-Xlinker")
-#SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "-static")
-#SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "-Xlinker")
-#SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "-z")
-#SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "-Xlinker")
-#SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "muldefs")
 
 if (PAL_MEMORY_STATISTICS)
 	SET_COMPILER_DBG_RLZ_FLAG (CMAKE_EXE_LINKER_FLAGS "-Wl,--wrap=malloc")

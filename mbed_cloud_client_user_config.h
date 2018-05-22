@@ -27,7 +27,6 @@
 #ifdef __FREERTOS__
     #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE       512
 #else
-    #define MBED_CLOUD_CLIENT_SUPPORT_UPDATE
     #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE       1024
 #endif
 

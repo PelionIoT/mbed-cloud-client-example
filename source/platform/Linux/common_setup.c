@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -46,7 +47,7 @@ int mcc_platform_init_connection() {
 }
 
 int mcc_platform_close_connection() {
-    network = NULL;
+    network_interface = NULL;
     return 0;
 }
 
@@ -118,9 +119,34 @@ int mcc_platform_storage_init(void)
     return 0;
 }
 
+
 int mcc_platform_init()
 {
-    return 0;
+    int err;
+
+    // The current PAL side is now using a realtime signal for the timer code.
+    // All the threads need to have that signal blocked to avoid default
+    // signal handlers catching the signal.
+    // The pal_init() called by MbedCloudClient will setup the current
+    // thread's signals correctly, but all the threads created before that
+    // need this setup.
+    // Note: this is needed due to mcc_platform_init_button_and_led()
+    // which is creating a thread during setup. If the client code is not
+    // creating its own threads before MbedCloudClient construction, this
+    // preparation is not needed.
+    // Use ifdef to keep code compiling even with older versions,
+    // where the masking is not needed.
+#ifdef PAL_TIMER_SIGNAL
+    sigset_t blocked;
+
+    sigemptyset(&blocked);
+    sigaddset(&blocked, PAL_TIMER_SIGNAL);
+
+    err = pthread_sigmask(SIG_BLOCK, &blocked, NULL);
+#else
+    err = 0;
+#endif
+    return err;
 }
 
 int mcc_platform_reformat_storage(void)
@@ -129,7 +155,7 @@ int mcc_platform_reformat_storage(void)
 // to do:
 // PAL_FS_MOUNT_POINT_PRIMARY 
 // PAL_FS_MOUNT_POINT_SECONDARY 
-
+    printf("mcc_platform_reformat_storage does not support Linux!!!\n");
     return 0;
 }
 

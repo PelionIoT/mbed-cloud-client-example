@@ -20,9 +20,12 @@
 
 #include "common_config.h"
 #include "common_button_and_led.h"
+
 #include <pthread.h>
 #include <signal.h>
+#include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #if PLATFORM_ENABLE_BUTTON
 static volatile int button_pressed = 0;
