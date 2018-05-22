@@ -33,10 +33,5 @@
 #ifndef RESET_STORAGE
 #define RESET_STORAGE 0
 #endif
-
-#ifndef MCC_PLATFORM_AUTO_PARTITION
-#define MCC_PLATFORM_AUTO_PARTITION 0
-#endif
-
 #endif /* COMMON_CONFIG_H */ 
 

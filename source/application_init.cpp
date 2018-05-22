@@ -36,7 +36,7 @@ static bool application_init_mbed_trace(void)
     }
 
     // Initialize mbed trace
-    mbed_trace_init();
+    (void) mbed_trace_init();
     mbed_trace_mutex_wait_function_set(mbed_trace_helper_mutex_wait);
     mbed_trace_mutex_release_function_set(mbed_trace_helper_mutex_release);
 

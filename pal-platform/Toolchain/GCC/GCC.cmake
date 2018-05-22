@@ -1,6 +1,6 @@
 
 #################################################################################
-#  Copyright 2016, 2017 ARM Ltd.
+#  Copyright 2016-2018 ARM Ltd.
 #  
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@ INCLUDE(CMakeForceCompiler)
 
 #This file defines needed options for native GCC compiler.
 
-
-######### Configure all Options heere ##########
+######### Configure all Options here ##########
 ################################################
 
 # TOOLCHAIN EXTENSION
@@ -33,17 +32,14 @@ ENDIF()
 # EXECUTABLE EXTENSION
 SET (CMAKE_EXECUTABLE_SUFFIX "")
 
-
 # TOOLCHAIN_DIR AND NANO LIBRARY
 SET(TOOLCHAIN_DIR $ENV{GCC_DIR})
 STRING(REGEX REPLACE "\\\\" "/" TOOLCHAIN_DIR "${TOOLCHAIN_DIR}")
 
 IF(NOT TOOLCHAIN_DIR)
-    MESSAGE("using /usr as basedir for toolchanin. Please set GCC_DIR if otherwise needed")
     set(TOOLCHAIN_DIR "/usr")
 ENDIF()
 
-MESSAGE(STATUS "TOOLCHAIN_DIR: " ${TOOLCHAIN_DIR})
 
 # TARGET_TRIPLET - none in the case of native compilation
 SET(TARGET_TRIPLET "")
@@ -52,6 +48,10 @@ SET(TOOLCHAIN_BIN_DIR ${TOOLCHAIN_DIR}/bin)
 SET(TOOLCHAIN_INC_DIR ${TOOLCHAIN_DIR}/include)
 SET(TOOLCHAIN_LIB_DIR ${TOOLCHAIN_DIR}/lib)
 
+MESSAGE(STATUS "TOOLCHAIN_DIR: " ${TOOLCHAIN_DIR})
+MESSAGE(STATUS "TOOLCHAIN_BIN_DIR: " ${TOOLCHAIN_BIN_DIR})
+MESSAGE(STATUS "TOOLCHAIN_INC_DIR: " ${TOOLCHAIN_INC_DIR})
+MESSAGE(STATUS "TOOLCHAIN_LIB_DIR: " ${TOOLCHAIN_LIB_DIR})
 SET(CMAKE_SYSTEM_NAME Generic)
 #SET(CMAKE_SYSTEM_PROCESSOR arm)
 
@@ -68,7 +68,6 @@ SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 " CACHE INTERNAL "cx
 SET(CMAKE_ASM_FLAGS_RELEASE "${CMAKE_ASM_FLAGS_RELEASE}" CACHE INTERNAL "asm compiler flags release")
 SET(CMAKE_EXE_LINKER_FLAGS_RELESE "${CMAKE_EXE_LINKER_FLAGS_RELESE}" CACHE INTERNAL "linker flags release")
 
-
 SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g" CACHE INTERNAL "c compiler flags debug")
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g" CACHE INTERNAL "cxx compiler flags debug")
 SET(CMAKE_ASM_FLAGS_DEBUG "${CMAKE_ASM_FLAGS_DEBUG} -g" CACHE INTERNAL "asm compiler flags debug")
@@ -81,51 +80,15 @@ SET(CMAKE_EXE_LINKER_FLAGS_RELESE "${CMAKE_EXE_LINKER_FLAGS_RELESE}" CACHE INTER
 
 SET(TOOLCHAIN_FLAGS_FILE "${CMAKE_SOURCE_DIR}/../pal-platform/Toolchain/GCC/GCC-flags.cmake" CACHE INTERNAL "linker flags file")
 
-
-########### COMPILER FLAGS  ###########
-#
-#######################################
-
-########### DEBUG ###########
-
-
-# Debug specific
-
-
-# Board specific
-
-# OS specific
-
-# Board specific
-
-
-
-
-########### LINKER FLAGS  ###########
-#
-#
-#####################################
-
 ########### DEBUG ###########
 # Debug specific
 SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -g")
-
-
-
-
 #########
-if (0)
-SET(CMAKE_FIND_ROOT_PATH ${TOOLCHAIN_DIR}/${TARGET_TRIPLET} ${EXTRA_FIND_PATH})
-SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-endif() # comment end
+
 SET(CMAKE_FIND_ROOT_PATH ${TOOLCHAIN_DIR}/${TARGET_TRIPLET} ${EXTRA_FIND_PATH})
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
-
-
 
 MESSAGE(STATUS "BUILD_TYPE: " ${CMAKE_BUILD_TYPE})
 

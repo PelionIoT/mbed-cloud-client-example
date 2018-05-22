@@ -9,8 +9,12 @@
         "PLATFORM_ENABLE_LED=1"
     ],
      "config": {
+        "partition_mode": {
+            "help": "Macro for single or dual partition mode. This is supposed to be used with storage storage for data e.g. SD card. This enabled by default.",
+            "macro_name": "MCC_PLATFORM_PARTITION_MODE"
+        },
         "auto_partition": {
-            "help": "Optional macro automatic SD card partitioning if required. Partioning will be triggered only if initialization of available partitions fail",
+            "help": "Optional macro automatic SD card partitioning if required. Partioning will be triggered only if initialization of available partitions fail. This requires partition_mode to be enabled.",
             "macro_name": "MCC_PLATFORM_AUTO_PARTITION"
         },
         "pal_number_of_partition": {

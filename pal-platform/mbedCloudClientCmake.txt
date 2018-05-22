@@ -1,6 +1,5 @@
-
 #################################################################################
-#  Copyright 2016, 2017 ARM Ltd.
+#  Copyright 2016-2018 ARM Ltd.
 #  
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -52,13 +51,8 @@ if (EXTERNAL_DEFINE_FILE)
     include(${EXTERNAL_DEFINE_FILE})
 ENDIF()
 
-
-
 INCLUDE(CMakeForceCompiler)
 cmake_minimum_required (VERSION 2.6)
-#include (${CMAKE_TOOLCHAIN_FILE})
-
-
 
 # The version number.
 set (Test_VERSION_MAJOR 1)
@@ -90,8 +84,6 @@ message ("path to common.cmake is ${CMAKE_COMMON}")
 include (${CMAKE_COMMON})
 #init compilation file
 file(WRITE "${COMPILATION_DETAILS_FILE_NAME}" "")
-#include (${CMAKE_PLATFORM})
-
 
 include_directories("${PROJECT_BINARY_DIR}")
 

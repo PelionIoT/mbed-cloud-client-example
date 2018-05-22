@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-///////////
-// INCLUDES
-///////////
-#include <stdio.h>
 #include "common_setup.h"
 #include "common_config.h"
 #include "factory_configurator_client.h"
+
+#include <stdio.h>
 
 int mcc_platform_reset_storage(void)
 {
@@ -28,20 +26,39 @@ int mcc_platform_reset_storage(void)
     int status = fcc_storage_delete();
     if (status != FCC_STATUS_SUCCESS) {
         printf("Failed to delete storage - %d\n", status);
+// Flagging here because of reformat contains only implementation for mbed-os.
+#ifdef TARGET_LIKE_MBED
+        status = mcc_platform_reformat_storage();
+        if (status == 0) {
+            printf("Storage reformatted, try reset storage again.\n");
+            // Try to reset storage again after format.
+            // It is required to run fcc_storage_delete() after format.
+            status = fcc_storage_delete();
+            if (status != FCC_STATUS_SUCCESS) {
+                printf("Failed to delete storage - %d\n", status);
+            }
+        }
+#endif
     }
     return status;
 }
 
-int mcc_platform_fcc_init() {
+int mcc_platform_fcc_init(void)
+{
     int status = fcc_init();
-    if(status != FCC_STATUS_SUCCESS) {
+    if (status != FCC_STATUS_SUCCESS) {
         printf("fcc_init failed with status %d! - exit\n", status);
         return status;
     }
 
 #if RESET_STORAGE
-    status=mcc_platform_reset_storage();
+    status = mcc_platform_reset_storage();
 #endif
 
     return status;
+}
+
+void mcc_platform_fcc_finalize(void)
+{
+    fcc_finalize();
 }
