@@ -22,6 +22,12 @@
             "update-client.bootloader-details" : "0x00007188",
             "update-client.application-details": "(40*1024)"
         },
+        "DISCO_F413ZH": {
+            "network-interface": "WIFI_ISM43362"
+        },
+        "DISCO_L475VG_IOT01A": {
+            "network-interface": "WIFI_ISM43362"
+        },
         "NUCLEO_F429ZI": {
             "target.mbed_app_start"            : "0x08010400",
             "update-client.bootloader-details" : "0x080078CC",
@@ -36,8 +42,16 @@
     },
     "config": {
         "network-interface": {
-            "help": "Options are ETHERNET, WIFI_ESP8266, WIFI_ODIN",
+            "help": "Options are ETHERNET, WIFI_ESP8266, WIFI_ISM43362, WIFI_ODIN",
             "value": "ETHERNET"
+        },
+        "wifi-ssid": {
+            "help": "WiFi SSID",
+            "value": "\"SSID\""
+        },
+        "wifi-password": {
+            "help": "WiFi Password",
+            "value": "\"Password\""
         },
         "developer-mode": {
             "help": "Enable Developer mode to skip Factory enrollment",
