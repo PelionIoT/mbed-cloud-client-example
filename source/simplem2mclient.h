@@ -27,6 +27,8 @@
 #include "mbed-client/m2minterface.h"
 #include "key_config_manager.h"
 #include "resource.h"
+#include "application_init.h"
+#include "factory_configurator_client.h"
 
 #ifdef MBED_CLOUD_CLIENT_USER_CONFIG_FILE
 #include MBED_CLOUD_CLIENT_USER_CONFIG_FILE
@@ -36,7 +38,7 @@
 #include "update_ui_example.h"
 #endif
 
-#ifdef MBED_HEAP_STATS_ENABLED
+#if defined (MBED_HEAP_STATS_ENABLED) || (MBED_STACK_STATS_ENABLED)
 #include "memory_tests.h"
 #endif
 
@@ -91,7 +93,7 @@ public:
 
     void client_registered() {
         _registered = true;
-        printf("\nClient registered\n\n");
+        printf("\nClient registered\n");
         static const ConnectorClientEndpointInfo* endpoint = NULL;
         if (endpoint == NULL) {
             endpoint = _cloud_client.endpoint_info();
@@ -107,6 +109,9 @@ public:
 #ifdef MBED_HEAP_STATS_ENABLED
         print_heap_stats();
 #endif
+#ifdef MBED_STACK_STATS_ENABLED
+        print_stack_statistics();
+#endif
     }
 
     void client_unregistered() {
@@ -115,6 +120,9 @@ public:
         printf("\nClient unregistered - Exiting application\n\n");
 #ifdef MBED_HEAP_STATS_ENABLED
         print_heap_stats();
+#endif
+#ifdef MBED_STACK_STATS_ENABLED
+        print_stack_statistics();
 #endif
     }
 
@@ -220,6 +228,9 @@ public:
         // This code is activated only if MBED_HEAP_STATS_ENABLED is defined.
         create_m2mobject_test_set(_obj_list);
 #endif
+#ifdef MBED_STACK_STATS_ENABLED
+        print_stack_statistics();
+#endif
         _cloud_client.add_objects(_obj_list);
 
         // Start registering to the cloud.
@@ -227,8 +238,11 @@ public:
 
         // Print memory statistics if the MBED_HEAP_STATS_ENABLED is defined.
 #ifdef MBED_HEAP_STATS_ENABLED
-            printf("Register being called\r\n");
-            print_heap_stats();
+        printf("Register being called\r\n");
+        print_heap_stats();
+#endif
+#ifdef MBED_STACK_STATS_ENABLED
+        print_stack_statistics();
 #endif
     }
 

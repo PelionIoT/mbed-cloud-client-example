@@ -30,5 +30,10 @@
 
 bool application_init(void);
 
+/*
+ * Prints the FCC status and corresponding error description, if any.
+ */
+void print_fcc_status(int fcc_status);
+
 #endif //APPLICATION_INIT_H
 
