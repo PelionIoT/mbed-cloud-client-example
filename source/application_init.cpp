@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2017 ARM Ltd.
+// Copyright 2016-2018 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -22,10 +22,127 @@
 #include "factory_configurator_client.h"
 #include "common_setup.h"
 #include "common_button_and_led.h"
-#ifdef MBED_HEAP_STATS_ENABLED
+#if defined (MBED_HEAP_STATS_ENABLED) || (MBED_STACK_STATS_ENABLED)
 #include "memory_tests.h"
 #endif
 #include "application_init.h"
+
+void print_fcc_status(int fcc_status)
+{
+    const char *error;
+    switch(fcc_status) {
+        case FCC_STATUS_SUCCESS:
+            return;
+        case FCC_STATUS_ERROR :
+            error = "Operation ended with an unspecified error.";
+            break;
+        case FCC_STATUS_MEMORY_OUT:
+            error = "An out-of-memory condition occurred.";
+            break;
+        case FCC_STATUS_INVALID_PARAMETER:
+            error = "A parameter provided to the function was invalid.";
+            break;
+        case FCC_STATUS_STORE_ERROR:
+            error = "Storage internal error.";
+            break;
+        case FCC_STATUS_INTERNAL_ITEM_ALREADY_EXIST:
+            error = "Current item already exists in storage.";
+            break;
+        case FCC_STATUS_CA_ERROR:
+            error = "CA Certificate already exist in storage (currently only bootstrap CA)";
+            break;
+        case FCC_STATUS_ROT_ERROR:
+            error = "ROT already exist in storage";
+            break;
+        case FCC_STATUS_ENTROPY_ERROR:
+            error = "Entropy already exist in storage";
+            break;
+        case FCC_STATUS_FACTORY_DISABLED_ERROR:
+            error = "FCC flow was disabled - denial of service error.";
+            break;
+        case FCC_STATUS_INVALID_CERTIFICATE:
+            error = "Invalid certificate found.";
+            break;
+        case FCC_STATUS_INVALID_CERT_ATTRIBUTE:
+            error = "Operation failed to get an attribute.";
+            break;
+        case FCC_STATUS_INVALID_CA_CERT_SIGNATURE:
+            error = "Invalid ca signature.";
+            break;
+        case FCC_STATUS_EXPIRED_CERTIFICATE:
+            error = "LWM2M or Update certificate is expired.";
+            break;
+        case FCC_STATUS_INVALID_LWM2M_CN_ATTR:
+            error = "Invalid CN field of certificate.";
+            break;
+        case FCC_STATUS_KCM_ERROR:
+            error = "KCM basic functionality failed.";
+            break;
+        case FCC_STATUS_KCM_STORAGE_ERROR:
+            error = "KCM failed to read, write or get size of item from/to storage.";
+            break;
+        case FCC_STATUS_KCM_FILE_EXIST_ERROR:
+            error = "KCM tried to create existing storage item.";
+            break;
+        case FCC_STATUS_KCM_CRYPTO_ERROR:
+            error = "KCM returned error upon cryptographic check of an certificate or key.";
+            break;
+        case FCC_STATUS_NOT_INITIALIZED:
+            error = "FCC failed or did not initialized.";
+            break;
+        case FCC_STATUS_BUNDLE_ERROR:
+            error = "Protocol layer general error.";
+            break;
+        case FCC_STATUS_BUNDLE_RESPONSE_ERROR:
+            error = "Protocol layer failed to create response buffer.";
+            break;
+        case FCC_STATUS_BUNDLE_UNSUPPORTED_GROUP:
+            error = "Protocol layer detected unsupported group was found in a message.";
+            break;
+        case FCC_STATUS_BUNDLE_INVALID_GROUP:
+            error = "Protocol layer detected invalid group in a message.";
+            break;
+        case FCC_STATUS_BUNDLE_INVALID_SCHEME:
+            error = "The scheme version of a message in the protocol layer is wrong.";
+            break;
+        case FCC_STATUS_ITEM_NOT_EXIST:
+            error = "Current item wasn't found in the storage";
+            break;
+        case FCC_STATUS_EMPTY_ITEM:
+            error = "Current item's size is 0";
+            break;
+        case FCC_STATUS_WRONG_ITEM_DATA_SIZE:
+            error = "Current item's size is different then expected";
+            break;
+        case FCC_STATUS_URI_WRONG_FORMAT:
+            error = "Current URI is different than expected.";
+            break;
+        case FCC_STATUS_FIRST_TO_CLAIM_NOT_ALLOWED:
+            error = "Can't use first to claim without bootstrap or with account ID";
+            break;
+        case FCC_STATUS_BOOTSTRAP_MODE_ERROR:
+            error = "Wrong value of bootstrapUse mode.";
+            break;
+        case FCC_STATUS_OUTPUT_INFO_ERROR:
+            error = "The process failed in output info creation.";
+            break;
+        case FCC_STATUS_WARNING_CREATE_ERROR:
+            error = "The process failed in output info creation.";
+            break;
+        case FCC_STATUS_UTC_OFFSET_WRONG_FORMAT:
+            error = "Current UTC is wrong.";
+            break;
+        case FCC_STATUS_CERTIFICATE_PUBLIC_KEY_CORRELATION_ERROR:
+            error = "Certificate's public key failed do not matches to corresponding private key";
+            break;
+        case FCC_STATUS_BUNDLE_INVALID_KEEP_ALIVE_SESSION_STATUS:
+            error = "The message status is invalid.";
+            break;
+        default:
+            error = "UNKNOWN";
+    }
+    printf("\nFactory Configurator Client [ERROR]: %s\r\n\n", error);
+}
 
 static bool application_init_mbed_trace(void)
 {
@@ -57,15 +174,18 @@ static bool application_init_verify_cloud_configuration()
     }
 #endif
     status = fcc_verify_device_configured_4mbed_cloud();
+    print_fcc_status(status);
     if (status != FCC_STATUS_SUCCESS) {
-        printf("Invalid or missing provisioning data!\n");
         return 1;
-    } 
+    }
     return 0;
 }
 
 static bool application_init_fcc(void)
 {
+#ifdef MBED_STACK_STATS_ENABLED
+    print_stack_statistics();
+#endif
     int status =  mcc_platform_fcc_init();
     if(status != FCC_STATUS_SUCCESS) {
         printf("fcc_init failed with status %d! - exit\n", status);
@@ -104,26 +224,19 @@ bool application_init(void)
         return false;
     }
 
-    if (mcc_platform_storage_init() != 0) {
-        printf("Failed to initialize storage\n" );
-        return false;
-    }
-
-    if(mcc_platform_init() != 0) {
-       printf("ERROR - platform_init() failed!\n");
-       return false;
-    }
-
     if(mcc_platform_init_button_and_led() != 0) {
        printf("ERROR - initButtonAndLed() failed!\n");
        return false;
     }
 
-    // Print some statistics of the object sizes and heap memory consumption
-    // if the MBED_HEAP_STATS_ENABLED is defined.
+    // Print some statistics of current heap memory consumption, useful for finding
+    // out where the memory goes.
 #ifdef MBED_HEAP_STATS_ENABLED
-    print_m2mobject_stats();
     print_heap_stats();
+#endif
+
+#ifdef MBED_STACK_STATS_ENABLED
+    print_stack_statistics();
 #endif
     printf("Start simple mbed Cloud Client\n");
 

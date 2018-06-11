@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2017 ARM Ltd.
+// Copyright 2016-2018 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,7 +19,7 @@
 
 #ifdef TARGET_LIKE_MBED
 
-#ifdef MBED_HEAP_STATS_ENABLED
+#if defined (MBED_HEAP_STATS_ENABLED) || (MBED_STACK_STATS_ENABLED)
 // used by print_heap_stats only
 #include "mbed_stats.h"
 #define __STDC_FORMAT_MACROS
@@ -45,7 +45,9 @@
 #include "mbed_stats.h"
 
 #include <assert.h>
+#endif
 
+#if defined (MBED_HEAP_STATS_ENABLED)
 void print_heap_stats()
 {
     mbed_stats_heap_t stats;
@@ -170,6 +172,9 @@ void print_m2mobject_stats()
     M2MSecurity *security = M2MInterfaceFactory::create_security(M2MSecurity::M2MServer);
     mbed_stats_heap_get(&stats);
     printf("M2MSecurity heap size: %" PRIu32 "\n", stats.current_size - initial);
+
+    // If the MbedCloudClient is already instantiated, this corrupts heap as it frees the
+    // singleton of M2MSecurity, which is still used by it. Use with care.
     M2MSecurity::delete_instance();
     mbed_stats_heap_get(&stats);
     if (initial != stats.current_size) {
@@ -213,5 +218,24 @@ void print_m2mobject_stats()
     }
     printf("*************************************\n\n");
 }
+
 #endif // MBED_HEAP_STATS_ENABLED
+#ifdef MBED_STACK_STATS_ENABLED
+void print_stack_statistics()
+{
+    printf("** MBED THREAD STASK STATS **\n");
+    int cnt = osThreadGetCount();
+    mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
+
+    if (stats) {
+        cnt = mbed_stats_stack_get_each(stats, cnt);
+        for (int i = 0; i < cnt; i++) {
+            printf("Thread: 0x%" PRIx32 ", Stack size: %" PRIu32 ", Max stack: %" PRIu32 "\r\n", stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
+        }
+
+        free(stats);
+    }
+    printf("*****************************\n\n");
+}
+#endif // MBED_STACK_STATS_ENABLED
 #endif // TARGET_LIKE_MBED

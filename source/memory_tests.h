@@ -40,4 +40,6 @@ void print_m2mobject_stats();
 
 void print_heap_stats();
 
+void print_stack_statistics();
+
 #endif // !__MEMORY_TESTS_H__

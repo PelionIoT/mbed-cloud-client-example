@@ -111,8 +111,35 @@ void factory_reset(void *)
 
 void main_application(void)
 {
+    // https://github.com/ARMmbed/sd-driver/issues/93 (IOTMORF-2327)
+    // SD-driver initialization can fails with bd->init() -5005. This wait will
+    // allow the board more time to initialize.
+#ifdef TARGET_LIKE_MBED
+    wait(2);
+#endif
     mcc_platform_sw_build_info();
     // run_application() will first initialize the program and then call main_application()
+
+    if (mcc_platform_storage_init() != 0) {
+        printf("Failed to initialize storage\n" );
+        return;
+    }
+
+    if(mcc_platform_init() != 0) {
+        printf("ERROR - platform_init() failed!\n");
+        return;
+    }
+
+    // Print some statistics of the object sizes and their heap memory consumption.
+    // NOTE: This *must* be done before creating MbedCloudClient, as the statistic calculation
+    // creates and deletes M2MSecurity and M2MDevice singleton objects, which are also used by
+    // the MbedCloudClient.
+#ifdef MBED_HEAP_STATS_ENABLED
+    print_m2mobject_stats();
+#endif
+
+    // SimpleClient is used for registering and unregistering resources to a server.
+    SimpleM2MClient mbedClient;
 
     // application_init() runs the following initializations:
     //  1. trace initialization
@@ -124,15 +151,15 @@ void main_application(void)
         return;
     }
 
-    // SimpleClient is used for registering and unregistering resources to a server.
-    SimpleM2MClient mbedClient;
-
     // Save pointer to mbedClient so that other functions can access it.
     client = &mbedClient;
 
 #ifdef MBED_HEAP_STATS_ENABLED
     printf("Client initialized\r\n");
     print_heap_stats();
+#endif
+#ifdef MBED_STACK_STATS_ENABLED
+    print_stack_statistics();
 #endif
 
     // Create resource for button count. Path of this resource will be: 3200/0/5501.
