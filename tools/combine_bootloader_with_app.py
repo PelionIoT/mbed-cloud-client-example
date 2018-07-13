@@ -133,45 +133,47 @@ def create_header(app_blob, firmwareVersion):
 
 
 def combine(bootloader_fn, app_fn, app_addr, hdr_addr, bootloader_addr, output_fn, version, no_bootloader):
-    ih = IntelHex()
-
+    # read bootloader
     bootloader_format = bootloader_fn.split('.')[-1]
-
-    # write the bootloader
+    bootloader = IntelHex()
     if not no_bootloader:
-        print("Using bootloader %s" % bootloader_fn)
         if bootloader_format == 'hex':
-            print("Loading bootloader from hex file.")
-            ih.fromfile(bootloader_fn, format=bootloader_format)
+            bootloader.fromfile(bootloader_fn, bootloader_format)
         elif bootloader_format == 'bin':
-            print("Loading bootloader to address 0x%08x." % bootloader_addr)
-            ih.loadbin(bootloader_fn, offset=bootloader_addr)
+            bootloader.loadbin(bootloader_fn, bootloader_addr)
         else:
             print('Bootloader format can only be .bin or .hex')
             exit(-1)
 
-    # write firmware header
+    # read application
     app_format=app_fn.split('.')[-1]
-    if app_format == 'bin':
-        with open(app_fn, 'rb') as fd:
-            app_blob = fd.read()
-    elif app_format == 'hex':
-        application = IntelHex(app_fn)
-        app_blob = application.tobinstr()
-    FirmwareHeader = create_header(app_blob, version)
-    print("Writing header to address 0x%08x." % hdr_addr)
-    ih.puts(hdr_addr, FirmwareHeader)
+    app = IntelHex()
+    if app_format == 'hex':
+        app.fromfile(app_fn, app_format)
+    elif app_format == 'bin':
+        app.loadbin(app_fn, app_addr)
+    else:
+        print('Application format can only be .bin or .hex')
+        exit(-1)
 
-    # write the application
-    if app_format == 'bin':
-        print("Loading application to address 0x%08x." % app_addr)
-        ih.loadbin(app_fn, offset=app_addr)
-    elif app_format == 'hex':
-        print("Loading application from hex file")
-        ih.fromfile(app_fn, format=app_format)
+    # create firmware header
+    header = IntelHex()
+    fw_header = create_header(app.tobinstr(), version)
+    header.puts(hdr_addr, fw_header)
 
-    # output to file
-    ih.tofile(output_fn, format=output_fn.split('.')[-1])
+    # combine
+    output_format = output_fn.split('.')[-1]
+    output = IntelHex()
+    if not no_bootloader:
+        print("Writing bootloader to address 0x%08x-0x%08x." % (bootloader.addresses()[0], bootloader.addresses()[-1]))
+        output.merge(bootloader, overlap='error')
+    print("Writing header to address 0x%08x-0x%08x." % (header.addresses()[0], header.addresses()[-1]))
+    output.merge(header, overlap='error')
+    print("Writing application to address 0x%08x-0x%08x." % (app.addresses()[0], app.addresses()[-1]))
+    output.merge(app, overlap='error')
+
+    # write output file
+    output.tofile(output_fn, format=output_format)
 
 
 if __name__ == '__main__':
@@ -195,6 +197,12 @@ if __name__ == '__main__':
             'mem_start': '0x08000000'
         },
         'nucleo_f429zi': {
+            'mem_start': '0x08000000'
+        },
+        'nucleo_f411re': {
+            'mem_start': '0x08000000'
+        },
+        'ublox_c030_u201': {
             'mem_start': '0x08000000'
         }
     }

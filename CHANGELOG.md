@@ -1,6 +1,17 @@
 # Changelog for Mbed Cloud Client Reference Example
 
-## Release 1.3.3 (11.06.2018)
+## Release 1.4.0 (13.07.2018)
+* Increased application main stack-size to 5120 to fix Stack overflow with ARMCC compiled binaries when tracing is enabled.
+* Linux: Updated Mbedtls to 2.10.0 in pal-platform.
+* Updated to Mbed OS 5.9.2.
+* Updated easy-connect to v1.2.12.
+* Updated storage-selector with support for SPI flash frequency, and Nucleo F411RE board.
+* Moved mbed_trace() init as first step in application init to allow printing any early debug-information from PAL-layer when debug tracing is enabled.
+* Added support for Nucleo F411RE board with Wifi-X-Nucleo shield.
+* Increased the Mbed Cloud Client event loop thread stack size to 8192 bytes from default value of 6144. This fixes stack overflows in some cases
+  where crypto operations result in deep callstacks.
+
+## Release 1.3.3 (08.06.2018)
 * Updated to Mbed OS 5.8.5.
 * The example application prints information about the validity of the stored Cloud credentials (including Connect and Update certificates).
 * Added a start-up delay of two seconds as a workaround for the SD driver initialization [issue](https://github.com/ARMmbed/sd-driver/issues/93).
@@ -8,8 +19,8 @@
 * Added the `-DMBED_STACK_STATS_ENABLED` flag. It enables printing information on the application thread stack usage.
 
 ## Release 1.3.2 (22.05.2018)
-* Updated easy-connect to v1.2.9
-* Updated to Mbed OS 5.8.4
+* Updated easy-connect to v1.2.9.
+* Updated to Mbed OS 5.8.4.
 * Added the `partition_mode` configuration. It is enabled by default and supposed to be used with a data storage, such as an SD card.
 * Linux: Updated Mbedtls to 2.7.1 in pal-platform.
 * Linux: Fixed CMake generation and performed generic cleanup in pal-platform scripts.

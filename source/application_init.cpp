@@ -144,7 +144,7 @@ void print_fcc_status(int fcc_status)
     printf("\nFactory Configurator Client [ERROR]: %s\r\n\n", error);
 }
 
-static bool application_init_mbed_trace(void)
+bool application_init_mbed_trace(void)
 {
     // Create mutex for tracing to avoid broken lines in logs
     if(!mbed_trace_helper_create_mutex()) {
@@ -187,7 +187,7 @@ static bool application_init_fcc(void)
     print_stack_statistics();
 #endif
     int status =  mcc_platform_fcc_init();
-    if(status != FCC_STATUS_SUCCESS) {
+    if(status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ENTROPY_ERROR) {
         printf("fcc_init failed with status %d! - exit\n", status);
         return 1;
     }
@@ -219,11 +219,6 @@ static bool application_init_fcc(void)
 
 bool application_init(void)
 {
-    if (application_init_mbed_trace() != 0) {
-        printf("Failed initializing mbed trace\n" );
-        return false;
-    }
-
     if(mcc_platform_init_button_and_led() != 0) {
        printf("ERROR - initButtonAndLed() failed!\n");
        return false;

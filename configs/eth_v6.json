@@ -1,5 +1,6 @@
 {
     "macros": [
+        "MBEDTLS_USER_CONFIG_FILE=\"mbedTLSConfig_mbedOS.h\"",
         "PAL_USER_DEFINED_CONFIGURATION=\"sotp_fs_config_MbedOS.h\"",
         "ARM_UC_USE_PAL_BLOCKDEVICE=1",
         "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
@@ -17,7 +18,8 @@
             "storage-selector.storage"    : "SD_CARD",
             "update-client.storage-address"  : "(1024*1024*64)",
             "update-client.storage-size"     : "(1024*1024*2)",
-            "update-client.storage-locations": "1"
+            "update-client.storage-locations": "1",
+            "nanostack-hal.event_loop_thread_stack_size": 8192
         },
         "K64F": {
             "target.mbed_app_start"            : "0x0000a400",
@@ -30,7 +32,7 @@
             "update-client.application-details": "(0x08000000+64*1024)"
         },
         "UBLOX_EVK_ODIN_W2": {
-            "target.device_has_remove": ["EMAC"],
+            "target.network-default-interface-type": "ETHERNET",
             "target.mbed_app_start"            : "0x08010400",
             "update-client.bootloader-details" : "0x08007300",
             "update-client.application-details": "(0x08000000+64*1024)"
@@ -38,7 +40,6 @@
     },
     "config": {
         "network-interface": {
-            "help": "Options are ETHERNET, WIFI_ESP8266, WIFI_ODIN",
             "value": "ETHERNET"
         },
         "developer-mode": {
