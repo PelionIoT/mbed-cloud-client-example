@@ -1,5 +1,6 @@
 {
     "macros": [
+        "MBEDTLS_USER_CONFIG_FILE=\"mbedTLSConfig_mbedOS.h\"",
         "PAL_USER_DEFINED_CONFIGURATION=\"sotp_fs_config_MbedOS_legacy.h\"",
         "PAL_DEVICE_KEY_DERIVATION_BACKWARD_COMPATIBILITY_CALC=1",
         "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FILESYSTEM"
@@ -15,7 +16,8 @@
             "storage-selector.storage"    : "SD_CARD",
             "update-client.storage-address"  : "(1024*1024*64)",
             "update-client.storage-size"     : "(1024*1024*2)",
-            "update-client.storage-locations": "1"
+            "update-client.storage-locations": "1",
+            "nanostack-hal.event_loop_thread_stack_size": 8192
         },
         "K64F": {
             "target.mbed_app_start"            : "0x00020400",
@@ -28,7 +30,6 @@
     },
     "config": {
         "network-interface": {
-            "help": "Options are ETHERNET",
             "value": "ETHERNET"
         },
         "developer-mode": {

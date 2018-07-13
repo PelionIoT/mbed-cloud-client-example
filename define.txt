@@ -27,5 +27,6 @@ endif()
 
 add_definitions(-DPAL_DTLS_PEER_MIN_TIMEOUT=5000)
 add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
+add_definitions(-DMBED_CONF_MBED_TRACE_ENABLE=0)
 add_definitions(-DPLATFORM_ENABLE_BUTTON=1)
 add_definitions(-DPLATFORM_ENABLE_LED=1)

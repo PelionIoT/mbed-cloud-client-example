@@ -117,18 +117,26 @@ void main_application(void)
 #ifdef TARGET_LIKE_MBED
     wait(2);
 #endif
-    mcc_platform_sw_build_info();
-    // run_application() will first initialize the program and then call main_application()
+    // Initialize trace-library first
+    if (application_init_mbed_trace() != 0) {
+        printf("Failed initializing mbed trace\n" );
+        return;
+    }
 
+    // Initialize storage
     if (mcc_platform_storage_init() != 0) {
         printf("Failed to initialize storage\n" );
         return;
     }
 
+    // Initialize platform-specific components
     if(mcc_platform_init() != 0) {
         printf("ERROR - platform_init() failed!\n");
         return;
     }
+
+    // Print platform information
+    mcc_platform_sw_build_info();
 
     // Print some statistics of the object sizes and their heap memory consumption.
     // NOTE: This *must* be done before creating MbedCloudClient, as the statistic calculation
@@ -142,10 +150,9 @@ void main_application(void)
     SimpleM2MClient mbedClient;
 
     // application_init() runs the following initializations:
-    //  1. trace initialization
-    //  2. platform initialization
-    //  3. print memory statistics if MBED_HEAP_STATS_ENABLED is defined
-    //  4. FCC initialization.
+    //  1. platform initialization
+    //  2. print memory statistics if MBED_HEAP_STATS_ENABLED is defined
+    //  3. FCC initialization.
     if (!application_init()) {
         printf("Initialization failed, exiting application!\n");
         return;

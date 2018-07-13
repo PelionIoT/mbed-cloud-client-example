@@ -112,14 +112,6 @@ static int mcc_platform_create_partitions();
 ////////////////////////////////////////
 static NetworkInterface* network_interface=NULL;
 
-// Some boards specific sanity checks, better stop early.
-#if defined(TARGET_UBLOX_EVK_ODIN_W2) && defined(DEVICE_EMAC) && defined(MBED_CONF_APP_NETWORK_INTERFACE) && defined (ETHERNET) && (MBED_CONF_APP_NETWORK_INTERFACE == ETHERNET)
-    #error "UBLOX_EVK_ODIN_W2 - does not work with Ethernet if you have EMAC on! Please fix your mbed_app.json."
-#endif
-#if defined(TARGET_UBLOX_EVK_ODIN_W2) && !defined(DEVICE_EMAC) && defined(MBED_CONF_APP_NETWORK_INTERFACE) && defined (WIFI_ODIN) && (MBED_CONF_APP_NETWORK_INTERFACE == WIFI_ODIN)
-    #error "UBLOX_EVK_ODIN_W2 - does not work with WIFI_ODIN if you have disabled EMAC! Please fix your mbed_app.json."
-#endif
-
 static BlockDevice* bd = NULL;
 #ifdef ARM_UC_USE_PAL_BLOCKDEVICE
 BlockDevice* arm_uc_blockdevice = storage_selector();
