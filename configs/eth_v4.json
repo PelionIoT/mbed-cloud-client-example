@@ -24,6 +24,11 @@
             "update-client.bootloader-details" : "0x00007188",
             "update-client.application-details": "(40*1024)"
         },
+        "K66F": {
+            "target.mbed_app_start"            : "0x0000a400",
+            "update-client.bootloader-details" : "0x00007188",
+            "update-client.application-details": "(40*1024)"
+        },
         "NUCLEO_F429ZI": {
             "target.mbed_app_start"            : "0x08010400",
             "update-client.bootloader-details" : "0x080078CC",

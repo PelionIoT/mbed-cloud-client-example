@@ -65,6 +65,12 @@
             "sotp-section-2-address"           : "(36*1024)",
             "sotp-section-2-size"              : "( 4*1024)"
         },
+        "K66F": {
+            "sotp-section-1-address"           : "(32*1024)",
+            "sotp-section-1-size"              : "( 4*1024)",
+            "sotp-section-2-address"           : "(36*1024)",
+            "sotp-section-2-size"              : "( 4*1024)"
+        },
         "NUCLEO_F411RE": {
             "sotp-section-1-address"           : "(0x08000000+32*1024)",
             "sotp-section-1-size"              : "(16*1024)",

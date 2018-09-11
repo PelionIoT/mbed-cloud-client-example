@@ -25,8 +25,8 @@
 #endif
 
 #include "mbed.h"
-#include "common_setup.h"
-#include "common_config.h"
+#include "mcc_common_setup.h"
+#include "mcc_common_config.h"
 
 // This is for single or dual partition mode. This is supposed to be used with storage for data e.g. SD card.
 // Enable by 1/disable by 0
@@ -73,7 +73,7 @@
 #endif
 
 #ifndef SECONDARY_PARTITION_START
-#define SECONDARY_PARTITION_START PRIMARY_PARTITION_SIZE 
+#define SECONDARY_PARTITION_START PRIMARY_PARTITION_SIZE
 #endif
 
 #ifndef SECONDARY_PARTITION_SIZE
@@ -239,6 +239,7 @@ static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** 
         }
         status = (**part).init();
         if (status != 0) {
+            (**part).deinit();
             printf("Init of partition %d fail !!!\n", number_of_partition);
             return status;
         }
@@ -249,6 +250,7 @@ static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** 
      else {
         status = (**part).init();
         if (status != 0) {
+            (**part).deinit();
             printf("Init of partition %d fail !!!\n", number_of_partition);
             return status;
         }
@@ -427,7 +429,7 @@ int mcc_platform_run_program(main_t mainFunc)
 
 void mcc_platform_sw_build_info(void) {
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
-    
+
     // The Mbed OS' master branch does not define the version numbers at all, so we need
     // some ifdeffery to keep compilations running.
 #if defined(MBED_MAJOR_VERSION) && defined(MBED_MINOR_VERSION) && defined(MBED_PATCH_VERSION)

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_SETUP_H
-#define COMMON_SETUP_H
+#ifndef MCC_COMMON_SETUP_H
+#define MCC_COMMON_SETUP_H
 
 #include <stdint.h>
 
@@ -44,19 +44,9 @@ void *mcc_platform_get_network_interface(void);
 // Format storage
 int mcc_platform_reformat_storage(void);
 
-// Reset storage
-int mcc_platform_reset_storage(void);
-
 // initialize common details for storage for storing KCM data etc.
 // creates default folders, reformat.
 int mcc_platform_storage_init(void);
-
-// initialize common details for fcc.
-// reset storage to default if required.
-int mcc_platform_fcc_init(void);
-
-// reverse the resource allocations done by mcc_platform_fcc_init()
-void mcc_platform_fcc_finalize(void);
 
 // Wait
 void mcc_platform_do_wait(int timeout_ms);
@@ -74,4 +64,4 @@ int  mcc_platform_run_program(main_t mainFunc);
 }
 #endif
 
-#endif // #ifndef COMMON_SETUP_H
+#endif // #ifndef MCC_COMMON_SETUP_H

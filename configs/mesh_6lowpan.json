@@ -17,6 +17,7 @@
             "mbed-client.event-loop-size": 32768,
             "mbed-client.reconnection-count": 6,
             "mbed-client.dns-use-thread": 1,
+            "mbed-client-pal.pal-dns-api-version": 2,
             "mbed-client.sn-coap-blockwise-max-time-data-stored": 120,
             "mbed-trace.enable": null,
             "storage-selector.filesystem" : "FAT",

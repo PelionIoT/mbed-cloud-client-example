@@ -15,6 +15,9 @@
  */
 
 #include "pal.h"
+#include "mbed-trace/mbed_trace.h"
+
+#define TRACE_GROUP "ROT"
 
 #define PAL_DEVICE_KEY_SIZE_IN_BYTES 16
 
@@ -29,7 +32,7 @@ palStatus_t pal_plat_osGetRoTFromHW(uint8_t *keyBuf, size_t keyLenBytes)
     static bool runOnce = true;
     if (runOnce) {
 
-        PAL_LOG(WARN, "You are using insecure Root Of Trust implementation");
+        tr_warn("You are using insecure Root Of Trust implementation");
         runOnce = false;
     }
 

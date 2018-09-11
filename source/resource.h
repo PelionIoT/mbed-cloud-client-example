@@ -47,8 +47,7 @@
  *        NOTE: This function is not designed to support setting both
  *              GET_PUT_ALLOWED and POST_ALLOWED for parameter allowed
  *              at the same time.
- * \param notification_status_cb Function pointer to notification_delivery_status_cb
- *          if resource is set to be observable.
+ * \param message_status_cb Function pointer to message_status_cb
  */
 M2MResource* add_resource(M2MObjectList *list,
                           uint16_t object_id,
@@ -60,6 +59,6 @@ M2MResource* add_resource(M2MObjectList *list,
                           const char *value,
                           bool observable,
                           void *cb,
-                          void *notification_status_cb);
+                          void *message_status_cb);
 
 #endif //RESOURCE_H

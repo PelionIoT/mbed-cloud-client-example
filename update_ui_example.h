@@ -23,15 +23,11 @@
 
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_UPDATE
 
-#ifdef ARM_UPDATE_CLIENT_VERSION_VALUE
-#if ARM_UPDATE_CLIENT_VERSION_VALUE > 101000
 /**
  * @brief Function for authorizing firmware downloads and reboots.
  * @param request The request under consideration.
  */
 void update_authorize(int32_t request);
-#endif
-#endif
 
 /**
  * @brief Callback function for reporting the firmware download progress.

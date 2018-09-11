@@ -23,10 +23,10 @@
 #include <stdint.h>
 
 #ifdef MBED_CLOUD_DEV_UPDATE_ID
-const uint8_t arm_uc_vendor_id[16] = { "dev_manufacturer" };
+const uint8_t arm_uc_vendor_id[] = { "dev_manufacturer" };
 const uint16_t arm_uc_vendor_id_size = sizeof(arm_uc_vendor_id);
 
-const uint8_t arm_uc_class_id[16]  = { "dev_model_number" };
+const uint8_t arm_uc_class_id[]  = { "dev_model_number" };
 const uint16_t arm_uc_class_id_size = sizeof(arm_uc_class_id);
 #endif
 

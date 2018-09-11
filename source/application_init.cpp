@@ -20,8 +20,9 @@
 #include "mbed-trace/mbed_trace.h"
 #include "mbed-trace-helper.h"
 #include "factory_configurator_client.h"
-#include "common_setup.h"
-#include "common_button_and_led.h"
+#include "app_platform_setup.h"
+#include "mcc_common_setup.h"
+#include "mcc_common_button_and_led.h"
 #if defined (MBED_HEAP_STATS_ENABLED) || (MBED_STACK_STATS_ENABLED)
 #include "memory_tests.h"
 #endif
@@ -165,10 +166,10 @@ static bool application_init_verify_cloud_configuration()
     int status;
 
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
-    printf("Start developer flow\n");
+    printf("Starting developer flow\n");
     status = fcc_developer_flow();
     if (status == FCC_STATUS_KCM_FILE_EXIST_ERROR) {
-        printf("Developer credentials already exists\n");
+        printf("Developer credentials already exist, continuing..\n");
     } else if (status != FCC_STATUS_SUCCESS) {
         printf("Failed to load developer credentials\n");
     }
@@ -186,11 +187,24 @@ static bool application_init_fcc(void)
 #ifdef MBED_STACK_STATS_ENABLED
     print_stack_statistics();
 #endif
-    int status =  mcc_platform_fcc_init();
-    if(status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ENTROPY_ERROR) {
-        printf("fcc_init failed with status %d! - exit\n", status);
+    int status = mcc_platform_fcc_init();
+    if(status != FCC_STATUS_SUCCESS) {
+        printf("application_init_fcc fcc_init failed with status %d! - exit\n", status);
         return 1;
     }
+#if RESET_STORAGE
+    status = mcc_platform_reset_storage();
+    if(status != FCC_STATUS_SUCCESS) {
+        printf("application_init_fcc reset_storage failed with status %d! - exit\n", status);
+        return 1;
+    }
+    // Reinitialize SOTP
+    status = mcc_platform_sotp_init();
+    if (status != FCC_STATUS_SUCCESS) {
+        printf("application_init_fcc sotp_init failed with status %d! - exit\n", status);
+        return 1;
+    }
+#endif
 
     status = application_init_verify_cloud_configuration();
     if (status != 0) {
@@ -198,10 +212,15 @@ static bool application_init_fcc(void)
     // primary storage if no valid certificates exist.
     // This should never be used for any kind of production devices.
 #ifndef MBED_CONF_APP_MCC_NO_AUTO_FORMAT
+        printf("Certificate validation failed, trying autorecovery...\n");
         if (mcc_platform_reformat_storage() != 0) {
             return 1;
         }
         status = mcc_platform_reset_storage();
+        if (status != FCC_STATUS_SUCCESS) {
+            return 1;
+        }
+        status = mcc_platform_sotp_init();
         if (status != FCC_STATUS_SUCCESS) {
             return 1;
         }
@@ -213,7 +232,6 @@ static bool application_init_fcc(void)
         return 1;
 #endif
     }
-
     return 0;
 }
 
