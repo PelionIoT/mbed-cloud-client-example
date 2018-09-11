@@ -20,7 +20,7 @@
 #define __BLINKY_H__
 
 #include "nanostack-event-loop/eventOS_event.h"
-
+#include "m2mresource.h"
 #include <stdint.h>
 
 class Blinky
@@ -30,12 +30,14 @@ class Blinky
         STATE_STARTED,
     } BlinkyState;
 
+    typedef void(*blinky_completed_cb) (void);
+
 public:
     Blinky();
 
     ~Blinky();
 
-    bool start(const char* pattern, size_t length, bool pattern_restart);
+    bool start(const char* pattern, size_t length, bool pattern_restart, blinky_completed_cb cb);
 
     void stop();
 
@@ -57,6 +59,8 @@ private:
     bool _restart;
 
     static int8_t _tasklet;
+
+    blinky_completed_cb _callback;
 
 };
 #endif /* __BLINKY_H__ */

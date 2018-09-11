@@ -25,8 +25,6 @@
 
 static MbedCloudClient* _client;
 
-#ifdef ARM_UPDATE_CLIENT_VERSION_VALUE
-#if ARM_UPDATE_CLIENT_VERSION_VALUE > 101000
 void update_ui_set_cloud_client(MbedCloudClient* client)
 {
     _client = client;
@@ -69,8 +67,6 @@ void update_authorize(int32_t request)
             break;
     }
 }
-#endif
-#endif
 
 void update_progress(uint32_t progress, uint32_t total)
 {

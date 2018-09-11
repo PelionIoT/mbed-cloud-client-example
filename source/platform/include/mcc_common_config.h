@@ -14,8 +14,8 @@
  * limitations under the License.
  */
  
-#ifndef COMMON_CONFIG_H
-#define COMMON_CONFIG_H
+#ifndef MCC_COMMON_CONFIG_H
+#define MCC_COMMON_CONFIG_H
 
 /* #define PLATFORM_ENABLE_BUTTON 1 for enabling button.*/
 #ifndef PLATFORM_ENABLE_BUTTON
@@ -27,11 +27,5 @@
 #define PLATFORM_ENABLE_LED 0 
 #endif
 
-// Resets storage to an empty state.
-// Use this function when you want to clear storage from all the factory-tool generated data and user data.
-// After this operation device must be injected again by using factory tool or developer certificate.
-#ifndef RESET_STORAGE
-#define RESET_STORAGE 0
-#endif
-#endif /* COMMON_CONFIG_H */ 
+#endif /* MCC_COMMON_CONFIG_H */
 

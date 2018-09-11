@@ -22,7 +22,7 @@
 #include "nanostack-event-loop/eventOS_event_timer.h"
 
 #include "mbed-trace/mbed_trace.h"
-#include "common_button_and_led.h"
+#include "mcc_common_button_and_led.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -59,10 +59,10 @@ Blinky::~Blinky()
     stop();
 }
 
-bool Blinky::start(const char* pattern, size_t length, bool pattern_restart)
+bool Blinky::start(const char* pattern, size_t length, bool pattern_restart, blinky_completed_cb cb)
 {
     assert(pattern);
-
+    _callback = cb;
     _restart = pattern_restart;
 
     if (_tasklet < 0) {
@@ -129,6 +129,7 @@ bool Blinky::run_step()
     // tr_debug("patt: %s, curr: %s, delay: %d", _pattern, _curr_pattern, delay);
 
     if (delay < 0) {
+        _callback();
         _state = STATE_IDLE;
         return false;
     }

@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include "mbed-cloud-client/MbedCloudClient.h"
 #include "m2mdevice.h"
-#include "common_setup.h"
+#include "mcc_common_setup.h"
 #include "m2mresource.h"
 #include "mbed-client/m2minterface.h"
 #include "key_config_manager.h"
@@ -254,9 +254,9 @@ public:
                               uint16_t resource_id, const char *resource_type,
                               M2MResourceInstance::ResourceType data_type,
                               M2MBase::Operation allowed, const char *value,
-                              bool observable, void *cb, void *notification_status_cb) {
+                              bool observable, void *cb, void *message_status_cb) {
          return add_resource(&_obj_list, object_id, instance_id, resource_id, resource_type, data_type,
-                      allowed, value, observable, cb, notification_status_cb);
+                      allowed, value, observable, cb, message_status_cb);
     }
 
 private:

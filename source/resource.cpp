@@ -25,7 +25,7 @@
 M2MResource* add_resource(M2MObjectList *list, uint16_t object_id, uint16_t instance_id,
                           uint16_t resource_id, const char *resource_type, M2MResourceInstance::ResourceType data_type,
                           M2MBase::Operation allowed, const char *value, bool observable, void *cb,
-                          void *notification_status_cb)
+                          void *message_status_cb)
 {
     M2MObject *object = NULL;
     M2MObjectInstance* object_instance = NULL;
@@ -65,12 +65,12 @@ M2MResource* add_resource(M2MObjectList *list, uint16_t object_id, uint16_t inst
     }
     //Set allowed operations for accessing the resource.
     resource->set_operation(allowed);
-    if (observable) {
-        resource->set_notification_delivery_status_cb(
-                    (void(*)(const M2MBase&,
-                             const NoticationDeliveryStatus,
-                             void*))notification_status_cb, NULL);
-    }
+
+    resource->set_message_delivery_status_cb(
+                (void(*)(const M2MBase&,
+                         const M2MBase::MessageDeliveryStatus,
+                         const M2MBase::MessageType,
+                         void*))message_status_cb, NULL);
 
     //Set callback of PUT or POST operation is enabled.
     //NOTE: This function does not support setting them both.

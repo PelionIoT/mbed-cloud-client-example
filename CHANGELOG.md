@@ -1,4 +1,13 @@
-# Changelog for Mbed Cloud Client Reference Example
+# Changelog for Pelion Device Management Client Reference Example
+
+## Release 1.5.0 (11.09.2018)
+* Added a hardcoded RoT injection when application is configured to use developer mode. This preserves the Device Management Client credentials even when SOTP is erased (for example due to reflashing of the application binary).
+* Updated to Mbed OS 5.9.6.
+* Updated easy-connect to v1.2.16.
+* Updated the storage selector with compiler warning fixes in the internal libraries.
+* Replaced the notification delivery status functionality with a more generic message delivery status callback.
+* Added an example on using the delayed response for execute operations.
+* Added configurations for the K66F target board.
 
 ## Release 1.4.0 (13.07.2018)
 * Increased application main stack-size to 5120 to fix Stack overflow with ARMCC compiled binaries when tracing is enabled.
@@ -6,10 +15,9 @@
 * Updated to Mbed OS 5.9.2.
 * Updated easy-connect to v1.2.12.
 * Updated storage-selector with support for SPI flash frequency, and Nucleo F411RE board.
-* Moved mbed_trace() init as first step in application init to allow printing any early debug-information from PAL-layer when debug tracing is enabled.
+* Moved the initialization of `mbed_trace()` as the first step in the application initialization. This allows the printing of any early debug information from the PAL layer when debug tracing is enabled.
 * Added support for Nucleo F411RE board with Wifi-X-Nucleo shield.
-* Increased the Mbed Cloud Client event loop thread stack size to 8192 bytes from default value of 6144. This fixes stack overflows in some cases
-  where crypto operations result in deep callstacks.
+* Increased the event loop thread stack size to 8192 bytes from a default value of 6144. This fixes stack overflows in some cases where crypto operations result in deep callstacks.
 
 ## Release 1.3.3 (08.06.2018)
 * Updated to Mbed OS 5.8.5.

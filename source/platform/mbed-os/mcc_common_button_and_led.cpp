@@ -19,8 +19,8 @@
 ///////////
 
 #include "mbed.h"
-#include "common_config.h"
-#include "common_button_and_led.h"
+#include "mcc_common_config.h"
+#include "mcc_common_button_and_led.h"
 #include <stdint.h>
 
 #if PLATFORM_ENABLE_BUTTON

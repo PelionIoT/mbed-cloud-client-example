@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-///////////
-// INCLUDES
-///////////
-
-#ifndef COMMON_BUTTON_AND_LED_H
-#define COMMON_BUTTON_AND_LED_H
+#ifndef APP_PLATFORM_SETUP_H
+#define APP_PLATFORM_SETUP_H
 
 #include <stdint.h>
 
@@ -27,18 +23,22 @@
 extern "C" {
 #endif
 
-// Toggle led (if available)
-void mcc_platform_toggle_led(void);
+// Erases client credentials and SOTP storage, will also reformat
+// the external storage for Mbed OS if initial erase fail.
+int mcc_platform_reset_storage(void);
 
-// Put led off (if available)
-void mcc_platform_led_off(void);
+// Initialize common details for fcc.
+int mcc_platform_fcc_init(void);
 
-// Check if button has been pressed (if available)
-uint8_t mcc_platform_button_clicked(void);
+// For developer-mode only, (re)initializes the RoT and for non-TRNG boards
+// also the entropy.
+int mcc_platform_sotp_init(void);
 
-uint8_t mcc_platform_init_button_and_led(void);
+// Reverse the resource allocations done by mcc_platform_fcc_init().
+void mcc_platform_fcc_finalize(void);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // COMMON_BUTTON_AND_LED_H
+
+#endif // #ifndef APP_PLATFORM_SETUP_H

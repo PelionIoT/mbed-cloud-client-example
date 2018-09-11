@@ -24,11 +24,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "common_setup.h"
-#include "common_config.h"
+#include "mcc_common_setup.h"
+#include "mcc_common_config.h"
 #include "pal.h"
 
-#include "common_button_and_led.h"
+#include "mcc_common_button_and_led.h"
 
 ////////////////////////////////////////
 // PLATFORM SPECIFIC DEFINES & FUNCTIONS

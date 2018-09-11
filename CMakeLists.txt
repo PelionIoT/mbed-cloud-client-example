@@ -17,6 +17,7 @@ endif()
 # mbed-cloud-client-example
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/include)
 
 # This is needed for compiling and linking SW.
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/platform")

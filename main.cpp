@@ -21,7 +21,7 @@
 #include "mbed.h"
 #endif
 #include "application_init.h"
-#include "common_button_and_led.h"
+#include "mcc_common_button_and_led.h"
 #include "blinky.h"
 
 // event based LED blinker, controlled via pattern_resource
@@ -37,6 +37,7 @@ int main(void)
 // Pointers to the resources that will be created in main_application().
 static M2MResource* button_res;
 static M2MResource* pattern_res;
+static M2MResource* blink_res;
 
 // Pointer to mbedClient, used for calling close function.
 static SimpleM2MClient *client;
@@ -44,6 +45,14 @@ static SimpleM2MClient *client;
 void pattern_updated(const char *)
 {
     printf("PUT received, new value: %s\n", pattern_res->get_value_string().c_str());
+}
+
+void blinky_completed(void)
+{
+    printf("Blinky completed \n");
+
+    // Send response to backend
+    blink_res->send_delayed_post_response();
 }
 
 void blink_callback(void *)
@@ -55,34 +64,39 @@ void blink_callback(void *)
     // The pattern is something like 500:200:500, so parse that.
     // LED blinking is done while parsing.
     const bool restart_pattern = false;
-    if (blinky.start((char*)pattern_res->value(), pattern_res->value_length(), restart_pattern) == false) {
+    if (blinky.start((char*)pattern_res->value(), pattern_res->value_length(), restart_pattern, blinky_completed) == false) {
         printf("out of memory error\n");
     }
 }
 
-void button_notification_status_callback(const M2MBase& object, const NoticationDeliveryStatus status)
+void button_status_callback(const M2MBase& object,
+                            const M2MBase::MessageDeliveryStatus status,
+                            const M2MBase::MessageType /*type*/)
 {
     switch(status) {
-        case NOTIFICATION_STATUS_BUILD_ERROR:
-            printf("Notification callback: (%s) error when building CoAP message\n", object.uri_path());
+        case M2MBase::MESSAGE_STATUS_BUILD_ERROR:
+            printf("Message status callback: (%s) error when building CoAP message\n", object.uri_path());
             break;
-        case NOTIFICATION_STATUS_RESEND_QUEUE_FULL:
-            printf("Notification callback: (%s) CoAP resend queue full\n", object.uri_path());
+        case M2MBase::MESSAGE_STATUS_RESEND_QUEUE_FULL:
+            printf("Message status callback: (%s) CoAP resend queue full\n", object.uri_path());
             break;
-        case NOTIFICATION_STATUS_SENT:
-            printf("Notification callback: (%s) Notification sent to server\n", object.uri_path());
+        case M2MBase::MESSAGE_STATUS_SENT:
+            printf("Message status callback: (%s) Message sent to server\n", object.uri_path());
             break;
-        case NOTIFICATION_STATUS_DELIVERED:
-            printf("Notification callback: (%s) Notification delivered\n", object.uri_path());
+        case M2MBase::MESSAGE_STATUS_DELIVERED:
+            printf("Message status callback: (%s) Message delivered\n", object.uri_path());
             break;
-        case NOTIFICATION_STATUS_SEND_FAILED:
-            printf("Notification callback: (%s) Notification sending failed\n", object.uri_path());
+        case M2MBase::MESSAGE_STATUS_SEND_FAILED:
+            printf("Message status callback: (%s) Message sending failed\n", object.uri_path());
             break;
-        case NOTIFICATION_STATUS_SUBSCRIBED:
-            printf("Notification callback: (%s) subscribed\n", object.uri_path());
+        case M2MBase::MESSAGE_STATUS_SUBSCRIBED:
+            printf("Message status callback: (%s) subscribed\n", object.uri_path());
             break;
-        case NOTIFICATION_STATUS_UNSUBSCRIBED:
-            printf("Notification callback: (%s) subscription removed\n", object.uri_path());
+        case M2MBase::MESSAGE_STATUS_UNSUBSCRIBED:
+            printf("Message status callback: (%s) subscription removed\n", object.uri_path());
+            break;
+        case M2MBase::MESSAGE_STATUS_REJECTED:
+            printf("Message status callback: (%s) server has rejected the message\n", object.uri_path());
             break;
         default:
             break;
@@ -171,15 +185,17 @@ void main_application(void)
 
     // Create resource for button count. Path of this resource will be: 3200/0/5501.
     button_res = mbedClient.add_cloud_resource(3200, 0, 5501, "button_resource", M2MResourceInstance::INTEGER,
-                              M2MBase::GET_ALLOWED, 0, true, NULL, (void*)button_notification_status_callback);
+                              M2MBase::GET_ALLOWED, 0, true, NULL, (void*)button_status_callback);
 
     // Create resource for led blinking pattern. Path of this resource will be: 3201/0/5853.
     pattern_res = mbedClient.add_cloud_resource(3201, 0, 5853, "pattern_resource", M2MResourceInstance::STRING,
                                M2MBase::GET_PUT_ALLOWED, "500:500:500:500", false, (void*)pattern_updated, NULL);
 
     // Create resource for starting the led blinking. Path of this resource will be: 3201/0/5850.
-    mbedClient.add_cloud_resource(3201, 0, 5850, "blink_resource", M2MResourceInstance::STRING,
-                             M2MBase::POST_ALLOWED, "", false, (void*)blink_callback, NULL);
+    blink_res = mbedClient.add_cloud_resource(3201, 0, 5850, "blink_resource", M2MResourceInstance::STRING,
+                             M2MBase::POST_ALLOWED, "", false, (void*)blink_callback, (void*)button_status_callback);
+    // Use delayed response
+    blink_res->set_delayed_response(true);
 
     // Create resource for unregistering the device. Path of this resource will be: 5000/0/1.
     mbedClient.add_cloud_resource(5000, 0, 1, "unregister", M2MResourceInstance::STRING,
