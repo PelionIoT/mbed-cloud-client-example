@@ -29,32 +29,21 @@
 #include "mcc_common_config.h"
 
 // This is for single or dual partition mode. This is supposed to be used with storage for data e.g. SD card.
-// Enable by 1/disable by 0
+// Enable by 1/disable by 0.
 #ifndef MCC_PLATFORM_PARTITION_MODE
-#define MCC_PLATFORM_PARTITION_MODE 1
+#define MCC_PLATFORM_PARTITION_MODE 0
 #endif
+
+#include "pal.h"
+#if (MCC_PLATFORM_PARTITION_MODE == 1)
+#include "MBRBlockDevice.h"
+#include "FATFileSystem.h"
 
 // Set to 1 for enabling automatic partitioning storage if required. This is effective only if MCC_PLATFORM_PARTITION_MODE is defined to 1.
 // Partioning will be triggered only if initialization of available partitions fail.
 #ifndef MCC_PLATFORM_AUTO_PARTITION
 #define MCC_PLATFORM_AUTO_PARTITION 0
 #endif
-
-// Set to 1 for enable/0 for disable usage of easy connect. This is effective for mbed-os build.
-#ifndef MCC_PLATFORM_USE_EASY_CONNECT
-#define MCC_PLATFORM_USE_EASY_CONNECT 1
-#endif
-
-#if (MCC_PLATFORM_USE_EASY_CONNECT == 1)
-// these defines needed before including easy connect
-#define MBED_CONF_APP_ESP8266_TX MBED_CONF_APP_WIFI_TX
-#define MBED_CONF_APP_ESP8266_RX MBED_CONF_APP_WIFI_RX
-#include "easy-connect/easy-connect.h"
-#endif
-#include "pal.h"
-#include "storage-selector/storage-selector.h"
-#if (MCC_PLATFORM_PARTITION_MODE == 1)
-#include "MBRBlockDevice.h"
 
 #ifndef PRIMARY_PARTITION_NUMBER
 #define PRIMARY_PARTITION_NUMBER 1
@@ -114,7 +103,8 @@ static NetworkInterface* network_interface=NULL;
 
 static BlockDevice* bd = NULL;
 #ifdef ARM_UC_USE_PAL_BLOCKDEVICE
-BlockDevice* arm_uc_blockdevice = storage_selector();
+// Can be moved extern reference under update src. No reason keep here because get_default_instance is mbed-os interface.
+BlockDevice* arm_uc_blockdevice = BlockDevice::get_default_instance();
 #endif
 
 // blockdevice and filesystem pointers for storage
@@ -135,22 +125,26 @@ static FileSystem *fs2 = NULL;
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
 int mcc_platform_init_connection(void) {
-#if (MCC_PLATFORM_USE_EASY_CONNECT == 1)
 // Perform number of retries if network init fails.
 #ifndef MCC_PLATFORM_CONNECTION_RETRY_COUNT
 #define MCC_PLATFORM_CONNECTION_RETRY_COUNT 3
 #endif
-    int count = 0;
-    do {
-       network_interface = easy_connect(true);
-       count++;
-    }
-    while ((network_interface == NULL) && (count < MCC_PLATFORM_CONNECTION_RETRY_COUNT));
-#endif
+    printf("mcc_platform_init_connection()\n");
+
+    network_interface = NetworkInterface::get_default_instance();
     if(network_interface == NULL) {
+        printf("ERROR: No NetworkInterface found!\n");
         return -1;
     }
-    return 0;
+    for (int i=0; i < MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
+        nsapi_error_t e;
+        e = network_interface->connect();
+        if (e == NSAPI_ERROR_OK) {
+            return 0;
+        }
+        printf("Failed to connect! error=%d\n", e);
+    }
+    return -1;
 }
 
 int mcc_platform_close_connection(void) {
@@ -228,7 +222,14 @@ static int mcc_platform_test_filesystem(FileSystem *fs, BlockDevice* part) {
 }
 
 #if (MCC_PLATFORM_PARTITION_MODE == 1)
-// bd must be initialized before this function.
+FileSystem *FileSystem::get_default_instance()
+{
+    return fs1;
+}
+#endif
+
+#if (MCC_PLATFORM_PARTITION_MODE == 1)
+// bd must be initialized before calling this function.
 static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** part, int number_of_partition, const char* mount_point) {
     int status;
 
@@ -243,8 +244,8 @@ static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** 
             printf("Init of partition %d fail !!!\n", number_of_partition);
             return status;
         }
-
-        *fs = filesystem_selector(mount_point, &(**part),  number_of_partition);  /* this also mount fs. */
+        /* This next change mean that filesystem will be FAT. */
+        *fs = new FATFileSystem(mount_point, &(**part));  /* this also mount fs. */
      }
      // re-init and format.
      else {
@@ -338,7 +339,7 @@ int mcc_platform_storage_init(void) {
     int status=0;
 
     if(!init_done) {
-        bd = storage_selector();
+        bd = BlockDevice::get_default_instance();
         if (bd) {
             status = bd->init();
 
@@ -388,8 +389,8 @@ int mcc_platform_storage_init(void) {
 #error "Invalid number of partitions!!!"
 #endif
 #endif // (NUMBER_OF_PARTITIONS > 0)
-#else
-    fs1 = filesystem_selector();  /* this also mount fs. */
+#else  // Else for #if (MCC_PLATFORM_PARTITION_MODE == 1)
+    fs1 = FileSystem::get_default_instance();  /* this also mount fs. */
     part1 = bd;                   /* required for mcc_platform_reformat_storage */
     status = mcc_platform_test_filesystem(fs1, bd);
     if (status != 0) {

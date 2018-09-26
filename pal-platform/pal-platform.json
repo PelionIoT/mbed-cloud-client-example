@@ -49,11 +49,11 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.10.0",
+        "version": "2.13.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.10.0"
+          "tag": "mbedtls-2.13.1"
         },
         "to": "Middleware/mbedtls/mbedtls"
       }
@@ -70,11 +70,11 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.10.0",
+        "version": "2.13.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.10.0"
+          "tag": "mbedtls-2.13.1"
         },
         "to": "Middleware/mbedtls/mbedtls"
       }
@@ -90,11 +90,11 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.10.0",
+        "version": "2.13.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.10.0"
+          "tag": "mbedtls-2.13.1"
         },
         "to": "Middleware/mbedtls/mbedtls"
       }

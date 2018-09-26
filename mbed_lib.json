@@ -52,12 +52,23 @@
             "help": "Flash sector size for SOTP sector 2",
             "macro_name": "PAL_INTERNAL_FLASH_SECTION_2_SIZE",
             "value": null
+        },
+        "mbedtls-user-config-file": {
+            "help": "Defines which TLS configuration the board should use.",
+            "macro_name": "MBEDTLS_USER_CONFIG_FILE",
+            "value": "\"mbedTLSConfig_mbedOS.h\""
+        },
+        "pal-user-defined-configuration": {
+            "help": "Defines which PAL configuration the board should use.",
+            "macro_name": "PAL_USER_DEFINED_CONFIGURATION",
+            "value": "\"sotp_fs_config_MbedOS.h\""
         }
     },
     "target_overrides": {
         "*": {
-            "auto_partition": 1,
-            "pal_number_of_partition": 1
+            "pal_number_of_partition": 1,
+            "partition_mode": 1,
+            "auto_partition": 1
         },
         "K64F": {
             "sotp-section-1-address"           : "(32*1024)",

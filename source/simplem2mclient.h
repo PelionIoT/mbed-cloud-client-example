@@ -206,6 +206,12 @@ public:
                 error = "MbedCloudClient::UpdateErrorInvalidHash";
                 break;
 #endif
+#ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
+            case CE_STATUS_INIT_FAILED:
+                error = "CE_STATUS_INIT_FAILED";
+                break;
+#endif // !MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
+
             default:
                 error = "UNKNOWN";
         }

@@ -1,6 +1,23 @@
-# Changelog for Pelion Device Management Client Reference Example
+# Changelog for Pelion Device Management Client reference example application
 
-## Release 1.5.0 (11.09.2018)
+## Release 2.0.0 (26.09.2018)
+* Updated to Mbed OS 5.10.0.
+* **Breaking changes** (Due to integration of storage and networking drivers to Mbed OS 5.10 and the introduction of new APIs, the application is not compatible with previous releases of Mbed OS).
+    * Changed the application to use Mbed OS 5.10 network interfaces directly and removed the dependency to `easy-connect.lib`.
+    * Changed the application to use Mbed OS 5.10 storage interfaces directly and removed the dependency to `storage-selector.lib`.
+    * The example uses Mbed OS bootloader binaries and the new Mbed OS feature `FEATURE_BOOTLOADER`. This feature makes the `combine_bootloader_with_app.py` script obsolete. We have removed the obsolete script and old bootloader binaries from the application repository.
+* The bootloader is now automatically combined with the application binary at compile time:
+        * `mbed-cloud-client-example.bin` is the binary you need to flash on the development board.
+        * You can use `mbed-cloud-client-example_update.bin` for the firmware update as long as prequisites for firmware update has been fullfilled. (See the application tutorial).
+* Removed the legacy configuration file `configs/eth_v4_legacy.json` that was used for Mbed Cloud Client 1.2.6.
+* Removed the `.autostart` configurations used by Online Compiler.
+* Enabled serial buffer in all `.json` files.
+    * This improves the reliability of the connection with tracing enabled, for example Nucleo F429ZI had connectivity problems with UDP & traces enabled.
+* Increased LWIP buffers for all STM-based targets to improve the stability of DTLS connection.
+* Disabled Hardware acceleration for Ublox EVK Odin W2 and Nucleo F411RE. See Mbed OS [issue](https://github.com/ARMmbed/mbed-os/issues/6545).
+* [LINUX] Updated Mbed TLS to 2.13.1.
+
+## Release 1.5.0 (Next release)
 * Added a hardcoded RoT injection when application is configured to use developer mode. This preserves the Device Management Client credentials even when SOTP is erased (for example due to reflashing of the application binary).
 * Updated to Mbed OS 5.9.6.
 * Updated easy-connect to v1.2.16.
@@ -8,6 +25,7 @@
 * Replaced the notification delivery status functionality with a more generic message delivery status callback.
 * Added an example on using the delayed response for execute operations.
 * Added configurations for the K66F target board.
+
 
 ## Release 1.4.0 (13.07.2018)
 * Increased application main stack-size to 5120 to fix Stack overflow with ARMCC compiled binaries when tracing is enabled.
