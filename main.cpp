@@ -23,6 +23,9 @@
 #include "application_init.h"
 #include "mcc_common_button_and_led.h"
 #include "blinky.h"
+#ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
+#include "certificate_enrollment_user_cb.h"
+#endif
 
 // event based LED blinker, controlled via pattern_resource
 static Blinky blinky;
@@ -125,12 +128,22 @@ void factory_reset(void *)
 
 void main_application(void)
 {
+
     // https://github.com/ARMmbed/sd-driver/issues/93 (IOTMORF-2327)
     // SD-driver initialization can fails with bd->init() -5005. This wait will
     // allow the board more time to initialize.
 #ifdef TARGET_LIKE_MBED
     wait(2);
 #endif
+
+
+#if defined(__linux__) && (MBED_CONF_MBED_TRACE_ENABLE == 0)
+        // make sure the line buffering is on as non-trace builds do
+        // not produce enough output to fill the buffer
+        setlinebuf(stdout);
+#endif 
+
+
     // Initialize trace-library first
     if (application_init_mbed_trace() != 0) {
         printf("Failed initializing mbed trace\n" );
@@ -207,7 +220,14 @@ void main_application(void)
 
     mbedClient.register_and_connect();
 
+#ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
+    // Add certificate renewal callback
+    mbedClient.get_cloud_client().on_certificate_renewal(certificate_renewal_cb);
+#endif // MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
+
+
     // Check if client is registering or registered, if true sleep and repeat.
+
     while (mbedClient.is_register_called()) {
         static int button_count = 0;
         mcc_platform_do_wait(100);
