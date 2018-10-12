@@ -128,21 +128,11 @@ void factory_reset(void *)
 
 void main_application(void)
 {
-
-    // https://github.com/ARMmbed/sd-driver/issues/93 (IOTMORF-2327)
-    // SD-driver initialization can fails with bd->init() -5005. This wait will
-    // allow the board more time to initialize.
-#ifdef TARGET_LIKE_MBED
-    wait(2);
-#endif
-
-
 #if defined(__linux__) && (MBED_CONF_MBED_TRACE_ENABLE == 0)
         // make sure the line buffering is on as non-trace builds do
         // not produce enough output to fill the buffer
         setlinebuf(stdout);
 #endif 
-
 
     // Initialize trace-library first
     if (application_init_mbed_trace() != 0) {
