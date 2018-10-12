@@ -1,5 +1,10 @@
 # Changelog for Pelion Device Management Client reference example application
 
+## Release 2.0.1 (12.10.2018)
+* Application uses `wait_ms(int)` instead of `wait(float)`, this saves a bit on application size.
+* [Mbed OS] Application will print NetworkInterface status over console.
+* Updated to Mbed OS 5.10.1.
+
 ## Release 2.0.0 (26.09.2018)
 * Updated to Mbed OS 5.10.0.
 * **Breaking changes** (Due to integration of storage and networking drivers to Mbed OS 5.10 and the introduction of new APIs, the application is not compatible with previous releases of Mbed OS).
@@ -17,7 +22,7 @@
 * Disabled Hardware acceleration for Ublox EVK Odin W2 and Nucleo F411RE. See Mbed OS [issue](https://github.com/ARMmbed/mbed-os/issues/6545).
 * [LINUX] Updated Mbed TLS to 2.13.1.
 
-## Release 1.5.0 (Next release)
+## Release 1.5.0 (11.9.2018)
 * Added a hardcoded RoT injection when application is configured to use developer mode. This preserves the Device Management Client credentials even when SOTP is erased (for example due to reflashing of the application binary).
 * Updated to Mbed OS 5.9.6.
 * Updated easy-connect to v1.2.16.

@@ -28,10 +28,20 @@
 #include "mcc_common_setup.h"
 #include "mcc_common_config.h"
 
+#include "mbed-trace/mbed_trace.h"
+
+#define TRACE_GROUP "plat"
+
 // This is for single or dual partition mode. This is supposed to be used with storage for data e.g. SD card.
 // Enable by 1/disable by 0.
 #ifndef MCC_PLATFORM_PARTITION_MODE
 #define MCC_PLATFORM_PARTITION_MODE 0
+#endif
+
+#define SECONDS_TO_MS 1000  // to avoid using floats, wait() uses floats
+
+#ifndef MCC_PLATFORM_WAIT_BEFORE_BD_INIT
+#define MCC_PLATFORM_WAIT_BEFORE_BD_INIT 2
 #endif
 
 #include "pal.h"
@@ -121,6 +131,10 @@ static FileSystem *fs2 = NULL;
 #endif
 #endif // MCC_PLATFORM_PARTITION_MODE
 
+/* Callback function which informs about status of connected NetworkInterface.
+ * */
+static void network_status_callback(nsapi_event_t status, intptr_t param);
+
 ////////////////////////////////
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
@@ -136,6 +150,7 @@ int mcc_platform_init_connection(void) {
         printf("ERROR: No NetworkInterface found!\n");
         return -1;
     }
+    network_interface->attach(&network_status_callback);
     for (int i=0; i < MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
         nsapi_error_t e;
         e = network_interface->connect();
@@ -341,6 +356,9 @@ int mcc_platform_storage_init(void) {
     if(!init_done) {
         bd = BlockDevice::get_default_instance();
         if (bd) {
+            // SD-driver initialization can fails with bd->init() -5005.
+            // This wait will allow the board more time to initialize.
+            wait_ms(MCC_PLATFORM_WAIT_BEFORE_BD_INIT * SECONDS_TO_MS);
             status = bd->init();
 
             if (status != BD_ERROR_OK) {
@@ -426,6 +444,49 @@ int mcc_platform_run_program(main_t mainFunc)
     mainFunc();
 
     return 1;
+}
+
+void network_status_callback(nsapi_event_t status, intptr_t param)
+{
+    if (status == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
+        switch(param) {
+            case NSAPI_STATUS_GLOBAL_UP:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_GLOBAL_UP");
+#else
+                printf("NSAPI_STATUS_GLOBAL_UP\n");
+#endif
+                break;
+            case NSAPI_STATUS_LOCAL_UP:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_LOCAL_UP");
+#else
+                printf("NSAPI_STATUS_LOCAL_UP\n");
+#endif
+                break;
+            case NSAPI_STATUS_DISCONNECTED:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_DISCONNECTED");
+#else
+                printf("NSAPI_STATUS_DISCONNECTED\n");
+#endif
+                break;
+            case NSAPI_STATUS_CONNECTING:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_CONNECTING");
+#else
+                printf("NSAPI_STATUS_CONNECTING\n");
+#endif
+                break;
+            case NSAPI_STATUS_ERROR_UNSUPPORTED:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_ERROR_UNSUPPORTED");
+#else
+                printf("NSAPI_STATUS_ERROR_UNSUPPORTED\n");
+#endif
+                break;
+        }
+    }
 }
 
 void mcc_platform_sw_build_info(void) {
