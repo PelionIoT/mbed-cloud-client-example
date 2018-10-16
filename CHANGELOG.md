@@ -1,5 +1,8 @@
 # Changelog for Pelion Device Management Client reference example application
 
+## Release 2.0.1.1 (16.10.2018)
+* No changes.
+
 ## Release 2.0.1 (12.10.2018)
 * Application uses `wait_ms(int)` instead of `wait(float)`, this saves a bit on application size.
 * [Mbed OS] Application will print NetworkInterface status over console.
