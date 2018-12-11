@@ -19,11 +19,14 @@
 
 #define TRACE_GROUP "ROT"
 
+#if (PAL_USE_HW_ROT)
+
 #define PAL_DEVICE_KEY_SIZE_IN_BYTES 16
 
 //THIS CODE IS FOR TESTING PURPOSES ONLY. DO NOT USE IN PRODUCTION ENVIRONMENTS. REPLACE WITH A PROPER IMPLEMENTATION BEFORE USE
 palStatus_t pal_plat_osGetRoTFromHW(uint8_t *keyBuf, size_t keyLenBytes)
 {
+
 #if defined (__CC_ARM)          /* ARM compiler. */
     #warning("PAL_INSECURE- You are using insecure Root Of Trust implementation, DO NOT USE IN PRODUCTION ENVIRONMENTS. REPLACE WITH A PROPER IMPLEMENTATION BEFORE USE")
 #else
@@ -51,3 +54,4 @@ palStatus_t pal_plat_osGetRoTFromHW(uint8_t *keyBuf, size_t keyLenBytes)
     return PAL_SUCCESS;
 }
 
+#endif

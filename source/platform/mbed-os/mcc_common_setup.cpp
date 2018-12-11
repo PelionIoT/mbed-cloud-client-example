@@ -97,6 +97,7 @@ static bd_size_t mcc_platform_storage_size = 0;
 
 
 /* local help functions. */
+static void print_network_information(NetworkInterface *iface);
 static int mcc_platform_reformat_partition(FileSystem *fs, BlockDevice* part);
 static int mcc_platform_test_filesystem(FileSystem *fs, BlockDevice* part);
 #if (MCC_PLATFORM_PARTITION_MODE == 1)
@@ -155,6 +156,7 @@ int mcc_platform_init_connection(void) {
         nsapi_error_t e;
         e = network_interface->connect();
         if (e == NSAPI_ERROR_OK) {
+            print_network_information(network_interface);
             return 0;
         }
         printf("Failed to connect! error=%d\n", e);
@@ -167,6 +169,7 @@ int mcc_platform_close_connection(void) {
     if (network_interface) {
         const nsapi_error_t err = network_interface->disconnect();
         if (err == NSAPI_ERROR_OK) {
+            network_interface->attach(NULL);
             network_interface = NULL;
             return 0;
         }
@@ -431,6 +434,36 @@ int mcc_platform_storage_init(void) {
 
 int mcc_platform_init(void)
 {
+    // On CortexM (3 and 4) the MCU has a write buffer, which helps in performance front,
+    // but has a side effect of making data access faults imprecise.
+    //
+    // So, if one gets a Mbed OS crash dump with following content, a re-build with
+    // "PLATFORM_DISABLE_WRITE_BUFFER=1" will help in getting the correct crash location.
+    //
+    // --8<---
+    // Crash Info:
+    // <..>
+    //    Target and Fault Info:
+    //          Forced exception, a fault with configurable priority has been escalated to HardFault
+    //          Imprecise data access error has occurred
+    // --8<---
+    //
+    // This can't be enabled by default as then we would test with different system setup than customer
+    // and possible OS and driver issues might get pass the tests.
+    //
+#if defined(PLATFORM_DISABLE_WRITE_BUFFER) && (PLATFORM_DISABLE_WRITE_BUFFER==1)
+
+#if defined(TARGET_CORTEX_M)
+
+    SCnSCB->ACTLR |= SCnSCB_ACTLR_DISDEFWBUF_Msk;
+
+    tr_info("mcc_platform_init: disabled CPU write buffer, expect reduced performance");
+#else
+    tr_info("mcc_platform_init: disabling CPU write buffer not possible or needed on this MCU");
+#endif
+
+#endif
+
     return 0;
 }
 
@@ -499,4 +532,23 @@ void mcc_platform_sw_build_info(void) {
 #else
     printf("Mbed OS version <UNKNOWN>\n");
 #endif
+}
+
+static void print_network_information(NetworkInterface *iface)
+{
+    if (iface->ethInterface()) {
+        printf("Connected using Ethernet\n");
+    } else if (iface->wifiInterface()) {
+        printf("Connected using WiFi\n");
+    } else if (iface->meshInterface()) {
+        printf("Connected using Mesh\n");
+    } else if (iface->cellularBase()) {
+        printf("Connected using Cellular\n");
+    } else if (iface->emacInterface()) {
+        printf("Connected using Emac\n");
+    } else {
+        printf("Unknown interface\n");
+    }
+
+    printf("IP: %s\n", iface->get_ip_address());
 }
