@@ -1,7 +1,7 @@
 # Changelog for Pelion Device Management Client reference example application
 
-## Release 2.0.1.1 (16.10.2018)
-* No changes.
+## Release 2.1.0 (11.12.2018)
+* Updated to Mbed OS 5.10.3.
 
 ## Release 2.0.1 (12.10.2018)
 * Application uses `wait_ms(int)` instead of `wait(float)`, this saves a bit on application size.
