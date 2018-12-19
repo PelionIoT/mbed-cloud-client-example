@@ -1,5 +1,13 @@
 # Changelog for Pelion Device Management Client reference example application
 
+## Release 2.1.1 (19.12.2018)
+* Updated to Mbed OS 5.11.0.
+* Modified WiFi configuration `configs/wifi_esp8266_v4.json` to support [new ESP8266 Wi-Fi chip](https://www.esp8266.com/wiki/doku.php?id=esp8266-module-family) having 2MB or more flash and [ESP8266 AT firmware](https://www.espressif.com/en/support/download/at?keys=) 1.7.0, with serial flow control (`UART0_CTS`, `UART0_RTS`) pins and reset pin (`EXT_RSTB`) connected. For production devices, we recommend that you upgrade your ESP8266 to this version and connect those control pins to corresponding pins on the target hardware.
+* Previous WiFi ESP866 is supported via new `configs/wifi_esp8266_v4_legacy.json` file.
+
+    <span class="notes">**Note**: With legacy ESP8266 Wi-Fi with 1 MB flash, the minimum supported firmware version is now 1.6.2. **Without flow control and reset pin connected the device will eventually disconnect and fail to re-connect.** ESP8266 firmware has to be version 1.7.0 (or later) to enable flow control and only boards with 2 MB flash or more can take that firmware in.</span>
+* [Linux] Updated Mbed TLS to 2.15.1.
+
 ## Release 2.1.0 (11.12.2018)
 * Updated to Mbed OS 5.10.3.
 

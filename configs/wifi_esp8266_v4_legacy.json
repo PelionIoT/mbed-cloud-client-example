@@ -19,20 +19,27 @@
             "drivers.uart-serial-rxbuf-size"    : 1024,
             "drivers.uart-serial-txbuf-size"    : 1024,
             "events.shared-stacksize"           : 2048,
-            "esp8266.rx"                : "PTC3",
-            "esp8266.tx"                : "PTC4",
-            "esp8266.rst"               : "D8",
-            "esp8266.rts"               : "PTC1",
-            "esp8266.cts"               : "PTC2",
+            "esp8266.rx"                : "D0",
+            "esp8266.tx"                : "D1",
+            "esp8266.socket-bufsize"    : 32768,
             "esp8266.provide-default"   : true,
             "nsapi.default-wifi-security"       : "WPA_WPA2",
             "nsapi.default-wifi-ssid"           : "\"SSID\"",
             "nsapi.default-wifi-password"       : "\"Password\""
         },
+        "STM_EMAC": {
+            "lwip.pbuf-pool-size" : 16,
+            "lwip.mem-size"       : 12500
+        },
         "K64F": {
             "target.network-default-interface-type" : "WIFI",
             "update-client.bootloader-details"      : "0x00007188",
             "update-client.application-details"     : "(40*1024)"
+        },
+        "NUCLEO_F429ZI": {
+            "target.network-default-interface-type" : "WIFI",
+            "update-client.bootloader-details"      : "0x080078CC",
+            "update-client.application-details"     : "(0x08000000+64*1024)"
         }
     },
     "config": {
