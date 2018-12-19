@@ -54,6 +54,7 @@
             "drivers.uart-serial-txbuf-size"        : 1024,
             "update-client.bootloader-details"      : "(0x08000000+30*1024)",
             "update-client.application-details"     : "(0x08000000+64*1024)",
+            "events.shared-stacksize"               : 2048,
             "idw0xx1.provide-default": true,
             "idw0xx1.tx": "PA_9",
             "idw0xx1.rx": "PA_10",
