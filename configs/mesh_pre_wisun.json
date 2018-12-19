@@ -1,0 +1,65 @@
+{
+    "macros": [
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
+        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
+    ],
+    "target_overrides": {
+        "*": {
+            "target.features_add"               : ["BOOTLOADER", "STORAGE"],
+            "target.components_add"             : ["SD"],
+            "platform.stdio-baud-rate"          : 115200,
+            "platform.stdio-convert-newlines"   : true,
+            "platform.stdio-buffered-serial"    : true,
+            "mbed-client.event-loop-size"       : 32768,
+            "mbed-client.reconnection-count"    : 6,
+            "mbed-client-pal.pal-dns-api-version": 2,
+            "mbed-client.sn-coap-blockwise-max-time-data-stored": 120,
+            "client_app.pal_dtls_peer_min_timeout": "10000",
+            "nanostack-hal.event_loop_thread_stack_size": 8192,
+            "update-client.storage-address"     : "(1024*1024*64)",
+            "update-client.storage-size"        : "(1024*1024*2)",
+            "update-client.storage-locations"   : 1,
+            "mbed-trace.enable"                     : true,
+            "mbed-mesh-api.6lowpan-nd-channel-mask" : "0x1ffffff",
+            "mbed-mesh-api.6lowpan-nd-channel-page" : 10,
+            "mbed-mesh-api.6lowpan-nd-panid-filter" : "0xFFFF",
+            "mbed-mesh-api.6lowpan-nd-security-mode": "NONE",
+            "mbed-mesh-api.6lowpan-nd-network-filter": "\"pre_wisun_test01\"",
+            "mbed-mesh-api.6lowpan-nd-use-fhss"     : true,
+            "nsapi.default-mesh-type"               : "LOWPAN",
+            "mbed-mesh-api.heap-size"               : 0,
+            "nanostack.configuration"               : "lowpan_router",
+            "s2lp.provide-default"                  : true,
+            "target.device_has_add"                 : ["802_15_4_PHY"]
+        },
+        "STM_EMAC": {
+            "lwip.pbuf-pool-size" : 16,
+            "lwip.mem-size"       : 12500
+        },
+        "K64F": {
+            "target.network-default-interface-type" : "MESH",
+            "update-client.bootloader-details"      : "0x00007188",
+            "update-client.application-details"     : "(40*1024)"
+        },
+        "NUCLEO_F429ZI": {
+            "target.network-default-interface-type" : "MESH",
+            "update-client.bootloader-details"      : "0x080078CC",
+            "update-client.application-details"     : "(0x08000000+64*1024)"
+        }
+    },
+    "config": {
+        "developer-mode": {
+            "help"      : "Enable Developer mode to skip Factory enrollment",
+            "options"   : [null, 1],
+            "value"     : 1
+        },
+        "button-pinname": {
+            "help"      : "PinName for button.",
+            "value"     : "BUTTON1"
+        },
+        "led-pinname"   : {
+            "help"      : "PinName for led, which is attached to led blink resource.",
+            "value"     : "LED_RED"
+        }
+    }
+}

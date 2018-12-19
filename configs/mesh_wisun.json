@@ -1,0 +1,63 @@
+{
+    "macros": [
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
+        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
+    ],
+    "target_overrides": {
+        "*": {
+            "target.features_add"               : ["BOOTLOADER", "STORAGE"],
+            "target.components_add"             : ["SD"],
+            "nanostack.configuration": "nanostack_full",
+            "nsapi.default-mesh-type": "WISUN",
+            "mbed-mesh-api.ws-fhss-bc-interval": "1000",
+            "mbed-mesh-api.ws-fhss-bc-dwell-interval": "200",
+            "mbed-mesh-api.ws-fhss-uc-dwell-interval": "150",
+            "mbed-mesh-api.ws-regulatory-domain": "3",
+            "mbed-mesh-api.6lowpan-nd-panid-filter": "0xffff",
+            "mbed-mesh-api.6lowpan-nd-channel-mask": "(0x000f0000)",
+            "mbed-trace.enable": true,
+            "platform.stdio-convert-newlines": true,
+            "platform.stdio-baud-rate": 115200,
+            "platform.stdio-buffered-serial": true,
+            "platform.error-all-threads-info": true,
+            "atmel-rf.provide-default": false,
+            "s2lp.provide-default": true,
+            "mcr20a.provide-default": false,
+            "target.device_has_add": ["802_15_4_PHY"],
+            "target.network-default-interface-type": "MESH",
+            "mbed-client.event-loop-size"       : 32768,
+            "mbed-client.reconnection-count"    : 6,
+            "mbed-client-pal.pal-dns-api-version": 2,
+            "mbed-client.sn-coap-blockwise-max-time-data-stored": 120,
+            "client_app.pal_dtls_peer_min_timeout": "10000",
+            "nanostack-hal.event_loop_thread_stack_size": 8192,
+            "mbed-mesh-api.heap-size": 0,
+            "update-client.storage-address"     : "(1024*1024*64)",
+            "update-client.storage-size"        : "(1024*1024*2)",
+            "update-client.storage-locations"   : 1
+        },
+        "K64F": {
+            "update-client.bootloader-details"      : "0x00007188",
+            "update-client.application-details"     : "(40*1024)"
+        },
+        "NUCLEO_F429ZI":  {
+            "update-client.bootloader-details"      : "0x080078CC",
+            "update-client.application-details"     : "(0x08000000+64*1024)"
+        }
+    },
+    "config": {
+        "developer-mode": {
+            "help"      : "Enable Developer mode to skip Factory enrollment",
+            "options"   : [null, 1],
+            "value"     : 1
+        },
+        "button-pinname": {
+            "help"      : "PinName for button.",
+            "value"     : "BUTTON1"
+        },
+        "led-pinname"   : {
+            "help"      : "PinName for led, which is attached to led blink resource.",
+            "value"     : "LED_RED"
+        }
+    }
+}
