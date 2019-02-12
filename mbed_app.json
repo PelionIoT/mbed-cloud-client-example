@@ -58,7 +58,13 @@
             "idw0xx1.provide-default": true,
             "idw0xx1.tx": "PA_9",
             "idw0xx1.rx": "PA_10",
-            "target.macros_remove"                  : ["MBEDTLS_CONFIG_HW_SUPPORT"]
+            "target.macros_remove"                  : ["MBEDTLS_CONFIG_HW_SUPPORT"],
+            "target.extra_labels_add": ["PSA"],
+            "target.macros_add": [
+                "MBEDTLS_ENTROPY_NV_SEED=1",
+                "MBEDTLS_PLATFORM_NV_SEED_READ_MACRO=mbed_default_seed_read",
+                "MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO=mbed_default_seed_write"
+            ]
         }
     },
     "config": {
