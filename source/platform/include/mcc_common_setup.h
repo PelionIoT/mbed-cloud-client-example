@@ -41,7 +41,7 @@ int mcc_platform_close_connection(void);
 // Return network interface.
 void *mcc_platform_get_network_interface(void);
 
-// Format storage
+// Format storage (DEPRECATED)
 int mcc_platform_reformat_storage(void);
 
 // initialize common details for storage for storing KCM data etc.

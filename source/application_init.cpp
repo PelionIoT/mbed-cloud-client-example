@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2018 ARM Ltd.
+// Copyright 2016-2019 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -145,6 +145,14 @@ void print_fcc_status(int fcc_status)
     printf("\nFactory Configurator Client [ERROR]: %s\r\n\n", error);
 }
 
+#if defined(__SXOS__)
+extern "C"
+void trace_printer(const char* str)
+{
+    printf("%s\r\n", str);
+}
+#endif
+
 bool application_init_mbed_trace(void)
 {
     // Create mutex for tracing to avoid broken lines in logs
@@ -157,6 +165,10 @@ bool application_init_mbed_trace(void)
     (void) mbed_trace_init();
     mbed_trace_mutex_wait_function_set(mbed_trace_helper_mutex_wait);
     mbed_trace_mutex_release_function_set(mbed_trace_helper_mutex_release);
+
+#if defined(__SXOS__)
+    mbed_trace_print_function_set(trace_printer);
+#endif
 
     return 0;
 }
@@ -176,7 +188,7 @@ static bool application_init_verify_cloud_configuration()
 #endif
     status = fcc_verify_device_configured_4mbed_cloud();
     print_fcc_status(status);
-    if (status != FCC_STATUS_SUCCESS) {
+    if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_EXPIRED_CERTIFICATE) {
         return 1;
     }
     return 0;
@@ -212,10 +224,12 @@ static bool application_init_fcc(void)
     // primary storage if no valid certificates exist.
     // This should never be used for any kind of production devices.
 #ifndef MBED_CONF_APP_MCC_NO_AUTO_FORMAT
+#ifndef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
         printf("Certificate validation failed, trying autorecovery...\n");
         if (mcc_platform_reformat_storage() != 0) {
             return 1;
         }
+#endif
         status = mcc_platform_reset_storage();
         if (status != FCC_STATUS_SUCCESS) {
             return 1;

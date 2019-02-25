@@ -1,0 +1,11 @@
+{
+    "testcases": [
+        {"name" : "register"},
+        {"name" : "get"},
+        {"name" : "put"},
+        {"name" : "post"},
+        {"name" : "observation"},
+        {"name" : "device_update"},
+        {"name" : "deregister"}
+    ]
+}

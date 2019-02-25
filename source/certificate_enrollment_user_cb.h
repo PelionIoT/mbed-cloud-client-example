@@ -21,6 +21,8 @@
 #ifndef CERTIFICATE_ENROLLMENT_USER_CB_H
 #define CERTIFICATE_ENROLLMENT_USER_CB_H
 
+#include "ce_status.h"
+#include "ce_defs.h"
 #include <stdint.h>
 
 #ifdef __cplusplus

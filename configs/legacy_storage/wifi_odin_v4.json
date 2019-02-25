@@ -5,24 +5,19 @@
     ],
     "target_overrides": {
         "*": {
+            "client_app.pal-user-defined-configuration" : "\"pal_config_legacy_MbedOS.h\"",
             "target.features_add"               : ["BOOTLOADER", "STORAGE"],
             "target.components_add"             : ["SD"],
             "platform.stdio-baud-rate"          : 115200,
             "platform.stdio-convert-newlines"   : true,
             "platform.stdio-buffered-serial"    : true,
-            "mbed-client.event-loop-size"       : 1024,
+            "platform.stdio-flush-at-exit"      : true,
+            "mbed-client.event-loop-size"       : 2048,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
             "update-client.storage-address"     : "(1024*1024*64)",
             "update-client.storage-size"        : "(1024*1024*2)",
             "update-client.storage-locations"   : 1,
             "mbed-trace.enable": null,
-            "drivers.uart-serial-rxbuf-size"    : 1024,
-            "drivers.uart-serial-txbuf-size"    : 1024,
-            "events.shared-stacksize"           : 2048,
-            "esp8266.rx"                : "D0",
-            "esp8266.tx"                : "D1",
-            "esp8266.socket-bufsize"    : 32768,
-            "esp8266.provide-default"   : true,
             "nsapi.default-wifi-security"       : "WPA_WPA2",
             "nsapi.default-wifi-ssid"           : "\"SSID\"",
             "nsapi.default-wifi-password"       : "\"Password\""
@@ -31,15 +26,17 @@
             "lwip.pbuf-pool-size" : 16,
             "lwip.mem-size"       : 12500
         },
-        "K64F": {
+        "UBLOX_EVK_ODIN_W2": {
             "target.network-default-interface-type" : "WIFI",
-            "update-client.bootloader-details"      : "0x00007188",
-            "update-client.application-details"     : "(40*1024)"
-        },
-        "NUCLEO_F429ZI": {
-            "target.network-default-interface-type" : "WIFI",
-            "update-client.bootloader-details"      : "0x080078CC",
-            "update-client.application-details"     : "(0x08000000+64*1024)"
+            "update-client.bootloader-details"      : "0x08007300",
+            "update-client.application-details"     : "(0x08000000+64*1024)",
+            "mbed-cloud-client.external-sst-support": null,
+            "client_app.sotp-section-1-address"     : "(0x08000000+32*1024)",
+            "client_app.sotp-section-1-size"        : "(16*1024)",
+            "client_app.sotp-section-2-address"     : "(0x08000000+48*1024)",
+            "client_app.sotp-section-2-size"        : "(16*1024)",
+            "target.lse_available"                  : 0,
+            "target.macros_remove"                  : ["MBEDTLS_CONFIG_HW_SUPPORT"]
         }
     },
     "config": {

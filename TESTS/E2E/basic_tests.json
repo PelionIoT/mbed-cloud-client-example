@@ -1,0 +1,10 @@
+{
+    "testcases": [
+        {"name" : "register"},
+        {"name" : "get"},
+        {"name" : "put"},
+        {"name" : "post"},
+        {"name" : "observation"},
+        {"name" : "deregister"}
+    ]
+}

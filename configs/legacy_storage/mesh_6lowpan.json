@@ -1,0 +1,78 @@
+{
+    "macros": [
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
+        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
+    ],
+    "target_overrides": {
+        "*": {
+            "client_app.pal-user-defined-configuration" : "\"pal_config_legacy_MbedOS.h\"",
+            "target.features_add"               : ["BOOTLOADER", "STORAGE"],
+            "target.components_add"             : ["SD"],
+            "platform.stdio-baud-rate"          : 115200,
+            "platform.stdio-convert-newlines"   : true,
+            "platform.stdio-buffered-serial"    : true,
+            "platform.stdio-flush-at-exit"      : true,
+            "mbed-client.event-loop-size"       : 32768,
+            "mbed-client.reconnection-count"    : 6,
+            "mbed-client-pal.pal-dns-api-version": 2,
+            "mbed-client.sn-coap-blockwise-max-time-data-stored": 120,
+            "client_app.pal_dtls_peer_min_timeout": "10000",
+            "nanostack-hal.event_loop_thread_stack_size": 8192,
+            "update-client.storage-address"     : "(1024*1024*64)",
+            "update-client.storage-size"        : "(1024*1024*2)",
+            "update-client.storage-locations"   : 1,
+            "mbed-trace.enable": null,
+            "mbed-mesh-api.6lowpan-nd-channel"      : 12,
+            "mbed-mesh-api.6lowpan-nd-panid-filter" : "0xFFFF",
+            "mbed-mesh-api.6lowpan-nd-security-mode": "NONE",
+            "nsapi.default-mesh-type"               : "LOWPAN",
+            "nanostack.configuration"               : "lowpan_router",
+            "atmel-rf.provide-default"              : true,
+            "target.device_has_add"                 : ["802_15_4_PHY"]
+        },
+        "STM_EMAC": {
+            "lwip.pbuf-pool-size" : 16,
+            "lwip.mem-size"       : 12500
+        },
+        "K64F": {
+            "target.network-default-interface-type" : "MESH",
+            "update-client.bootloader-details"      : "0x00007188",
+            "update-client.application-details"     : "(40*1024)",
+            "mbed-cloud-client.external-sst-support": null,
+            "client_app.sotp-section-1-address"     : "(32*1024)",
+            "client_app.sotp-section-1-size"        : "( 4*1024)",
+            "client_app.sotp-section-2-address"     : "(36*1024)",
+            "client_app.sotp-section-2-size"        : "( 4*1024)"
+        },
+        "NUCLEO_F429ZI": {
+            "target.network-default-interface-type" : "MESH",
+            "update-client.bootloader-details"      : "0x080078CC",
+            "update-client.application-details"     : "(0x08000000+64*1024)",
+            "mbed-cloud-client.external-sst-support": null,
+            "client_app.sotp-section-1-address"     : "(0x08000000+32*1024)",
+            "client_app.sotp-section-1-size"        : "(16*1024)",
+            "client_app.sotp-section-2-address"     : "(0x08000000+48*1024)",
+            "client_app.sotp-section-2-size"        : "(16*1024)",
+            "target.macros_add": ["ATMEL_SPI_MOSI=PB_5"],
+            "sd.SPI_MOSI"   : "PC_12",
+            "sd.SPI_MISO"   : "PC_11",
+            "sd.SPI_CLK"    : "PC_10",
+            "sd.SPI_CS"     : "PA_15"
+        }
+    },
+    "config": {
+        "developer-mode": {
+            "help"      : "Enable Developer mode to skip Factory enrollment",
+            "options"   : [null, 1],
+            "value"     : 1
+        },
+        "button-pinname": {
+            "help"      : "PinName for button.",
+            "value"     : "BUTTON1"
+        },
+        "led-pinname"   : {
+            "help"      : "PinName for led, which is attached to led blink resource.",
+            "value"     : "LED_RED"
+        }
+    }
+}

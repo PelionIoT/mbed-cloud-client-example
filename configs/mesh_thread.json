@@ -1,49 +1,47 @@
 {
     "macros": [
         "ARM_UC_USE_PAL_BLOCKDEVICE=1",
-        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE",
         "MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED",
         "MBEDTLS_ECJPAKE_C"
     ],
     "target_overrides": {
         "*": {
-            "target.features_add"               : ["BOOTLOADER", "STORAGE"],
-            "target.components_add"             : ["SD"],
-            "platform.stdio-baud-rate"          : 115200,
-            "platform.stdio-convert-newlines"   : true,
-            "platform.stdio-buffered-serial"    : true,
-            "mbed-client.event-loop-size"       : 32768,
-            "mbed-client.reconnection-count"    : 6,
-            "mbed-client-pal.pal-dns-api-version": 2,
+            "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.stdio-convert-newlines"           : true,
+            "platform.stdio-buffered-serial"            : true,
+            "platform.stdio-flush-at-exit"              : true,
+            "mbed-client.reconnection-count"            : 6,
+            "mbed-client-pal.pal-dns-api-version"       : 2,
             "mbed-client.sn-coap-blockwise-max-time-data-stored": 120,
-            "client_app.pal_dtls_peer_min_timeout": "10000",
+            "mbed-cloud-client.external-sst-support"    : 1,
+            "client_app.pal_dtls_peer_min_timeout"      : "10000",
             "nanostack-hal.event_loop_thread_stack_size": 8192,
-            "update-client.storage-address"     : "(1024*1024*64)",
-            "update-client.storage-size"        : "(1024*1024*2)",
-            "update-client.storage-locations"   : 1,
-            "mbed-trace.enable": null,
-            "mbed-mesh-api.thread-config-channel"   : 22,
-            "mbed-mesh-api.thread-config-panid"     : "0x0700",
-
-            "nsapi.default-mesh-type"               : "THREAD",
-            "nanostack.configuration"               : "thread_router",
-            "atmel-rf.provide-default"              : true,
-            "target.device_has_add"                 : ["802_15_4_PHY"]
-        },
-        "STM_EMAC": {
-            "lwip.pbuf-pool-size" : 16,
-            "lwip.mem-size"       : 12500
+            "update-client.storage-locations"           : 1,
+            "mbed-trace.enable"                         : null,
+            "mbed-mesh-api.thread-config-channel"       : 22,
+            "mbed-mesh-api.thread-config-panid"         : "0x0700",
+            "nsapi.default-mesh-type"                   : "THREAD",
+            "nanostack.configuration"                   : "thread_router",
+            "atmel-rf.provide-default"                  : true,
+            "target.device_has_add"                     : ["802_15_4_PHY"]
         },
         "K64F": {
-            "target.network-default-interface-type" : "MESH",
-            "update-client.bootloader-details"      : "0x00007188",
-            "update-client.application-details"     : "(40*1024)"
-        },
-        "NUCLEO_F429ZI": {
-            "target.network-default-interface-type" : "MESH",
-            "update-client.bootloader-details"      : "0x080078CC",
-            "update-client.application-details"     : "(0x08000000+64*1024)",
-            "target.macros_add": ["ATMEL_SPI_MOSI=PB_5"]
+            "target.network-default-interface-type"     : "MESH",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.0.0.bin",
+            "target.components_add"                     : ["SD"],
+            "update-client.bootloader-details"          : "0x00007188",
+            "update-client.application-details"         : "(40*1024)",
+            "update-client.storage-address"             : "(1024*1024*64)",
+            "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
+            "storage_filesystem.internal_base_address"  : "(32*1024)",
+            "storage_filesystem.rbp_internal_size"      : "(8*1024)",
+            "storage_filesystem.external_base_address"  : "(0x0)",
+            "storage_filesystem.external_size"          : "(1024*1024*64)",
+            "storage.storage_type"                      : "FILESYSTEM",
+            "storage_filesystem.filesystem"             : "LITTLE",
+            "storage_filesystem.blockdevice"            : "SD"
         }
     },
     "config": {

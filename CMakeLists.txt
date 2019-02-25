@@ -1,6 +1,6 @@
 INCLUDE(CMakeForceCompiler)
 # CROSS COMPILER SETTING
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.5)
 SET(CMAKE_SYSTEM_NAME Generic)
 
 project(mbedCloudClientExample)

@@ -1,35 +1,45 @@
 {
     "macros": [
-        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
-        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1"
     ],
     "target_overrides": {
         "*": {
-            "target.features_add"               : ["BOOTLOADER", "STORAGE"],
-            "target.components_add"             : ["SD"],
-            "platform.stdio-baud-rate"          : 115200,
-            "platform.stdio-convert-newlines"   : true,
-            "platform.stdio-buffered-serial"    : true,
-            "mbed-client.event-loop-size"       : 1024,
+            "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.stdio-convert-newlines"           : true,
+            "platform.stdio-buffered-serial"            : true,
+            "platform.stdio-flush-at-exit"              : true,
+            "mbed-client.event-loop-size"               : 2048,
+            "mbed-cloud-client.external-sst-support"    : 1,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
-            "update-client.storage-address"     : "(1024*1024*64)",
-            "update-client.storage-size"        : "(1024*1024*2)",
-            "update-client.storage-locations"   : 1,
-            "mbed-trace.enable": null,
-            "nsapi.default-wifi-security"       : "WPA_WPA2",
-            "nsapi.default-wifi-ssid"           : "\"SSID\"",
-            "nsapi.default-wifi-password"       : "\"Password\""
+            "update-client.storage-locations"           : 1,
+            "mbed-trace.enable"                         : null,
+            "nsapi.default-wifi-security"               : "WPA_WPA2",
+            "nsapi.default-wifi-ssid"                   : "\"SSID\"",
+            "nsapi.default-wifi-password"               : "\"Password\""
         },
         "STM_EMAC": {
             "lwip.pbuf-pool-size" : 16,
             "lwip.mem-size"       : 12500
         },
         "UBLOX_EVK_ODIN_W2": {
-            "target.network-default-interface-type" : "WIFI",
-            "update-client.bootloader-details"      : "0x08007300",
-            "update-client.application-details"     : "(0x08000000+64*1024)",
-            "target.lse_available"                  : 0,
-            "target.macros_remove"                  : ["MBEDTLS_CONFIG_HW_SUPPORT"]
+            "target.network-default-interface-type"     : "WIFI",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-ublox_evk_odin_w2-block_device-kvstore-v4.0.0.bin",
+            "target.components_add"                     : ["SD"],
+            "update-client.bootloader-details"          : "0x08007300",
+            "update-client.application-details"         : "(0x08000000+64*1024)",
+            "update-client.storage-address"             : "(1024*1024*64)",
+            "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
+            "storage_filesystem.internal_base_address"  : "(0x08000000+32*1024)",
+            "storage_filesystem.rbp_internal_size"      : "(32*1024)",
+            "storage_filesystem.external_base_address"  : "(0x0)",
+            "storage_filesystem.external_size"          : "(1024*1024*64)",
+            "storage.storage_type"                      : "FILESYSTEM",
+            "storage_filesystem.filesystem"             : "LITTLE",
+            "storage_filesystem.blockdevice"            : "SD",
+            "target.lse_available"                      : 0,
+            "target.macros_remove"                      : ["MBEDTLS_CONFIG_HW_SUPPORT"]
         }
     },
     "config": {

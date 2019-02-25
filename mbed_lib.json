@@ -61,7 +61,7 @@
         "pal-user-defined-configuration": {
             "help": "Defines which PAL configuration the board should use.",
             "macro_name": "PAL_USER_DEFINED_CONFIGURATION",
-            "value": "\"sotp_fs_config_MbedOS.h\""
+            "value": "\"pal_config_MbedOS.h\""
         }
     },
     "target_overrides": {
@@ -69,36 +69,6 @@
             "pal_number_of_partition": 1,
             "partition_mode": 1,
             "auto_partition": 1
-        },
-        "K64F": {
-            "sotp-section-1-address"           : "(32*1024)",
-            "sotp-section-1-size"              : "( 4*1024)",
-            "sotp-section-2-address"           : "(36*1024)",
-            "sotp-section-2-size"              : "( 4*1024)"
-        },
-        "K66F": {
-            "sotp-section-1-address"           : "(32*1024)",
-            "sotp-section-1-size"              : "( 4*1024)",
-            "sotp-section-2-address"           : "(36*1024)",
-            "sotp-section-2-size"              : "( 4*1024)"
-        },
-        "NUCLEO_F411RE": {
-            "sotp-section-1-address"           : "(0x08000000+32*1024)",
-            "sotp-section-1-size"              : "(16*1024)",
-            "sotp-section-2-address"           : "(0x08000000+48*1024)",
-            "sotp-section-2-size"              : "(16*1024)"
-        },
-        "NUCLEO_F429ZI": {
-            "sotp-section-1-address"           : "(0x08000000+32*1024)",
-            "sotp-section-1-size"              : "(16*1024)",
-            "sotp-section-2-address"           : "(0x08000000+48*1024)",
-            "sotp-section-2-size"              : "(16*1024)"
-        },
-        "UBLOX_EVK_ODIN_W2": {
-            "sotp-section-1-address"           : "(0x08000000+32*1024)",
-            "sotp-section-1-size"              : "(16*1024)",
-            "sotp-section-2-address"           : "(0x08000000+48*1024)",
-            "sotp-section-2-size"              : "(16*1024)"
         }
      }
 }
