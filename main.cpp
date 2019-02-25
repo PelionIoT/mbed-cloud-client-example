@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2018 ARM Ltd.
+// Copyright 2016-2019 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -32,7 +32,12 @@ static Blinky blinky;
 
 static void main_application(void);
 
+#if defined(MBED_CLOUD_APPLICATION_NONSTANDARD_ENTRYPOINT)
+extern "C"
+int mbed_cloud_application_entrypoint(void)
+#else
 int main(void)
+#endif
 {
     mcc_platform_run_program(main_application);
 }
@@ -72,7 +77,7 @@ void blink_callback(void *)
     }
 }
 
-void button_status_callback(const M2MBase& object,
+void notification_status_callback(const M2MBase& object,
                             const M2MBase::MessageDeliveryStatus status,
                             const M2MBase::MessageType /*type*/)
 {
@@ -155,6 +160,13 @@ void main_application(void)
     // Print platform information
     mcc_platform_sw_build_info();
 
+    // Initialize network
+    if (!mcc_platform_init_connection()) {
+        printf("Network initialized, connecting...\n");
+    } else {
+        return;
+    }
+
     // Print some statistics of the object sizes and their heap memory consumption.
     // NOTE: This *must* be done before creating MbedCloudClient, as the statistic calculation
     // creates and deletes M2MSecurity and M2MDevice singleton objects, which are also used by
@@ -188,15 +200,15 @@ void main_application(void)
 
     // Create resource for button count. Path of this resource will be: 3200/0/5501.
     button_res = mbedClient.add_cloud_resource(3200, 0, 5501, "button_resource", M2MResourceInstance::INTEGER,
-                              M2MBase::GET_ALLOWED, 0, true, NULL, (void*)button_status_callback);
+                              M2MBase::GET_ALLOWED, 0, true, NULL, (void*)notification_status_callback);
 
     // Create resource for led blinking pattern. Path of this resource will be: 3201/0/5853.
     pattern_res = mbedClient.add_cloud_resource(3201, 0, 5853, "pattern_resource", M2MResourceInstance::STRING,
-                               M2MBase::GET_PUT_ALLOWED, "500:500:500:500", false, (void*)pattern_updated, NULL);
+                               M2MBase::GET_PUT_ALLOWED, "500:500:500:500", true, (void*)pattern_updated, (void*)notification_status_callback);
 
     // Create resource for starting the led blinking. Path of this resource will be: 3201/0/5850.
     blink_res = mbedClient.add_cloud_resource(3201, 0, 5850, "blink_resource", M2MResourceInstance::STRING,
-                             M2MBase::POST_ALLOWED, "", false, (void*)blink_callback, (void*)button_status_callback);
+                             M2MBase::POST_ALLOWED, "", false, (void*)blink_callback, (void*)notification_status_callback);
     // Use delayed response
     blink_res->set_delayed_response(true);
 
@@ -226,5 +238,6 @@ void main_application(void)
         }
     }
 
-    // Client unregistered, exit program.
+    // Client unregistered, disconnect and exit program.
+    mcc_platform_close_connection();
 }

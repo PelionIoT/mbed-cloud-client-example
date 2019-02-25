@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #################################################################################
-#  Copyright 2016-2018 ARM Ltd.
+#  Copyright 2016-2019 ARM Ltd.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -939,7 +939,7 @@ def checkToolchainEnv(toolchain):
 
 @cli.command(
     context_settings=CONTEXT_SETTINGS,
-    short_help='fullBuild deploy and build the project (run "%s  fullBuild -h" for help)' % PROG_NAME)
+    short_help='[DEPRECATED] fullBuild deploy and build the project (run "%s  fullBuild -h" for help)' % PROG_NAME)
 @click.option(
     '--target',
     'target_name',
@@ -983,6 +983,7 @@ def checkToolchainEnv(toolchain):
 def fullbuild(config, target_name, toolchain, external, name, keep_sources, numOfBuildThreads):
     """deploy and build target files"""
     config.target_name = target_name
+    logger.info('fullBuild option has been DEPRECATED and will be removed in future release.')
     logger.info('fullBuild running for target = %s with toolchain = %s', target_name, toolchain)
 
     ctx = click.get_current_context()
@@ -1011,6 +1012,7 @@ def fullbuild(config, target_name, toolchain, external, name, keep_sources, numO
 
     runCmakeAndMake(out_dir, isDebug, toolchain, output, envPair, external, name, numOfBuildThreads)  # CMAKE + build release version
 
+    logger.info('fullBuild option has been DEPRECATED and will be removed in future release.')
     logger.info('\nCompleted fullBuild running for target = %s\nWith toolchain = %s.\nOutput directory: %s\n', target_name, toolchain, output)
 
 

@@ -27,21 +27,232 @@
 #include "mbed.h"
 #include "mcc_common_setup.h"
 #include "mcc_common_config.h"
+#ifdef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
+#include "kv_config.h"
+#endif
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 
 #define TRACE_GROUP "plat"
-
-// This is for single or dual partition mode. This is supposed to be used with storage for data e.g. SD card.
-// Enable by 1/disable by 0.
-#ifndef MCC_PLATFORM_PARTITION_MODE
-#define MCC_PLATFORM_PARTITION_MODE 0
-#endif
 
 #define SECONDS_TO_MS 1000  // to avoid using floats, wait() uses floats
 
 #ifndef MCC_PLATFORM_WAIT_BEFORE_BD_INIT
 #define MCC_PLATFORM_WAIT_BEFORE_BD_INIT 2
+#endif
+
+/* local help functions. */
+const char* network_type(NetworkInterface *iface);
+
+////////////////////////////////////////
+// PLATFORM SPECIFIC DEFINES & FUNCTIONS
+////////////////////////////////////////
+
+static NetworkInterface* network_interface=NULL;
+
+/* Callback function which informs about status of connected NetworkInterface.
+ * */
+static void network_status_callback(nsapi_event_t status, intptr_t param);
+
+////////////////////////////////
+// SETUP_COMMON.H IMPLEMENTATION
+////////////////////////////////
+
+int mcc_platform_init_connection(void) {
+// Perform number of retries if network init fails.
+#ifndef MCC_PLATFORM_CONNECTION_RETRY_COUNT
+#define MCC_PLATFORM_CONNECTION_RETRY_COUNT 5
+#endif
+#ifndef MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT
+#define MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT 1000
+#endif
+    printf("mcc_platform_init_connection()\n");
+
+    network_interface = NetworkInterface::get_default_instance();
+    if(network_interface == NULL) {
+        printf("ERROR: No NetworkInterface found!\n");
+        return -1;
+    }
+    network_interface->attach(&network_status_callback);
+    printf("Connecting with interface: %s\n", network_type(NetworkInterface::get_default_instance()));
+    for (int i=1; i <= MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
+        nsapi_error_t e;
+        e = network_interface->connect();
+        if (e == NSAPI_ERROR_OK) {
+            printf("IP: %s\n", network_interface->get_ip_address());
+            return 0;
+        }
+        printf("Failed to connect! error=%d. Retry %d/%d\n", e, i, MCC_PLATFORM_CONNECTION_RETRY_COUNT);
+        mcc_platform_do_wait(MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT * i);
+    }
+    return -1;
+}
+
+int mcc_platform_close_connection(void) {
+
+    if (network_interface) {
+        const nsapi_error_t err = network_interface->disconnect();
+        if (err == NSAPI_ERROR_OK) {
+            network_interface->attach(NULL);
+            network_interface = NULL;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+void* mcc_platform_get_network_interface(void) {
+    return network_interface;
+}
+
+void network_status_callback(nsapi_event_t status, intptr_t param)
+{
+    if (status == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
+        switch(param) {
+            case NSAPI_STATUS_GLOBAL_UP:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_GLOBAL_UP");
+#else
+                printf("NSAPI_STATUS_GLOBAL_UP\n");
+#endif
+                break;
+            case NSAPI_STATUS_LOCAL_UP:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_LOCAL_UP");
+#else
+                printf("NSAPI_STATUS_LOCAL_UP\n");
+#endif
+                break;
+            case NSAPI_STATUS_DISCONNECTED:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_DISCONNECTED");
+#else
+                printf("NSAPI_STATUS_DISCONNECTED\n");
+#endif
+                break;
+            case NSAPI_STATUS_CONNECTING:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_CONNECTING");
+#else
+                printf("NSAPI_STATUS_CONNECTING\n");
+#endif
+                break;
+            case NSAPI_STATUS_ERROR_UNSUPPORTED:
+#if MBED_CONF_MBED_TRACE_ENABLE
+                tr_info("NSAPI_STATUS_ERROR_UNSUPPORTED");
+#else
+                printf("NSAPI_STATUS_ERROR_UNSUPPORTED\n");
+#endif
+                break;
+        }
+    }
+}
+
+const char* network_type(NetworkInterface *iface)
+{
+    if (iface->ethInterface()) {
+        return "Ethernet";
+    } else if (iface->wifiInterface()) {
+        return "WiFi";
+    } else if (iface->meshInterface()) {
+        return "Mesh";
+    } else if (iface->cellularBase()) {
+        return "Cellular";
+    } else if (iface->emacInterface()) {
+        return "Emac";
+    } else {
+        return "Unknown";
+    }
+}
+
+int mcc_platform_init(void)
+{
+    // On CortexM (3 and 4) the MCU has a write buffer, which helps in performance front,
+    // but has a side effect of making data access faults imprecise.
+    //
+    // So, if one gets a Mbed OS crash dump with following content, a re-build with
+    // "PLATFORM_DISABLE_WRITE_BUFFER=1" will help in getting the correct crash location.
+    //
+    // --8<---
+    // Crash Info:
+    // <..>
+    //    Target and Fault Info:
+    //          Forced exception, a fault with configurable priority has been escalated to HardFault
+    //          Imprecise data access error has occurred
+    // --8<---
+    //
+    // This can't be enabled by default as then we would test with different system setup than customer
+    // and possible OS and driver issues might get pass the tests.
+    //
+#if defined(PLATFORM_DISABLE_WRITE_BUFFER) && (PLATFORM_DISABLE_WRITE_BUFFER==1)
+
+#if defined(TARGET_CORTEX_M)
+
+    SCnSCB->ACTLR |= SCnSCB_ACTLR_DISDEFWBUF_Msk;
+
+    tr_info("mcc_platform_init: disabled CPU write buffer, expect reduced performance");
+#else
+    tr_info("mcc_platform_init: disabling CPU write buffer not possible or needed on this MCU");
+#endif
+
+#endif
+
+    return 0;
+}
+
+void mcc_platform_do_wait(int timeout_ms)
+{
+    wait_ms(timeout_ms);
+}
+
+int mcc_platform_run_program(main_t mainFunc)
+{
+    mainFunc();
+    return 1;
+}
+
+void mcc_platform_sw_build_info(void) {
+    printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
+
+    // The Mbed OS' master branch does not define the version numbers at all, so we need
+    // some ifdeffery to keep compilations running.
+#if defined(MBED_MAJOR_VERSION) && defined(MBED_MINOR_VERSION) && defined(MBED_PATCH_VERSION)
+    printf("Mbed OS version %d.%d.%d\n", MBED_MAJOR_VERSION, MBED_MINOR_VERSION, MBED_PATCH_VERSION);
+#else
+    printf("Mbed OS version <UNKNOWN>\n");
+#endif
+}
+
+#ifdef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
+int mcc_platform_storage_init(void) {
+    // This wait will allow the board more time to initialize
+    wait_ms(MCC_PLATFORM_WAIT_BEFORE_BD_INIT * SECONDS_TO_MS);
+    int status = kv_init_storage_config();
+    if (status != MBED_SUCCESS) {
+        printf("kv_init_storage_config() - failed, status %d\n", status);
+    }
+    return status;
+}
+#endif
+
+/* Rest is legacy storage implementation not needed for SST enabled client.
+ * This implementation will be removed in future release.
+ */
+#ifndef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
+
+static int mcc_platform_reformat_partition(FileSystem *fs, BlockDevice* part);
+static int mcc_platform_test_filesystem(FileSystem *fs, BlockDevice* part);
+#if (MCC_PLATFORM_PARTITION_MODE == 1)
+static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** part, int number_of_partition, const char* mount_point);
+#if (MCC_PLATFORM_AUTO_PARTITION == 1)
+static int mcc_platform_create_partitions();
+#endif
+#endif
+
+// This is for single or dual partition mode. This is supposed to be used with storage for data e.g. SD card.
+// Enable by 1/disable by 0.
+#ifndef MCC_PLATFORM_PARTITION_MODE
+#define MCC_PLATFORM_PARTITION_MODE 0
 #endif
 
 #include "pal.h"
@@ -95,30 +306,8 @@
 static bd_size_t mcc_platform_storage_size = 0;
 #endif // MCC_PLATFORM_PARTITION_MODE
 
-
-/* local help functions. */
-static void print_network_information(NetworkInterface *iface);
-static int mcc_platform_reformat_partition(FileSystem *fs, BlockDevice* part);
-static int mcc_platform_test_filesystem(FileSystem *fs, BlockDevice* part);
-#if (MCC_PLATFORM_PARTITION_MODE == 1)
-static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** part, int number_of_partition, const char* mount_point);
-#if (MCC_PLATFORM_AUTO_PARTITION == 1)
-static int mcc_platform_create_partitions();
-#endif
-#endif
-
-////////////////////////////////////////
-// PLATFORM SPECIFIC DEFINES & FUNCTIONS
-////////////////////////////////////////
-static NetworkInterface* network_interface=NULL;
-
-static BlockDevice* bd = NULL;
-#ifdef ARM_UC_USE_PAL_BLOCKDEVICE
-// Can be moved extern reference under update src. No reason keep here because get_default_instance is mbed-os interface.
-BlockDevice* arm_uc_blockdevice = BlockDevice::get_default_instance();
-#endif
-
 // blockdevice and filesystem pointers for storage
+static BlockDevice* bd = NULL;
 static BlockDevice *part1 = NULL;
 static FileSystem *fs1 = NULL;
 
@@ -132,55 +321,6 @@ static FileSystem *fs2 = NULL;
 #endif
 #endif // MCC_PLATFORM_PARTITION_MODE
 
-/* Callback function which informs about status of connected NetworkInterface.
- * */
-static void network_status_callback(nsapi_event_t status, intptr_t param);
-
-////////////////////////////////
-// SETUP_COMMON.H IMPLEMENTATION
-////////////////////////////////
-int mcc_platform_init_connection(void) {
-// Perform number of retries if network init fails.
-#ifndef MCC_PLATFORM_CONNECTION_RETRY_COUNT
-#define MCC_PLATFORM_CONNECTION_RETRY_COUNT 3
-#endif
-    printf("mcc_platform_init_connection()\n");
-
-    network_interface = NetworkInterface::get_default_instance();
-    if(network_interface == NULL) {
-        printf("ERROR: No NetworkInterface found!\n");
-        return -1;
-    }
-    network_interface->attach(&network_status_callback);
-    for (int i=0; i < MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
-        nsapi_error_t e;
-        e = network_interface->connect();
-        if (e == NSAPI_ERROR_OK) {
-            print_network_information(network_interface);
-            return 0;
-        }
-        printf("Failed to connect! error=%d\n", e);
-    }
-    return -1;
-}
-
-int mcc_platform_close_connection(void) {
-
-    if (network_interface) {
-        const nsapi_error_t err = network_interface->disconnect();
-        if (err == NSAPI_ERROR_OK) {
-            network_interface->attach(NULL);
-            network_interface = NULL;
-            return 0;
-        }
-    }
-    return -1;
-}
-
-void* mcc_platform_get_network_interface(void) {
-    return network_interface;
-}
-
 /* help function format partition. */
 static int mcc_platform_reformat_partition(FileSystem *fs, BlockDevice* part) {
     int status;
@@ -192,32 +332,6 @@ static int mcc_platform_reformat_partition(FileSystem *fs, BlockDevice* part) {
     }
 
     return status;
-}
-
-int mcc_platform_reformat_storage(void) {
-   int status = -1;
-
-   printf("Reformat the storage.\n");
-   if (bd) {
-#if (NUMBER_OF_PARTITIONS > 0)
-        status = mcc_platform_reformat_partition(fs1, part1);
-        if (status != 0) {
-            printf("Formatting primary partition failed with 0x%X !!!\n", status);
-            return status;
-        }
-#if (NUMBER_OF_PARTITIONS == 2)
-        status = mcc_platform_reformat_partition(fs2, part2);
-        if (status != 0) {
-            printf("Formatting secondary partition failed with 0x%X !!!\n", status);
-            return status;
-        }
-#endif
-#if (NUMBER_OF_PARTITIONS > 2)
-#error "Invalid number of partitions!!!"
-#endif
-#endif
-    }
-   return status;
 }
 
 /* help function for testing filesystem availbility by umount and
@@ -352,9 +466,12 @@ static int mcc_platform_create_partitions(void) {
 }
 #endif // ((MCC_PLATFORM_PARTITION_MODE == 1) && (MCC_PLATFORM_AUTO_PARTITION == 1))
 
+
 int mcc_platform_storage_init(void) {
-    static bool init_done=false;
+
     int status=0;
+
+    static bool init_done=false;
 
     if(!init_done) {
         bd = BlockDevice::get_default_instance();
@@ -428,127 +545,31 @@ int mcc_platform_storage_init(void) {
     else {
         printf("mcc_platform_storage_init() - init already done.\n");
     }
-
     return status;
 }
 
-int mcc_platform_init(void)
-{
-    // On CortexM (3 and 4) the MCU has a write buffer, which helps in performance front,
-    // but has a side effect of making data access faults imprecise.
-    //
-    // So, if one gets a Mbed OS crash dump with following content, a re-build with
-    // "PLATFORM_DISABLE_WRITE_BUFFER=1" will help in getting the correct crash location.
-    //
-    // --8<---
-    // Crash Info:
-    // <..>
-    //    Target and Fault Info:
-    //          Forced exception, a fault with configurable priority has been escalated to HardFault
-    //          Imprecise data access error has occurred
-    // --8<---
-    //
-    // This can't be enabled by default as then we would test with different system setup than customer
-    // and possible OS and driver issues might get pass the tests.
-    //
-#if defined(PLATFORM_DISABLE_WRITE_BUFFER) && (PLATFORM_DISABLE_WRITE_BUFFER==1)
-
-#if defined(TARGET_CORTEX_M)
-
-    SCnSCB->ACTLR |= SCnSCB_ACTLR_DISDEFWBUF_Msk;
-
-    tr_info("mcc_platform_init: disabled CPU write buffer, expect reduced performance");
-#else
-    tr_info("mcc_platform_init: disabling CPU write buffer not possible or needed on this MCU");
-#endif
-
-#endif
-
-    return 0;
-}
-
-void mcc_platform_do_wait(int timeout_ms)
-{
-    wait_ms(timeout_ms);
-}
-
-int mcc_platform_run_program(main_t mainFunc)
-{
-    mainFunc();
-
-    return 1;
-}
-
-void network_status_callback(nsapi_event_t status, intptr_t param)
-{
-    if (status == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
-        switch(param) {
-            case NSAPI_STATUS_GLOBAL_UP:
-#if MBED_CONF_MBED_TRACE_ENABLE
-                tr_info("NSAPI_STATUS_GLOBAL_UP");
-#else
-                printf("NSAPI_STATUS_GLOBAL_UP\n");
-#endif
-                break;
-            case NSAPI_STATUS_LOCAL_UP:
-#if MBED_CONF_MBED_TRACE_ENABLE
-                tr_info("NSAPI_STATUS_LOCAL_UP");
-#else
-                printf("NSAPI_STATUS_LOCAL_UP\n");
-#endif
-                break;
-            case NSAPI_STATUS_DISCONNECTED:
-#if MBED_CONF_MBED_TRACE_ENABLE
-                tr_info("NSAPI_STATUS_DISCONNECTED");
-#else
-                printf("NSAPI_STATUS_DISCONNECTED\n");
-#endif
-                break;
-            case NSAPI_STATUS_CONNECTING:
-#if MBED_CONF_MBED_TRACE_ENABLE
-                tr_info("NSAPI_STATUS_CONNECTING");
-#else
-                printf("NSAPI_STATUS_CONNECTING\n");
-#endif
-                break;
-            case NSAPI_STATUS_ERROR_UNSUPPORTED:
-#if MBED_CONF_MBED_TRACE_ENABLE
-                tr_info("NSAPI_STATUS_ERROR_UNSUPPORTED");
-#else
-                printf("NSAPI_STATUS_ERROR_UNSUPPORTED\n");
-#endif
-                break;
+int mcc_platform_reformat_storage(void) {
+   int status = -1;
+   printf("Reformat the storage.\n");
+   if (bd) {
+#if (NUMBER_OF_PARTITIONS > 0)
+        status = mcc_platform_reformat_partition(fs1, part1);
+        if (status != 0) {
+            printf("Formatting primary partition failed with 0x%X !!!\n", status);
+            return status;
         }
-    }
-}
-
-void mcc_platform_sw_build_info(void) {
-    printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
-
-    // The Mbed OS' master branch does not define the version numbers at all, so we need
-    // some ifdeffery to keep compilations running.
-#if defined(MBED_MAJOR_VERSION) && defined(MBED_MINOR_VERSION) && defined(MBED_PATCH_VERSION)
-    printf("Mbed OS version %d.%d.%d\n", MBED_MAJOR_VERSION, MBED_MINOR_VERSION, MBED_PATCH_VERSION);
-#else
-    printf("Mbed OS version <UNKNOWN>\n");
+#if (NUMBER_OF_PARTITIONS == 2)
+        status = mcc_platform_reformat_partition(fs2, part2);
+        if (status != 0) {
+            printf("Formatting secondary partition failed with 0x%X !!!\n", status);
+            return status;
+        }
 #endif
-}
-
-static void print_network_information(NetworkInterface *iface)
-{
-    if (iface->ethInterface()) {
-        printf("Connected using Ethernet\n");
-    } else if (iface->wifiInterface()) {
-        printf("Connected using WiFi\n");
-    } else if (iface->meshInterface()) {
-        printf("Connected using Mesh\n");
-    } else if (iface->cellularBase()) {
-        printf("Connected using Cellular\n");
-    } else if (iface->emacInterface()) {
-        printf("Connected using Emac\n");
-    } else {
-        printf("Unknown interface\n");
+#if (NUMBER_OF_PARTITIONS > 2)
+#error "Invalid number of partitions!!!"
+#endif
+#endif
     }
-
-    printf("IP: %s\n", iface->get_ip_address());
+   return status;
 }
+#endif // #ifndef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT

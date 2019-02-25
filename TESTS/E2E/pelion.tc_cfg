@@ -1,0 +1,6 @@
+{
+    "device_id"  : "your-device-id",
+    "api_key"    : "your-api-key",
+    "host"       : "https://api.us-east-1.mbedcloud.com",
+    "manifest_id": "your-manifest-id"
+}

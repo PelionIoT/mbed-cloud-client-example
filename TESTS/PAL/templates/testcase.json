@@ -1,0 +1,16 @@
+{
+  "name": "pal_test_runner",
+  "config": {
+    "requirements": {
+      "duts": {
+        "*": {
+          "platform_name": null,
+          "type": null,
+          "application": {
+            "bin": null
+          }
+        }
+      }
+    }
+  }
+}

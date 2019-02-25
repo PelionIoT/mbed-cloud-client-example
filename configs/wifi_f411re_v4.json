@@ -1,42 +1,53 @@
 {
     "macros": [
         "ARM_UC_USE_PAL_BLOCKDEVICE=1",
-        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
+        "MBED_CLOUD_CLIENT_STL_API=0",
+        "MBED_CLOUD_CLIENT_STD_NAMESPACE_POLLUTION=1"
     ],
     "target_overrides": {
         "*": {
-            "target.features_add"               : ["BOOTLOADER", "STORAGE"],
-            "target.components_add"             : ["SD"],
-            "platform.stdio-baud-rate"          : 115200,
-            "platform.stdio-convert-newlines"   : true,
-            "platform.stdio-buffered-serial"    : true,
-            "mbed-client.event-loop-size"       : 1024,
+            "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.stdio-convert-newlines"           : true,
+            "platform.stdio-buffered-serial"            : true,
+            "platform.stdio-flush-at-exit"              : true,
+            "mbed-client.event-loop-size"               : 2048,
+            "mbed-cloud-client.external-sst-support"    : null,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
-            "update-client.storage-address"     : "(1024*1024*64)",
-            "update-client.storage-size"        : "(1024*1024*2)",
-            "update-client.storage-locations"   : 1,
-            "mbed-trace.enable": null,
-            "nsapi.default-wifi-security"       : "WPA_WPA2",
-            "nsapi.default-wifi-ssid"           : "\"SSID\"",
-            "nsapi.default-wifi-password"       : "\"Password\""
-        },
-        "STM_EMAC": {
-            "lwip.pbuf-pool-size" : 16,
-            "lwip.mem-size"       : 12500
+            "update-client.storage-locations"           : 1,
+            "mbed-trace.enable"                         : null,
+            "nsapi.default-wifi-security"               : "WPA_WPA2",
+            "nsapi.default-wifi-ssid"                   : "\"SSID\"",
+            "nsapi.default-wifi-password"               : "\"Password\""
         },
         "NUCLEO_F411RE": {
-            "client_app.mbedtls-user-config-file"      : "\"mbedTLSConfig_mbedOS_SW_TRNG.h\"",
-            "client_app.pal-user-defined-configuration": "\"sotp_non_trng_config_MbedOS.h\"",
-            "target.network-default-interface-type" : "WIFI",
-            "update-client.bootloader-details"      : "(0x08000000+30*1024)",
-            "update-client.application-details"     : "(0x08000000+64*1024)",
-            "drivers.uart-serial-rxbuf-size"        : 1024,
-            "drivers.uart-serial-txbuf-size"        : 1024,
-            "events.shared-stacksize"               : 2048,
-            "idw0xx1.provide-default": true,
-            "idw0xx1.tx": "PA_9",
-            "idw0xx1.rx": "PA_10",
-            "target.macros_remove"                  : ["MBEDTLS_CONFIG_HW_SUPPORT"]
+            "target.components_add"                     : ["SD"],
+            "client_app.mbedtls-user-config-file"       : "\"mbedTLSConfig_mbedOS_SW_TRNG.h\"",
+            "client_app.pal-user-defined-configuration" : "\"pal_config_legacy_non_trng_MbedOS.h\"",
+            "target.network-default-interface-type"     : "WIFI",
+            "update-client.bootloader-details"          : "(0x08000000+30*1024)",
+            "update-client.application-details"         : "(0x08000000+64*1024)",
+            "update-client.storage-address"             : "(1024*1024*64)",
+            "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
+            "mbed-cloud-client.external-sst-support"    : null,
+            "client_app.sotp-section-1-address"         : "(0x08000000+32*1024)",
+            "client_app.sotp-section-1-size"            : "(16*1024)",
+            "client_app.sotp-section-2-address"         : "(0x08000000+48*1024)",
+            "client_app.sotp-section-2-size"            : "(16*1024)",
+            "drivers.uart-serial-rxbuf-size"            : 1024,
+            "drivers.uart-serial-txbuf-size"            : 1024,
+            "events.shared-stacksize"                   : 2048,
+            "idw0xx1.provide-default"                   : true,
+            "idw0xx1.tx"                                : "PA_9",
+            "idw0xx1.rx"                                : "PA_10",
+            "target.macros_remove"                      : ["MBEDTLS_CONFIG_HW_SUPPORT"],
+            "target.macros_add"                         : ["DISABLE_ERROR_DESCRIPTION"],
+            "mbed-client-pal.pal-dns-api-version"       : 0,
+            "sd.SPI_MOSI"                               : "PC_3",
+            "sd.SPI_MISO"                               : "PC_2",
+            "sd.SPI_CLK"                                : "PC_7",
+            "sd.SPI_CS"                                 : "PB_9"
         }
     },
     "config": {

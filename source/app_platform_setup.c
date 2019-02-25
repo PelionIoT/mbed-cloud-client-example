@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 ARM Limited. All rights reserved.
+ * Copyright (c) 2015-2019 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ int mcc_platform_reset_storage(void)
     int status = fcc_storage_delete();
     if (status != FCC_STATUS_SUCCESS) {
         printf("Failed to delete storage - %d\n", status);
+// Format call is not needed with SST implementation
+#ifndef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
 // Flagging here because of reformat contains only implementation for mbed-os.
 #ifdef TARGET_LIKE_MBED
         status = mcc_platform_reformat_storage();
@@ -56,6 +58,7 @@ int mcc_platform_reset_storage(void)
                 printf("Failed to delete storage - %d\n", status);
             }
         }
+#endif
 #endif
     }
     return status;

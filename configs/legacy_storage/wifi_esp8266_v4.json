@@ -1,0 +1,60 @@
+{
+    "macros": [
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
+        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
+    ],
+    "target_overrides": {
+        "*": {
+            "client_app.pal-user-defined-configuration" : "\"pal_config_legacy_MbedOS.h\"",
+            "target.features_add"               : ["BOOTLOADER", "STORAGE"],
+            "target.components_add"             : ["SD"],
+            "platform.stdio-baud-rate"          : 115200,
+            "platform.stdio-convert-newlines"   : true,
+            "platform.stdio-buffered-serial"    : true,
+            "platform.stdio-flush-at-exit"      : true,
+            "mbed-client.event-loop-size"       : 2048,
+            "nanostack-hal.event_loop_thread_stack_size": 8192,
+            "update-client.storage-address"     : "(1024*1024*64)",
+            "update-client.storage-size"        : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
+            "update-client.storage-locations"   : 1,
+            "mbed-trace.enable": null,
+            "drivers.uart-serial-rxbuf-size"    : 1024,
+            "drivers.uart-serial-txbuf-size"    : 1024,
+            "events.shared-stacksize"           : 2048,
+            "esp8266.rx"                : "PTC3",
+            "esp8266.tx"                : "PTC4",
+            "esp8266.rst"               : "D8",
+            "esp8266.rts"               : "PTC1",
+            "esp8266.cts"               : "PTC2",
+            "esp8266.provide-default"   : true,
+            "nsapi.default-wifi-security"       : "WPA_WPA2",
+            "nsapi.default-wifi-ssid"           : "\"SSID\"",
+            "nsapi.default-wifi-password"       : "\"Password\""
+        },
+        "K64F": {
+            "target.network-default-interface-type" : "WIFI",
+            "update-client.bootloader-details"      : "0x00007188",
+            "update-client.application-details"     : "(40*1024)",
+            "mbed-cloud-client.external-sst-support": null,
+            "client_app.sotp-section-1-address"     : "(32*1024)",
+            "client_app.sotp-section-1-size"        : "( 4*1024)",
+            "client_app.sotp-section-2-address"     : "(36*1024)",
+            "client_app.sotp-section-2-size"        : "( 4*1024)"
+        }
+    },
+    "config": {
+        "developer-mode": {
+            "help"      : "Enable Developer mode to skip Factory enrollment",
+            "options"   : [null, 1],
+            "value"     : 1
+        },
+        "button-pinname": {
+            "help"      : "PinName for button.",
+            "value"     : "BUTTON1"
+        },
+        "led-pinname"   : {
+            "help"      : "PinName for led, which is attached to led blink resource.",
+            "value"     : "LED_RED"
+        }
+    }
+}

@@ -57,16 +57,10 @@ public:
         _cloud_client.on_unregistered(this, &SimpleM2MClient::client_unregistered);
         _cloud_client.on_error(this, &SimpleM2MClient::error);
 
-        if (!mcc_platform_init_connection()) {
-            printf("Network initialized, connecting...\n");
-            bool setup = _cloud_client.setup(mcc_platform_get_network_interface());
-            _register_called = true;
-            if (!setup) {
-                printf("Client setup failed\n");
-                return false;
-            }
-        } else {
-            printf("Failed to initialize connection\n");
+        bool setup = _cloud_client.setup(mcc_platform_get_network_interface());
+        _register_called = true;
+        if (!setup) {
+            printf("Client setup failed\n");
             return false;
         }
 
