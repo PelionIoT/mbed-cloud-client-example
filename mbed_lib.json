@@ -5,7 +5,9 @@
         "MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
         "MBED_CONF_APP_MAIN_STACK_SIZE=5120",
         "PLATFORM_ENABLE_BUTTON=1",
-        "PLATFORM_ENABLE_LED=1"
+        "PLATFORM_ENABLE_LED=1",
+        "MBED_CLOUD_CLIENT_STL_API=0",
+        "MBED_CLOUD_CLIENT_STD_NAMESPACE_POLLUTION=0"
     ],
      "config": {
         "partition_mode": {

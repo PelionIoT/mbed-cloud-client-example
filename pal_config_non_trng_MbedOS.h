@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef PAL_CONFIG_MBEDOS
-#define PAL_CONFIG_MBEDOS
+#ifndef PAL_CONFIG_NON_TRNG_MBEDOS
+#define PAL_CONFIG_NON_TRNG_MBEDOS
 
 #define PAL_USE_HW_ROT 0
 #define PAL_USE_HW_RTC 0
-#define PAL_USE_HW_TRNG 1
+#define PAL_USE_HW_TRNG 0
 #define PAL_SIMULATOR_FLASH_OVER_FILE_SYSTEM 0
 #define PAL_USE_INTERNAL_FLASH 0
 #define PAL_USE_SECURE_TIME 1
@@ -28,4 +28,4 @@
 #include "mbedOS_SST.h"
 
 
-#endif //PAL_CONFIG_MBEDOS
+#endif //PAL_CONFIG_NON_TRNG_MBEDOS

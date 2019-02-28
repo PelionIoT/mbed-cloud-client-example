@@ -1,5 +1,16 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 2.2.1 (28.02.2019)
+
+* Updated to Mbed OS 5.11.5.
+* Added KVStore support for Nucleo F411RE.
+* Changed the board configuration for Nucleo F429ZI to use internal flash profile.
+* Added bootloaders for the `legacy_storage` configurations as part of the application repository. Explicitly defined the target offsets for each bootloader to provide more clarify on the board configuration.
+* By default, `MBED_CLOUD_CLIENT_STL_API` is set to `0` in `mbed_lib-json`. This disables the deprecated client APIs completely in `SimpleM2MResourceString` and `SimpleM2MResourceInt` classes. `MBED_CLOUD_CLIENT_STD_NAMESPACE_POLLUTION` is `0` also by default. It disables the namespace pollution of code that includes `MbedCloudClient.h` with using `namespace std;`. With these changes you can save extra ROM overhead of ~15 KB on ROM budget, depending on the compiler toolchain used.
+* Added Python3 support for Device Management end-to-end tests.
+  * Updated the minimum required version of Mbed Python SDK to 2.0.5.
+  * Updated the minimum Icetea version to 1.2.1.
+
 ## Release 2.2.0 (25.02.2019)
 
 * Updated to Mbed OS 5.11.4.
