@@ -71,8 +71,9 @@ class PelionBase(Bench):
         self.update_api = UpdateAPI(self.test_config)
 
     def _callback_fn(self, device_id, path, value):
-        self.logger.info("Notification for %s received: %r value: %r", device_id, path, value)
-        self.notified_value = value
+        string = value.decode("utf-8")
+        self.logger.info("Notification for %s received: %r value: %r", device_id, path, string)
+        self.notified_value = string
 
     def verify_registration(self, expected_state):
         self.logger.info("Verify device to in state %s", expected_state)
@@ -134,7 +135,7 @@ class PelionBase(Bench):
             raise TestStepFail("Get Campaign metadata returned %d" % response.status_code)
 
         resp = json.loads(response.content)
-        if 'data' in resp and resp['data'] > 0:
+        if 'data' in resp and resp['data'][0]['deployment_state']:
             meta_data = resp['data']
             device_state = meta_data[0]['deployment_state']
             results.append(device_state)

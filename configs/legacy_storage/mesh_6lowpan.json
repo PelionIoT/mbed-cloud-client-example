@@ -35,6 +35,9 @@
             "lwip.mem-size"       : 12500
         },
         "K64F": {
+            "target.bootloader_img"                 : "tools/mbed-bootloader-k64f-block_device-sotp-v3.4.0.bin",
+            "target.header_offset"                  : "0xa000",
+            "target.app_offset"                     : "0xa400",
             "target.network-default-interface-type" : "MESH",
             "update-client.bootloader-details"      : "0x00007188",
             "update-client.application-details"     : "(40*1024)",
@@ -45,6 +48,9 @@
             "client_app.sotp-section-2-size"        : "( 4*1024)"
         },
         "NUCLEO_F429ZI": {
+            "target.bootloader_img"                 : "tools/mbed-bootloader-nucleo_f429zi-block_device-sotp-v3.4.0.bin",
+            "target.header_offset"                  : "0x10000",
+            "target.app_offset"                     : "0x10400",
             "target.network-default-interface-type" : "MESH",
             "update-client.bootloader-details"      : "0x080078CC",
             "update-client.application-details"     : "(0x08000000+64*1024)",

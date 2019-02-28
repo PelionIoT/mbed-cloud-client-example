@@ -35,7 +35,7 @@
     #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_TCP
 #endif
 
-/* set flag to enable update support in mbed Cloud client */
+/* set flag to enable update support in Pelion Device Management Client */
 #if defined(__linux__) || defined(TARGET_LIKE_MBED) || defined(__SXOS__)
     #define MBED_CLOUD_CLIENT_SUPPORT_UPDATE
 #endif

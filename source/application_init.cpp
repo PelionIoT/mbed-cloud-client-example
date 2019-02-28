@@ -265,7 +265,7 @@ bool application_init(void)
 #ifdef MBED_STACK_STATS_ENABLED
     print_stack_statistics();
 #endif
-    printf("Start simple mbed Cloud Client\n");
+    printf("Start Device Management Client\n");
 
     if (application_init_fcc() != 0) {
         printf("Failed initializing FCC\n" );
