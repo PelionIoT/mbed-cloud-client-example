@@ -25,27 +25,31 @@ after_failure:
   - bash -c "$STATUS" failure "Build $TARGET has failed"
 
 before_install:
-  # - bash -c "$STATUS" pending "Build $TARGET in progress"
-  # # Make sure pipefail
-  # - set -o pipefail
-  # # Setup apt to cache
-  # - mkdir -p $HOME/.cache/apt/partial
-  # - sudo rm -rf /var/cache/apt/archives
-  # - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
-  # # Setup ppa to make sure arm-none-eabi-gcc is correct version
-  # - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
-  # - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
-  # - travis_retry $(! sudo apt-get update 2>&1 | grep FAILED )
+  - bash -c "$STATUS" pending "Local $NAME testing is in progress"
+  # Make sure pipefail
+  - set -o pipefail
+  # Setup apt to cache
+  - mkdir -p $HOME/.cache/apt/partial
+  - sudo rm -rf /var/cache/apt/archives
+  - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
+  # Setup ppa to make sure arm-none-eabi-gcc is correct version
+  - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+  - sudo add-apt-repository -y ppa:deadsnakes/ppa
+  # workaround for https://travis-ci.community/t/then-sudo-apt-get-update-failed-public-key-is-not-available-no-pubkey-6b05f25d762e3157-in-ubuntu-xenial/1728
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
+  # Loop until update succeeds (timeouts can occur)
+  - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
 install:
   # Print versions we use
   # - gcc --version
   # - python --version
   # Install dependencies
-  # - sudo apt-get install gcc-arm-embedded
-  # - arm-none-eabi-gcc --version
+  - sudo apt-get install gcc-arm-embedded
+  - arm-none-eabi-gcc --version
   # Deploy mbed and pip dependencies
   - pip install mbed-cli
+  - mbed new .
   - mbed deploy --verbose
   # - pip install -r mbed-os/requirements.txt
 
