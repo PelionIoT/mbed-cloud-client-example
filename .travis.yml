@@ -25,7 +25,7 @@ after_failure:
   - bash -c "$STATUS" failure "Build $TARGET has failed"
 
 before_install:
-  - bash -c "$STATUS" pending "Local $NAME testing is in progress"
+  # - bash -c "$STATUS" pending "Local $NAME testing is in progress"
   # Make sure pipefail
   - set -o pipefail
   # Setup apt to cache
