@@ -13,19 +13,14 @@ env:
       "context": "travis-ci/$TARGET",
       "target_url": "https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
       }\nDATA'
-# cache:
-#   pip: true
-#   directories:
-#     - $HOME/.cache/apt
 
 after_success:
-  - bash -c "$STATUS" success "Build $TARGET has passed"
+  - echo "Build success"
 
 after_failure:
-  - bash -c "$STATUS" failure "Build $TARGET has failed"
+  - echo "Build failure"
 
 before_install:
-  # - bash -c "$STATUS" pending "Local $NAME testing is in progress"
   # Make sure pipefail
   - set -o pipefail
   # Setup apt to cache
@@ -37,28 +32,15 @@ before_install:
   - sudo add-apt-repository -y ppa:deadsnakes/ppa
   # workaround for https://travis-ci.community/t/then-sudo-apt-get-update-failed-public-key-is-not-available-no-pubkey-6b05f25d762e3157-in-ubuntu-xenial/1728
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
-  # Loop until update succeeds (timeouts can occur)
   - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
 install:
-  # Print versions we use
-  # - gcc --version
-  # - python --version
-  # Install dependencies
   - sudo apt-get install gcc-arm-embedded
   - arm-none-eabi-gcc --version
-  # Deploy mbed and pip dependencies
   - pip install mbed-cli
   - mbed new .
   - mbed deploy --verbose
-  # - pip install -r mbed-os/requirements.txt
 
 script:
   # Check that example compiles with littlefs + spif
   - mbed compile -t GCC_ARM -m K64F
-
-  # Check that example compiles with fatfs + HeapBlockDevice
-  # - sed -i 's/BlockDevice.h/HeapBlockDevice.h/g' main.cpp
-  # - sed -i 's/BlockDevice::get_default_instance()/new HeapBlockDevice(2048, 1, 1, 512)/g' main.cpp
-  # - sed -i 's/LittleFileSystem/FATFileSystem/g' main.cpp
-  # - mbed compile -t GCC_ARM -m K64F -j0
