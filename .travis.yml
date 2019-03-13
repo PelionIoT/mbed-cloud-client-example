@@ -1,0 +1,60 @@
+language: python
+python: 2.7
+dist: trusty
+
+env:
+  global:
+    - >
+      STATUS=$'curl -so/dev/null --user $MBED_BOT --request POST
+      https://api.github.com/repos/$TRAVIS_REPO_SLUG/statuses/${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}
+      --data @- << DATA\n{
+      "state": "$0",
+      "description": "$1",
+      "context": "travis-ci/$TARGET",
+      "target_url": "https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
+      }\nDATA'
+# cache:
+#   pip: true
+#   directories:
+#     - $HOME/.cache/apt
+
+after_success:
+  - bash -c "$STATUS" success "Build $TARGET has passed"
+
+after_failure:
+  - bash -c "$STATUS" failure "Build $TARGET has failed"
+
+before_install:
+  # - bash -c "$STATUS" pending "Build $TARGET in progress"
+  # # Make sure pipefail
+  # - set -o pipefail
+  # # Setup apt to cache
+  # - mkdir -p $HOME/.cache/apt/partial
+  # - sudo rm -rf /var/cache/apt/archives
+  # - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
+  # # Setup ppa to make sure arm-none-eabi-gcc is correct version
+  # - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+  # - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
+  # - travis_retry $(! sudo apt-get update 2>&1 | grep FAILED )
+
+install:
+  # Print versions we use
+  # - gcc --version
+  # - python --version
+  # Install dependencies
+  - sudo apt-get install gcc-arm-embedded
+  - arm-none-eabi-gcc --version
+  # Deploy mbed and pip dependencies
+  - pip install mbed-cli
+  - mbed deploy --verbose
+  # - pip install -r mbed-os/requirements.txt
+
+script:
+  # Check that example compiles with littlefs + spif
+  - mbed compile -t GCC_ARM -m K64F
+
+  # Check that example compiles with fatfs + HeapBlockDevice
+  # - sed -i 's/BlockDevice.h/HeapBlockDevice.h/g' main.cpp
+  # - sed -i 's/BlockDevice::get_default_instance()/new HeapBlockDevice(2048, 1, 1, 512)/g' main.cpp
+  # - sed -i 's/LittleFileSystem/FATFileSystem/g' main.cpp
+  # - mbed compile -t GCC_ARM -m K64F -j0
