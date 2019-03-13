@@ -16,11 +16,6 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
-#define T 1
-
-#if T == 1
-#error "Test error"
-#endif
 
 #include "simplem2mclient.h"
 #ifdef TARGET_LIKE_MBED
