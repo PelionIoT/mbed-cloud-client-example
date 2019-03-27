@@ -23,7 +23,7 @@
 #include <signal.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
+#include <time.h>
 #include "mcc_common_setup.h"
 #include "mcc_common_config.h"
 #include "pal.h"
@@ -153,15 +153,25 @@ int mcc_platform_reformat_storage(void)
 {
 // cleanup folders
 // to do:
-// PAL_FS_MOUNT_POINT_PRIMARY 
-// PAL_FS_MOUNT_POINT_SECONDARY 
+// PAL_FS_MOUNT_POINT_PRIMARY
+// PAL_FS_MOUNT_POINT_SECONDARY
     printf("mcc_platform_reformat_storage does not support Linux!!!\n");
     return 0;
 }
 
 void mcc_platform_do_wait(int timeout_ms)
 {
-    usleep(timeout_ms * 1000);
+    struct timespec start_time;
+    struct timespec remaining_time; // this will return how much sleep time still left in case of interrupted sleep
+    int stat;
+
+    remaining_time.tv_sec =  timeout_ms / 1000;
+    remaining_time.tv_nsec = timeout_ms * 1000;
+    do {
+        start_time.tv_sec = remaining_time.tv_sec;
+        start_time.tv_nsec = remaining_time.tv_nsec;
+        stat = nanosleep(&start_time, &remaining_time);
+    } while ((-1 == stat) && (EINTR == errno)) ;
 }
 
 int mcc_platform_run_program(main_t mainFunc)

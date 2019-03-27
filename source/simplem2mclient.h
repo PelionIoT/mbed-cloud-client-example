@@ -162,6 +162,9 @@ public:
             case MbedCloudClient::ConnectDnsResolvingFailed:
                 error = "MbedCloudClient::ConnectDnsResolvingFailed";
                 break;
+            case MbedCloudClient::ConnectorFailedToReadCredentials:
+                error = "MbedCloudClient::ConnectorFailedToReadCredentials";
+                break;
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_UPDATE
             case MbedCloudClient::UpdateWarningCertificateNotFound:
                 error = "MbedCloudClient::UpdateWarningCertificateNotFound";
@@ -198,6 +201,9 @@ public:
                 break;
             case MbedCloudClient::UpdateErrorInvalidHash:
                 error = "MbedCloudClient::UpdateErrorInvalidHash";
+                break;
+            case MbedCloudClient::UpdateErrorConnection:
+                error = "MbedCloudClient::UpdateErrorConnection";
                 break;
 #endif
 #ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT

@@ -136,9 +136,6 @@ C++_SRC := ${wildcard *.cpp}
 C_SRC += ${wildcard source/*.c}
 C++_SRC += ${wildcard source/*.cpp}
 
-C_SRC += ${wildcard source/platform/*.c}
-C++_SRC += ${wildcard source/platform/*.cpp}
-
 C_SRC += ${wildcard source/platform/SXOS/*.c}
 C++_SRC += ${wildcard source/platform/SXOS/*.cpp}
 

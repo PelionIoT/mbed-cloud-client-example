@@ -39,7 +39,7 @@ int mbed_cloud_application_entrypoint(void)
 int main(void)
 #endif
 {
-    mcc_platform_run_program(main_application);
+    return mcc_platform_run_program(main_application);
 }
 
 // Pointers to the resources that will be created in main_application().

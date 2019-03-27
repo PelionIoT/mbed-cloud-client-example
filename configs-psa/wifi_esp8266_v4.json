@@ -1,0 +1,101 @@
+{
+    "macros": [
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
+        "MBEDTLS_USE_PSA_CRYPTO"
+    ],
+    "target_overrides": {
+        "*": {
+            "target.features_add"                       : ["STORAGE", "BOOTLOADER"],
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.stdio-convert-newlines"           : true,
+            "platform.stdio-buffered-serial"            : true,
+            "platform.stdio-flush-at-exit"              : true,
+            "mbed-client.event-loop-size"               : 2048,
+            "mbed-client-pal.pal-dns-api-version"       : 2,
+            "mbed-cloud-client.external-sst-support"    : 1,
+            "mbed-cloud-client.psa-support"             : 1,
+            "nanostack-hal.event_loop_thread_stack_size": 8192,
+            "mbed-trace.enable"                         : null,
+            "drivers.uart-serial-rxbuf-size"            : 1024,
+            "drivers.uart-serial-txbuf-size"            : 1024,
+            "nsapi.default-wifi-security"               : "WPA_WPA2",
+            "nsapi.default-wifi-ssid"                   : "\"SSID\"",
+            "nsapi.default-wifi-password"               : "\"Password\""
+        },
+        "CY8CKIT_062_WIFI_BT_PSA": {
+            "client_app.mbedtls-user-config-file"       : "\"mbedTLSConfig_mbedOS.h\"",
+            "client_app.pal-user-defined-configuration" : "\"pal_config_MbedOS.h\"",
+            "target.app_offset"                         : "0x0A400",
+            "target.header_offset"                      : "0x0A000",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-cy8ckit_062_wifi_bt_psa-block_device-kvstore-v4.0.1-4-g65fd.hex",
+            "target.extra_labels_add"                   : [ "PSA" ],
+            "target.macros_add"                         : ["MBEDTLS_PSA_CRYPTO_C"],
+            "target.network-default-interface-type"     : "WIFI",
+            "target.components_add"                     : ["FLASHIAP", "SD"],
+            "target.restrict_size"                      : "0xa5c00",
+            "storage_filesystem.filesystem"             : "LITTLE",
+            "storage_filesystem.blockdevice"            : "SD",
+            "storage_filesystem.internal_base_address"  : "(0x1004a400+0xB8000-0xa400-(1024*32))",
+            "storage_filesystem.rbp_internal_size"      : "(31*1024)",
+            "storage.storage_type"                      : "FILESYSTEM",
+            "storage_filesystem.external_base_address"  : "(0x0)",
+            "storage_filesystem.external_size"          : "(1024*1024*64)",
+            "sd.SPI_MOSI"                               : "P12_0",
+            "sd.SPI_MISO"                               : "P12_1",
+            "sd.SPI_CLK"                                : "P12_2",
+            "sd.SPI_CS"                                 : "P12_3",
+            "esp8266.rx"                                : "P10_0",
+            "esp8266.tx"                                : "P10_1",
+            "esp8266.provide-default"                   : true,
+            "update-client.application-details"         : "(0x1004a000)",
+            "update-client.storage-address"             : "(1024*1024*64)",
+            "update-client.storage-size"                : "0xa5c00",
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE"
+        },
+        "LPC55S69_NS": {
+            "mbed-cloud-client.update-storage"           : "ARM_UCP_FLASHIAP_BLOCKDEVICE", 
+            "target.bootloader_img"                      : "tools/mbed-bootloader-lpc55s69_ns-block_device-kvstore-v4.0.1-4-g65fd.hex",
+            "target.header_offset"                       : "0x8000",
+            "target.app_offset"                          : "0x8400",
+            "target.features_add"                        : [ "BOOTLOADER", "STORAGE" ],
+            "target.components_add"                      : [ "SD", "FLASHIAP" ],
+            "target.extra_labels_add"                    : [ "PSA" ],
+            "target.macros_add"                          : [ "MBEDTLS_PSA_CRYPTO_C", "DISABLE_ERROR_DESCRIPTION" ],
+            "target.restrict_size"                       : "0x5BC00",
+            "target.network-default-interface-type"      : "WIFI",
+            "storage.storage_type"                       : "FILESYSTEM",
+            "storage_filesystem.filesystem"              : "LITTLE",
+            "storage_filesystem.blockdevice"             : "SD",
+            "mbed-client.event-loop-size"                : 2048,
+            "update-client.bootloader-details"           : "0x36FB0",
+            "update-client.application-details"          : "0x38000",
+            "update-client.storage-address"              : "(1024*1024*64)",
+            "update-client.storage-size"                 : "0x5BC00",
+            "sd.SPI_CS"                                  : "D10",
+            "sd.SPI_MOSI"                                : "D11",
+            "sd.SPI_MISO"                                : "D12",
+            "sd.SPI_CLK"                                 : "D13",
+            "esp8266.provide-default"                    : true,
+            "storage_filesystem.internal_base_address"   : "0x94000",
+            "storage_filesystem.rbp_internal_size"       : "(15*1024)",
+            "storage_filesystem.external_base_address"   : "0x0",
+            "storage_filesystem.external_size"           : "(1024*1024*64)",
+            "button-pinname"                             : "SW2"
+        }
+    },
+    "config": {
+        "developer-mode": {
+            "help"      : "Enable Developer mode to skip Factory enrollment",
+            "options"   : [null, 1],
+            "value"     : 1
+        },
+        "button-pinname": {
+            "help"      : "PinName for button.",
+            "value"     : "BUTTON1"
+        },
+        "led-pinname"   : {
+            "help"      : "PinName for led, which is attached to led blink resource.",
+            "value"     : "LED_RED"
+        }
+    }
+}
