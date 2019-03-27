@@ -10,6 +10,7 @@
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
+            "mbed-client-pal.pal-dns-api-version"       : 2,
             "mbed-cloud-client.external-sst-support"    : 1,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
             "update-client.storage-locations"           : 1,

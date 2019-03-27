@@ -1,5 +1,14 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 3.0.0 (27.03.2019)
+
+* Updated to Mbed OS 5.12.0.
+* [Mbed OS] Use asyncronous DNS by default for all targets.
+* [Mbed OS] Preview support for Platform Security Arhitecture (PSA) enabled boards. 
+   * PSA configuration for PSA-enabled Cypress PSoC6 and NXP LPC55S69 boards. Configuration is in the `configs-psa/` folder.
+   * Both PSA-enabled boards use ESP8266 Wi-Fi.
+   * PSA configuration for K64F board.
+
 ## Release 2.2.1 (28.02.2019)
 
 * Updated to Mbed OS 5.11.5.

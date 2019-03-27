@@ -10,6 +10,7 @@
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
+            "mbed-client-pal.pal-dns-api-version"       : 2,
             "mbed-cloud-client.external-sst-support"    : 1,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
             "update-client.storage-locations"           : 1,
@@ -97,6 +98,7 @@
         "NUCLEO_F411RE": {
             "client_app.mbedtls-user-config-file"       : "\"mbedTLSConfig_mbedOS_SW_TRNG_PSA.h\"",
             "client_app.pal-user-defined-configuration" : "\"pal_config_non_trng_MbedOS.h\"",
+            "target.extra_labels_add"                   : ["PSA"],
             "target.macros_add"                         : ["DISABLE_ERROR_DESCRIPTION", "MBEDTLS_PSA_CRYPTO_C", "MBEDTLS_ENTROPY_NV_SEED"],
             "target.network-default-interface-type"     : "WIFI",
             "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f411re-block_device-kvstore-v4.0.0.bin",
