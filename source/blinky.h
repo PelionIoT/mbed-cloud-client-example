@@ -20,7 +20,10 @@
 #define __BLINKY_H__
 
 #include "nanostack-event-loop/eventOS_event.h"
-#include "m2mresource.h"
+
+class SimpleM2MClient;
+class M2MResource;
+
 #include <stdint.h>
 
 class Blinky
@@ -30,20 +33,29 @@ class Blinky
         STATE_STARTED,
     } BlinkyState;
 
-    typedef void(*blinky_completed_cb) (void);
-
 public:
     Blinky();
 
     ~Blinky();
 
-    bool start(const char* pattern, size_t length, bool pattern_restart, blinky_completed_cb cb);
+    void init(SimpleM2MClient &client, M2MResource *resource);
+
+    bool start(const char* pattern, size_t length, bool pattern_restart);
 
     void stop();
 
 public:
-    void event_handler(arm_event_s &event);
+    // This needs
+    void event_handler(const arm_event_s &event);
 
+    void request_next_loop_event();
+
+private:
+    void create_tasklet();
+    void handle_pattern_event();
+    bool request_timed_event(uint8_t event_type, arm_library_event_priority_e priority, int32_t delay);
+
+    void handle_buttons();
 
 private:
     int get_next_int();
@@ -54,13 +66,17 @@ private:
     char *_pattern;
     const char *_curr_pattern;
 
+    SimpleM2MClient *_client;
+
+    M2MResource     *_button_resource;
+
+    int              _button_count;
+
     BlinkyState _state;
 
     bool _restart;
 
     static int8_t _tasklet;
-
-    blinky_completed_cb _callback;
 
 };
 #endif /* __BLINKY_H__ */

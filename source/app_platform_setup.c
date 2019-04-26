@@ -40,6 +40,7 @@ const uint8_t MBED_CLOUD_DEV_ENTROPY[FCC_ENTROPY_SIZE] = { 0xf6, 0xd6, 0xc0, 0x0
 
 int mcc_platform_reset_storage(void)
 {
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
     printf("Resets storage to an empty state.\n");
     int status = fcc_storage_delete();
     if (status != FCC_STATUS_SUCCESS) {
@@ -62,10 +63,14 @@ int mcc_platform_reset_storage(void)
 #endif
     }
     return status;
+#else
+    return FCC_STATUS_SUCCESS;
+#endif
 }
 
 int mcc_platform_fcc_init(void)
 {
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
     int status = fcc_init();
     // Ignore pre-existing RoT/Entropy in SOTP
     if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ENTROPY_ERROR && status != FCC_STATUS_ROT_ERROR) {
@@ -81,6 +86,9 @@ int mcc_platform_fcc_init(void)
         status = FCC_STATUS_SUCCESS;
     }
     return status;
+#else
+    return FCC_STATUS_SUCCESS;
+#endif
 }
 
 int mcc_platform_sotp_init(void)
@@ -118,5 +126,7 @@ int mcc_platform_sotp_init(void)
 
 void mcc_platform_fcc_finalize(void)
 {
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
     (void)fcc_finalize();
+#endif
 }

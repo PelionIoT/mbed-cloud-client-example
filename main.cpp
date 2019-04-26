@@ -27,8 +27,17 @@
 #include "certificate_enrollment_user_cb.h"
 #endif
 
+#if defined(MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS) && \
+ (MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS == 1) && \
+ defined(MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION) && \
+ (MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION == 1)
+#include "nanostack-event-loop/eventOS_scheduler.h"
+#endif
+
 // event based LED blinker, controlled via pattern_resource
+#ifndef MCC_MINIMAL
 static Blinky blinky;
+#endif
 
 static void main_application(void);
 
@@ -55,14 +64,6 @@ void pattern_updated(const char *)
     printf("PUT received, new value: %s\n", pattern_res->get_value_string().c_str());
 }
 
-void blinky_completed(void)
-{
-    printf("Blinky completed \n");
-
-    // Send response to backend
-    blink_res->send_delayed_post_response();
-}
-
 void blink_callback(void *)
 {
     String pattern_string = pattern_res->get_value_string();
@@ -71,10 +72,13 @@ void blink_callback(void *)
 
     // The pattern is something like 500:200:500, so parse that.
     // LED blinking is done while parsing.
+#ifndef MCC_MINIMAL
     const bool restart_pattern = false;
-    if (blinky.start((char*)pattern_res->value(), pattern_res->value_length(), restart_pattern, blinky_completed) == false) {
+    if (blinky.start((char*)pattern_res->value(), pattern_res->value_length(), restart_pattern) == false) {
         printf("out of memory error\n");
     }
+#endif
+    blink_res->send_delayed_post_response();
 }
 
 void notification_status_callback(const M2MBase& object,
@@ -137,7 +141,7 @@ void main_application(void)
         // make sure the line buffering is on as non-trace builds do
         // not produce enough output to fill the buffer
         setlinebuf(stdout);
-#endif 
+#endif
 
     // Initialize trace-library first
     if (application_init_mbed_trace() != 0) {
@@ -162,7 +166,7 @@ void main_application(void)
 
     // Initialize network
     if (!mcc_platform_init_connection()) {
-        printf("Network initialized, connecting...\n");
+        printf("Network initialized, registering...\n");
     } else {
         return;
     }
@@ -198,6 +202,7 @@ void main_application(void)
     print_stack_statistics();
 #endif
 
+#ifndef MCC_MEMORY
     // Create resource for button count. Path of this resource will be: 3200/0/5501.
     button_res = mbedClient.add_cloud_resource(3200, 0, 5501, "button_resource", M2MResourceInstance::INTEGER,
                               M2MBase::GET_ALLOWED, 0, true, NULL, (void*)notification_status_callback);
@@ -219,25 +224,39 @@ void main_application(void)
     // Create resource for running factory reset for the device. Path of this resource will be: 5000/0/2.
     mbedClient.add_cloud_resource(5000, 0, 2, "factory_reset", M2MResourceInstance::STRING,
                  M2MBase::POST_ALLOWED, NULL, false, (void*)factory_reset, NULL);
+#endif
 
     mbedClient.register_and_connect();
+
+#ifndef MCC_MINIMAL
+    blinky.init(mbedClient, button_res);
+    blinky.request_next_loop_event();
+#endif
+
 
 #ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
     // Add certificate renewal callback
     mbedClient.get_cloud_client().on_certificate_renewal(certificate_renewal_cb);
 #endif // MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
 
+#if defined(MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS) && \
+ (MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS == 1) && \
+ defined(MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION) && \
+ (MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION == 1)
+    printf("Starting mbed eventloop...\n");
+
+    eventOS_scheduler_mutex_wait();
+
+    EventQueue *queue = mbed::mbed_event_queue();
+    queue->dispatch_forever();
+#else
 
     // Check if client is registering or registered, if true sleep and repeat.
-
     while (mbedClient.is_register_called()) {
-        static int button_count = 0;
         mcc_platform_do_wait(100);
-        if (mcc_platform_button_clicked()) {
-            button_res->set_value(++button_count);
-        }
     }
 
     // Client unregistered, disconnect and exit program.
     mcc_platform_close_connection();
+#endif
 }

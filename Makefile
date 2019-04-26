@@ -55,6 +55,7 @@ LOCAL_ADD_INCLUDE += . \
                          ${LOCAL_NAME}/mbed-cloud-client/source \
                          ${LOCAL_NAME}/mbed-cloud-client/ns-hal-pal \
                          ${LOCAL_NAME}/mbed-cloud-client/nanostack-libservice/mbed-client-libservice \
+                         ${LOCAL_NAME}/mbed-cloud-client/mbed-client-pal/Source \
                          ${LOCAL_NAME}/mbed-cloud-client/mbed-client-pal/Source/PAL-Impl/Services-API \
                          ${LOCAL_NAME}/mbed-cloud-client/mbed-client-pal/Configs/pal_config \
                          ${LOCAL_NAME}/mbed-cloud-client/mbed-client-pal/Configs/pal_config/SXOS \
@@ -107,6 +108,11 @@ else
 # the PAL tests have mbed_cloud_application_entrypoint(void) too, which is enabled
 # from pal_tests_nonstandard_entrypoint.c by PAL_UNIT_TESTING_NONSTANDARD_ENTRYPOINT.
 LOCAL_EXPORT_FLAG += "PAL_UNIT_TESTING_NONSTANDARD_ENTRYPOINT"
+
+# the PAL tests can be run one suite at a time by defining PAL_UNIT_TEST_<suite name> flag
+# or all suites by omitting said flags and only giving PAL_UNIT_TESTING flag.
+# here, export all PAL_UNIT_TEST_* -flags to enable the singe suite testing feature
+$(foreach v, $(filter PAL_UNIT_TEST_%,$(.VARIABLES)), $(eval LOCAL_EXPORT_FLAG += "$(v)=$($(v))"))
 
 # build the tests
 LOCAL_MODULE_DEPENDS += ${LOCAL_NAME}/mbed-cloud-client/mbed-client-pal/Test

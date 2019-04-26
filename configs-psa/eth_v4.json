@@ -11,11 +11,16 @@
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
+            "rtos.main-thread-stack-size"               : 5120,
+            "rtos.timer-thread-stack-size"              : 256,
+            "rtos.idle-thread-stack-size"               : 256,
             "mbed-client-pal.pal-dns-api-version"       : 2,
             "mbed-cloud-client.external-sst-support"    : 1,
-            "nanostack-hal.event_loop_thread_stack_size": 8192,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null
+        },
+        "Freescale": {
+            "lwip.mem-size"                             : 12500
         },
         "K64F": {
             "target.network-default-interface-type"     : "ETHERNET",

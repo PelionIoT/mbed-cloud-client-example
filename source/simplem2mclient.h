@@ -229,7 +229,7 @@ public:
     }
 
     void register_and_connect() {
-#ifdef MBED_HEAP_STATS_ENABLED
+#if defined (MBED_HEAP_STATS_ENABLED) && !defined(MCC_MINIMAL)
         // Add some test resources to measure memory consumption.
         // This code is activated only if MBED_HEAP_STATS_ENABLED is defined.
         create_m2mobject_test_set(_obj_list);
