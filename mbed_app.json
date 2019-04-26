@@ -1,7 +1,6 @@
 {
     "macros": [
-        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
-        "MBED_BOOTLOADER_SIZE=(32*1024)"
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1"
     ],
     "target_overrides": {
         "*": {
@@ -10,14 +9,22 @@
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
+            "rtos.main-thread-stack-size"               : 5120,
+            "rtos.timer-thread-stack-size"              : 256,
+            "rtos.idle-thread-stack-size"               : 256,
+            "client_app.platform-enable-button"         : 0,
+            "client_app.platform-enable-led"            : 0,
             "mbed-client-pal.pal-dns-api-version"       : 2,
             "mbed-cloud-client.external-sst-support"    : 1,
-            "nanostack-hal.event_loop_thread_stack_size": 8192,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null,
+            "events.shared-stacksize"                   : 2048,
             "nsapi.default-wifi-security"               : "WPA_WPA2",
             "nsapi.default-wifi-ssid"                   : "\"SSID\"",
             "nsapi.default-wifi-password"               : "\"Password\""
+        },
+        "Freescale": {
+            "lwip.mem-size"                             : 12500
         },
         "STM_EMAC": {
             "lwip.pbuf-pool-size"                       : 16,
@@ -47,12 +54,14 @@
             "target.bootloader_img"                     : "tools/mbed-bootloader-k66f-internal_flash-no_rot-v4.0.0.bin",
             "target.header_offset"                      : "0x8000",
             "target.app_offset"                         : "0x8400",
+            "rtos.main-thread-stack-size"               : 8192,
             "update-client.bootloader-details"          : "0x4D58",
             "update-client.application-details"         : "(32*1024)",
             "update-client.storage-address"             : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS+MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
             "update-client.storage-size"                : "(1024*1024-MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
             "update-client.storage-page"                : 8,
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
+            "mbed-cloud-client.disable-certificate-enrollment": null,
             "storage_tdb_internal.internal_base_address": "(1024*1024)",
             "storage_tdb_internal.internal_size"        : "(96*1024)",
             "storage.storage_type"                      : "TDB_INTERNAL"
@@ -84,7 +93,6 @@
             "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
             "mbed-cloud-client.external-sst-support"    : 1,
-            "mbed-client.event-loop-size"               : 2048,
             "storage_filesystem.internal_base_address"  : "(0x08000000+32*1024)",
             "storage_filesystem.rbp_internal_size"      : "(32*1024)",
             "storage_filesystem.external_base_address"  : "(0x0)",
@@ -99,7 +107,7 @@
             "client_app.mbedtls-user-config-file"       : "\"mbedTLSConfig_mbedOS_SW_TRNG_PSA.h\"",
             "client_app.pal-user-defined-configuration" : "\"pal_config_non_trng_MbedOS.h\"",
             "target.extra_labels_add"                   : ["PSA"],
-            "target.macros_add"                         : ["DISABLE_ERROR_DESCRIPTION", "MBEDTLS_PSA_CRYPTO_C", "MBEDTLS_ENTROPY_NV_SEED"],
+            "target.macros_add"                         : ["MBEDTLS_PSA_CRYPTO_C", "MBEDTLS_ENTROPY_NV_SEED"],
             "target.network-default-interface-type"     : "WIFI",
             "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f411re-block_device-kvstore-v4.0.0.bin",
             "target.header_offset"                      : "0x10000",
@@ -111,7 +119,6 @@
             "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
             "mbed-cloud-client.external-sst-support"    : 1,
-            "mbed-client.event-loop-size"               : 2048,
             "storage_filesystem.filesystem"             : "LITTLE",
             "storage_filesystem.blockdevice"            : "SD",
             "storage_filesystem.internal_base_address"  : "(0x08000000+32*1024)",
@@ -119,9 +126,10 @@
             "storage.storage_type"                      : "FILESYSTEM",
             "storage_filesystem.external_base_address"  : "(0x0)",
             "storage_filesystem.external_size"          : "(1024*1024*64)",
+            "events.shared-stacksize"                   : 2048,
+            "events.shared-eventsize"                   : 1024,
             "drivers.uart-serial-rxbuf-size"            : 1024,
             "drivers.uart-serial-txbuf-size"            : 1024,
-            "events.shared-stacksize"                   : 2048,
             "idw0xx1.provide-default"                   : true,
             "idw0xx1.tx"                                : "PA_9",
             "idw0xx1.rx"                                : "PA_10",

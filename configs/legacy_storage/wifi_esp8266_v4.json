@@ -12,6 +12,7 @@
             "platform.stdio-convert-newlines"   : true,
             "platform.stdio-buffered-serial"    : true,
             "platform.stdio-flush-at-exit"      : true,
+            "rtos.main-thread-stack-size"       : 5120,
             "mbed-client.event-loop-size"       : 2048,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
             "update-client.storage-address"     : "(1024*1024*64)",

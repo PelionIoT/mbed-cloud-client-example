@@ -1,6 +1,9 @@
 {
     "macros": [
-        "ARM_UC_USE_PAL_BLOCKDEVICE=1"
+        "MCC_MINIMAL",
+        "DISABLE_ERROR_DESCRIPTION",
+        "MCC_MEMORY"
+
     ],
     "target_overrides": {
         "*": {
@@ -12,11 +15,16 @@
             "rtos.main-thread-stack-size"               : 5120,
             "rtos.timer-thread-stack-size"              : 256,
             "rtos.idle-thread-stack-size"               : 256,
+            "client_app.platform-enable-button"         : 0,
+            "client_app.platform-enable-led"            : 0,
             "mbed-client-pal.pal-dns-api-version"       : 2,
             "mbed-cloud-client.external-sst-support"    : 1,
+            "nanostack-hal.event-loop-use-mbed-events"  : true,
+            "nanostack-hal.event-loop-dispatch-from-application"    : false,
+            "nanostack-hal.critical-section-usable-from-interrupt"  : true,
+            "events.shared-dispatch-from-application"   : true,
             "events.shared-stacksize"                   : 2048,
             "events.shared-eventsize"                   : 1536,
-            "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null,
             "esp8266.rx"                                : "PTC3",
             "esp8266.tx"                                : "PTC4",
@@ -26,26 +34,26 @@
             "esp8266.provide-default"                   : true,
             "nsapi.default-wifi-security"               : "WPA_WPA2",
             "nsapi.default-wifi-ssid"                   : "\"SSID\"",
-            "nsapi.default-wifi-password"               : "\"Password\""
+            "nsapi.default-wifi-password"               : "\"Password\"",
+            "mbed-client-pal.pal-max-frag-len"          : 1,
+            "mbed-client.sn-coap-max-blockwise-payload-size" : 256
         },
         "K64F": {
             "target.network-default-interface-type"     : "WIFI",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.0.0.bin",
-            "target.header_offset"                      : "0xa000",
-            "target.app_offset"                         : "0xa400",
-            "target.components_add"                     : ["SD"],
-            "update-client.bootloader-details"          : "0x00007188",
-            "update-client.application-details"         : "(40*1024)",
-            "update-client.storage-address"             : "(1024*1024*64)",
-            "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
-            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
-            "storage_filesystem.internal_base_address"  : "(32*1024)",
-            "storage_filesystem.rbp_internal_size"      : "(8*1024)",
-            "storage_filesystem.external_base_address"  : "(0x0)",
-            "storage_filesystem.external_size"          : "(1024*1024*64)",
-            "storage.storage_type"                      : "FILESYSTEM",
-            "storage_filesystem.filesystem"             : "LITTLE",
-            "storage_filesystem.blockdevice"            : "SD"
+            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-internal_flash-no_rot-v4.0.1.bin",
+            "target.header_offset"                      : "0x8000",
+            "target.app_offset"                         : "0x8400",
+            "target.restrict_size"                      : "0x74000",
+            "update-client.bootloader-details"          : "0x4A6C",
+            "update-client.application-details"         : "(32*1024)",
+            "update-client.storage-address"             : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS+MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
+            "update-client.storage-size"                : "(512*1024-MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
+            "update-client.storage-locations"           : 1,
+            "update-client.storage-page"                : 8,
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
+            "storage_tdb_internal.internal_base_address": "(512*1024)",
+            "storage_tdb_internal.internal_size"        : "(48*1024)",
+            "storage.storage_type"                      : "TDB_INTERNAL"
         }
     },
     "config": {

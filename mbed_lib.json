@@ -2,14 +2,19 @@
     "name": "client_app",
     "macros": [
         "MBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
-        "MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
-        "MBED_CONF_APP_MAIN_STACK_SIZE=5120",
-        "PLATFORM_ENABLE_BUTTON=1",
-        "PLATFORM_ENABLE_LED=1",
-        "MBED_CLOUD_CLIENT_STL_API=0",
-        "MBED_CLOUD_CLIENT_STD_NAMESPACE_POLLUTION=0"
+        "MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\""
     ],
      "config": {
+        "platform-enable-button": {
+            "help": "Enable button usage on the board.",
+            "macro_name": "PLATFORM_ENABLE_BUTTON",
+            "value": 1
+        },
+        "platform-enable-led": {
+            "help": "Enable led usage on the board.",
+            "macro_name": "PLATFORM_ENABLE_LED",
+            "value": 1
+        },
         "partition_mode": {
             "help": "Macro for single or dual partition mode. This is supposed to be used with storage storage for data e.g. SD card. This enabled by default.",
             "macro_name": "MCC_PLATFORM_PARTITION_MODE"

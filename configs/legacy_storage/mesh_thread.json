@@ -14,6 +14,7 @@
             "platform.stdio-convert-newlines"   : true,
             "platform.stdio-buffered-serial"    : true,
             "platform.stdio-flush-at-exit"      : true,
+            "rtos.main-thread-stack-size"       : 5120,
             "mbed-client.event-loop-size"       : 32768,
             "mbed-client.reconnection-count"    : 6,
             "mbed-client-pal.pal-dns-api-version": 2,

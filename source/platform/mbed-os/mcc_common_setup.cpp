@@ -30,7 +30,6 @@
 #ifdef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
 #include "kv_config.h"
 #endif
-
 #include "mbed_trace.h"
 
 #define TRACE_GROUP "plat"
@@ -39,6 +38,13 @@
 
 #ifndef MCC_PLATFORM_WAIT_BEFORE_BD_INIT
 #define MCC_PLATFORM_WAIT_BEFORE_BD_INIT 2
+#endif
+
+#if defined(MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS) && \
+ (MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS == 1) && \
+ defined(MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION) && \
+ (MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION == 1)
+#define MCC_USE_MBED_EVENTS
 #endif
 
 /* local help functions. */
@@ -54,6 +60,10 @@ static NetworkInterface* network_interface=NULL;
  * */
 static void network_status_callback(nsapi_event_t status, intptr_t param);
 
+#ifdef MCC_USE_MBED_EVENTS
+static bool interface_connected = false;
+#endif
+
 ////////////////////////////////
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
@@ -67,25 +77,45 @@ int mcc_platform_init_connection(void) {
 #define MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT 1000
 #endif
     printf("mcc_platform_init_connection()\n");
-
     network_interface = NetworkInterface::get_default_instance();
     if(network_interface == NULL) {
         printf("ERROR: No NetworkInterface found!\n");
         return -1;
     }
-    network_interface->attach(&network_status_callback);
+
+    network_interface->add_event_listener(mbed::callback(&network_status_callback));
     printf("Connecting with interface: %s\n", network_type(NetworkInterface::get_default_instance()));
+#ifdef MCC_USE_MBED_EVENTS
+    interface_connected = false;
+    network_interface->set_blocking(false);
+
+    if (network_interface->connect() != NSAPI_ERROR_OK) {
+        return -1;
+    }
+
+    // Stay here until we get a connection
+    EventQueue *queue = mbed::mbed_event_queue();
+    queue->dispatch_forever();
+    if (interface_connected) {
+        printf("IP: %s\n", network_interface->get_ip_address());
+        return 0;
+    } else {
+        return -1;
+    }
+#else
     for (int i=1; i <= MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
         nsapi_error_t e;
         e = network_interface->connect();
-        if (e == NSAPI_ERROR_OK) {
+        if (e == NSAPI_ERROR_OK || e == NSAPI_ERROR_IS_CONNECTED) {
             printf("IP: %s\n", network_interface->get_ip_address());
             return 0;
         }
         printf("Failed to connect! error=%d. Retry %d/%d\n", e, i, MCC_PLATFORM_CONNECTION_RETRY_COUNT);
+        (void) network_interface->disconnect();
         mcc_platform_do_wait(MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT * i);
     }
     return -1;
+#endif
 }
 
 int mcc_platform_close_connection(void) {
@@ -93,7 +123,7 @@ int mcc_platform_close_connection(void) {
     if (network_interface) {
         const nsapi_error_t err = network_interface->disconnect();
         if (err == NSAPI_ERROR_OK) {
-            network_interface->attach(NULL);
+            network_interface->remove_event_listener(mbed::callback(&network_status_callback));
             network_interface = NULL;
             return 0;
         }
@@ -107,9 +137,19 @@ void* mcc_platform_get_network_interface(void) {
 
 void network_status_callback(nsapi_event_t status, intptr_t param)
 {
+#ifdef MCC_USE_MBED_EVENTS
+    EventQueue *queue = mbed::mbed_event_queue();
+#endif
     if (status == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
         switch(param) {
             case NSAPI_STATUS_GLOBAL_UP:
+#ifdef MCC_USE_MBED_EVENTS
+                if (!interface_connected) {
+                    queue->break_dispatch();
+                }
+                interface_connected = true;
+#endif
+
 #if MBED_CONF_MBED_TRACE_ENABLE
                 tr_info("NSAPI_STATUS_GLOBAL_UP");
 #else
@@ -138,6 +178,13 @@ void network_status_callback(nsapi_event_t status, intptr_t param)
 #endif
                 break;
             case NSAPI_STATUS_ERROR_UNSUPPORTED:
+#ifdef MCC_USE_MBED_EVENTS
+                if (!interface_connected) {
+                    queue->break_dispatch();
+                }
+                queue->break_dispatch();
+#endif
+
 #if MBED_CONF_MBED_TRACE_ENABLE
                 tr_info("NSAPI_STATUS_ERROR_UNSUPPORTED");
 #else
@@ -156,7 +203,7 @@ const char* network_type(NetworkInterface *iface)
         return "WiFi";
     } else if (iface->meshInterface()) {
         return "Mesh";
-    } else if (iface->cellularBase()) {
+    } else if (iface->cellularInterface()) {
         return "Cellular";
     } else if (iface->emacInterface()) {
         return "Emac";

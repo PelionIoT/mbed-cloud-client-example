@@ -30,6 +30,8 @@
 
 void print_fcc_status(int fcc_status)
 {
+#ifndef MCC_MINIMAL
+#ifndef DISABLE_ERROR_DESCRIPTION
     const char *error;
     switch(fcc_status) {
         case FCC_STATUS_SUCCESS:
@@ -143,6 +145,8 @@ void print_fcc_status(int fcc_status)
             error = "UNKNOWN";
     }
     printf("\nFactory Configurator Client [ERROR]: %s\r\n\n", error);
+#endif
+#endif
 }
 
 #if defined(__SXOS__)
@@ -155,16 +159,20 @@ void trace_printer(const char* str)
 
 bool application_init_mbed_trace(void)
 {
+#ifndef MCC_MINIMAL
     // Create mutex for tracing to avoid broken lines in logs
     if(!mbed_trace_helper_create_mutex()) {
         printf("ERROR - Mutex creation for mbed_trace failed!\n");
         return 1;
     }
+#endif
 
     // Initialize mbed trace
     (void) mbed_trace_init();
+#ifndef MCC_MINIMAL
     mbed_trace_mutex_wait_function_set(mbed_trace_helper_mutex_wait);
     mbed_trace_mutex_release_function_set(mbed_trace_helper_mutex_release);
+#endif
 
 #if defined(__SXOS__)
     mbed_trace_print_function_set(trace_printer);
@@ -176,22 +184,27 @@ bool application_init_mbed_trace(void)
 static bool application_init_verify_cloud_configuration()
 {
     int status;
+    bool result = 0;
 
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
     printf("Starting developer flow\n");
     status = fcc_developer_flow();
     if (status == FCC_STATUS_KCM_FILE_EXIST_ERROR) {
         printf("Developer credentials already exist, continuing..\n");
+        result = 0;
     } else if (status != FCC_STATUS_SUCCESS) {
         printf("Failed to load developer credentials\n");
+        result = 1;
     }
 #endif
+#ifndef MCC_MINIMAL
     status = fcc_verify_device_configured_4mbed_cloud();
     print_fcc_status(status);
     if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_EXPIRED_CERTIFICATE) {
-        return 1;
+        result = 1;
     }
-    return 0;
+#endif
+    return result;
 }
 
 static bool application_init_fcc(void)
@@ -199,7 +212,8 @@ static bool application_init_fcc(void)
 #ifdef MBED_STACK_STATS_ENABLED
     print_stack_statistics();
 #endif
-    int status = mcc_platform_fcc_init();
+    int status;
+    status = mcc_platform_fcc_init();
     if(status != FCC_STATUS_SUCCESS) {
         printf("application_init_fcc fcc_init failed with status %d! - exit\n", status);
         return 1;
@@ -220,6 +234,7 @@ static bool application_init_fcc(void)
 
     status = application_init_verify_cloud_configuration();
     if (status != 0) {
+#ifndef MCC_MINIMAL
     // This is designed to simplify user-experience by auto-formatting the
     // primary storage if no valid certificates exist.
     // This should never be used for any kind of production devices.
@@ -245,16 +260,15 @@ static bool application_init_fcc(void)
 #else
         return 1;
 #endif
+#endif
     }
     return 0;
 }
 
 bool application_init(void)
 {
-    if(mcc_platform_init_button_and_led() != 0) {
-       printf("ERROR - initButtonAndLed() failed!\n");
-       return false;
-    }
+    // The function always returns 0.
+    (void) mcc_platform_init_button_and_led();
 
     // Print some statistics of current heap memory consumption, useful for finding
     // out where the memory goes.

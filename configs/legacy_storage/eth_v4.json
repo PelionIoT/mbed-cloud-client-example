@@ -12,6 +12,7 @@
             "platform.stdio-convert-newlines"   : true,
             "platform.stdio-buffered-serial"    : true,
             "platform.stdio-flush-at-exit"      : true,
+            "rtos.main-thread-stack-size"       : 5120,
             "mbed-client.event-loop-size"       : 1024,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
             "update-client.storage-address"     : "(1024*1024*64)",
@@ -47,7 +48,9 @@
             "client_app.sotp-section-1-address"     : "(32*1024)",
             "client_app.sotp-section-1-size"        : "( 4*1024)",
             "client_app.sotp-section-2-address"     : "(36*1024)",
-            "client_app.sotp-section-2-size"        : "( 4*1024)"
+            "client_app.sotp-section-2-size"        : "( 4*1024)",
+            "rtos.main-thread-stack-size"               : 8192,
+            "mbed-cloud-client.disable-certificate-enrollment": null
         },
         "NUCLEO_F429ZI": {
             "target.bootloader_img"                 : "tools/mbed-bootloader-nucleo_f429zi-block_device-sotp-v3.4.0.bin",
