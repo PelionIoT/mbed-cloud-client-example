@@ -1,5 +1,6 @@
 {
     "macros": [
+        "MBED_BOOTLOADER_SIZE=(32*1024)",
         "ARM_UC_USE_PAL_BLOCKDEVICE=1"
     ],
     "target_overrides": {

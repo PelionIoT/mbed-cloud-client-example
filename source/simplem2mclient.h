@@ -54,6 +54,7 @@ public:
     bool call_register() {
 
         _cloud_client.on_registered(this, &SimpleM2MClient::client_registered);
+        _cloud_client.on_registration_updated(this, &SimpleM2MClient::client_registration_updated);
         _cloud_client.on_unregistered(this, &SimpleM2MClient::client_unregistered);
         _cloud_client.on_error(this, &SimpleM2MClient::error);
 
@@ -87,7 +88,7 @@ public:
 
     void client_registered() {
         _registered = true;
-        printf("\nClient registered\n");
+        printf("Client registered\n");
         static const ConnectorClientEndpointInfo* endpoint = NULL;
         if (endpoint == NULL) {
             endpoint = _cloud_client.endpoint_info();
@@ -108,10 +109,14 @@ public:
 #endif
     }
 
+    void client_registration_updated() {
+        printf("Client registration updated\n");
+    }
+
     void client_unregistered() {
         _registered = false;
         _register_called = false;
-        printf("\nClient unregistered - Exiting application\n\n");
+        printf("Client unregistered - Exiting application\n");
 #ifdef MBED_HEAP_STATS_ENABLED
         print_heap_stats();
 #endif
@@ -216,8 +221,8 @@ public:
                 error = "UNKNOWN";
         }
         printf("\nError occurred : %s\r\n", error);
-        printf("Error code : %d\r\n\n", error_code);
-        printf("Error details : %s\r\n\n",_cloud_client.error_description());
+        printf("Error code : %d\r\n", error_code);
+        printf("Error details : %s\r\n",_cloud_client.error_description());
     }
 
     bool is_client_registered() {

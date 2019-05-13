@@ -198,11 +198,13 @@ static bool application_init_verify_cloud_configuration()
     }
 #endif
 #ifndef MCC_MINIMAL
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
     status = fcc_verify_device_configured_4mbed_cloud();
     print_fcc_status(status);
     if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_EXPIRED_CERTIFICATE) {
         result = 1;
     }
+#endif
 #endif
     return result;
 }
