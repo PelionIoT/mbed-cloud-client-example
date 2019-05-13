@@ -8,11 +8,6 @@ project(mbedCloudClientExample)
 add_definitions(-DNS_EXCLUDE_HIGHRES_TIMER)
 add_definitions(-DNS_EVENTLOOP_USE_TICK_TIMER)
 add_definitions(-DMBED_CONF_MBED_CLIENT_EVENT_LOOP_SIZE=8192)
-if(${OS_BRAND} STREQUAL "FreeRTOS")
-    add_definitions(-DMBED_CONF_MBED_CLIENT_DNS_THREAD_STACK_SIZE=2048)
-else()
-    add_definitions(-DMBED_CONF_MBED_CLIENT_DNS_THREAD_STACK_SIZE=102400)
-endif()
 
 # mbed-cloud-client-example
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
