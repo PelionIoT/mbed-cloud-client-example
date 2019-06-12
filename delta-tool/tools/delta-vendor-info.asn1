@@ -1,0 +1,14 @@
+-- VendorInfo definition file for stream-bsdiff delta with LZ4 compression in ASN.1 (v. 0.1.0)
+VendorInfoDeltaSchema DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+DeltaInfo ::= SEQUENCE {
+    deltaVariant ENUMERATED {
+        reserved(0),
+        arm-stream-diff-lz4(1)
+    },
+    precursorDigest OCTET STRING,
+    deltaDigest OCTET STRING,
+    deltaSize INTEGER
+}
+
+END
