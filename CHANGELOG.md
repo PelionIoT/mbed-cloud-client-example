@@ -1,8 +1,13 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 3.2.0 (12.06.2019)
+
+* Updated to Mbed OS 5.12.4.
+* Added delta tool to the example application.
+
 ## Release 3.1.1 (13.05.2019)
 
-* Updated to Mbed OS 5.12.2.
+* Updated to Mbed OS 5.12.3.
 * Fixed the application initialization issue in production flow. This fixes a regression caused by 3.1.0 release.
 * Fixed a compilation issue of Nucleo F429ZI board with the root-level `mbed_app.json`.
 

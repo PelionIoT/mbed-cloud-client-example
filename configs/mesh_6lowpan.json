@@ -16,6 +16,7 @@
             "mbed-client-pal.pal-dns-api-version"       : 2,
             "mbed-client.sn-coap-blockwise-max-time-data-stored": 120,
             "mbed-cloud-client.external-sst-support"    : 1,
+            "mbed-client.tls-max-retry"                 : 240,
             "client_app.pal_dtls_peer_min_timeout"      : "10000",
             "nanostack-hal.event_loop_thread_stack_size": 8192,
             "update-client.storage-locations"           : 1,
