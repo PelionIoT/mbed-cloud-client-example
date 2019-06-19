@@ -139,6 +139,26 @@
             "sd.SPI_MISO"                               : "PC_2",
             "sd.SPI_CLK"                                : "PC_7",
             "sd.SPI_CS"                                 : "PB_9"
+        },
+        "CC3220SF_LAUNCHXL": {
+            "target.network-default-interface-type"     : "WIFI",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-cc3220sf_launchxl-block_device-kvstore.bin",
+            "target.header_offset"                      : "0x9000",
+            "target.app_offset"                         : "0x9400",
+            "target.components_add"                     : ["SD"],
+            "update-client.bootloader-details"          : "0x1006978",
+            "update-client.application-details"         : "(MBED_ROM_START + (36*1024))",
+            "update-client.storage-address"             : "(1024*1024*64)",
+            "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
+            "storage_filesystem.internal_base_address"  : "(MBED_ROM_START +(32*1024))",
+            "storage_filesystem.rbp_internal_size"      : "(4*1024)",
+            "storage_filesystem.external_base_address"  : "(0x0)",
+            "storage_filesystem.external_size"          : "(1024*1024*64)",
+            "storage.storage_type"                      : "FILESYSTEM",
+            "storage_filesystem.filesystem"             : "LITTLE",
+            "storage_filesystem.blockdevice"            : "SD",
+            "target.OUTPUT_EXT"                         : "hex"
         }
     },
     "config": {
