@@ -1,6 +1,13 @@
 # Changelog for Pelion Device Management Client example application
 
-## Release 3.2.0 (12.06.2019)
+## Release 3.3.0 (02.07.2019)
+
+* Updated to Mbed OS 5.13.0.
+* Added support for Wi-SUN mesh on Nucleo F429ZI (`configs/mesh_wisun.json`).
+* Added PSA support for Linux PC.
+  * PSA configuration (`define_linux_psa.txt`) for PSA-enabled Linux PC.
+
+## Release 3.2.0 (07.06.2019)
 
 * Updated to Mbed OS 5.12.4.
 * Added delta tool to the example application.

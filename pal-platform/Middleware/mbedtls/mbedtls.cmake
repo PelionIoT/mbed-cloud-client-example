@@ -1,5 +1,5 @@
 #################################################################################
-#  Copyright 2016, 2017 ARM Ltd.
+#  Copyright 2016 - 2019 ARM Ltd.
 #  
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ include_directories ("${CMAKE_SOURCE_DIR}/pal-platform/Middleware/mbedtls")
 include_directories ("${CMAKE_SOURCE_DIR}/pal-platform/Middleware/mbedtls/mbedtls/include")
 include_directories ("${CMAKE_SOURCE_DIR}/pal-platform/Middleware/mbedtls/mbedtls/include/mbedtls")
 include_directories ("${CMAKE_SOURCE_DIR}/pal-platform/Middleware/mbedtls/mbedtls/port/ksdk")
+include_directories ("${CMAKE_SOURCE_DIR}/pal-platform/Middleware/mbedtls/mbedtls/crypto/include/psa")
+include_directories ("${CMAKE_SOURCE_DIR}/pal-platform/Middleware/mbedtls/mbedtls/crypto/include/mbedtls")
+include_directories ("${CMAKE_SOURCE_DIR}/pal-platform/Middleware/mbedtls/mbedtls/crypto/include")
 # include_directories ("./pal-platform/Middleware/mbedtls/mmcau_2.0.0")
 
 message(status "device = ${PAL_TARGET_DEVICE}")

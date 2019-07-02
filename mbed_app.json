@@ -13,8 +13,6 @@
             "rtos.main-thread-stack-size"               : 5120,
             "rtos.timer-thread-stack-size"              : 256,
             "rtos.idle-thread-stack-size"               : 256,
-            "client_app.platform-enable-button"         : 0,
-            "client_app.platform-enable-led"            : 0,
             "mbed-client-pal.pal-dns-api-version"       : 2,
             "mbed-cloud-client.external-sst-support"    : 1,
             "update-client.storage-locations"           : 1,

@@ -1,0 +1,36 @@
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
+
+add_definitions(-DMBED_CLIENT_USER_CONFIG_FILE="\\"mbed_cloud_client_user_config.h"\\")
+add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE="\\"mbed_cloud_client_user_config.h"\\")
+add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="\\"sotp_fs_config_linux.h"\\")
+if(RESET_STORAGE)
+    add_definitions(-DRESET_STORAGE)
+endif(RESET_STORAGE)
+
+SET(PAL_TLS_BSP_DIR ${NEW_CMAKE_SOURCE_DIR}/mbed-cloud-client/mbed-client-pal/Configs/${TLS_LIBRARY})
+
+if (${TLS_LIBRARY} MATCHES mbedTLS)
+    # PAL specific configurations for mbedTLS
+    add_definitions(-DMBEDTLS_CONFIG_FILE="\\"${PAL_TLS_BSP_DIR}/mbedTLSConfig_${OS_BRAND}.h"\\")
+    message("PAL_TLS_BSP_DIR ${PAL_TLS_BSP_DIR}/pal_${OS_BRAND}.h")
+endif()
+
+add_definitions(-DPAL_DTLS_PEER_MIN_TIMEOUT=5000)
+add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
+add_definitions(-DMBED_CONF_MBED_TRACE_ENABLE=0)
+add_definitions(-DPLATFORM_ENABLE_BUTTON=1)
+add_definitions(-DPLATFORM_ENABLE_LED=1)
+
+### MBEDTLS PSA Crypto ###
+
+OPTION(USE_CRYPTO_SUBMODULE "Build and use libmbedcrypto from the crypto submodule." ON)
+
+add_definitions(
+    -DCRYPTO_STORAGE_FILE_LOCATION="\\"pal/BACKUP/"\\"
+    -DMBED_CONF_MBED_CLOUD_CLIENT_PSA_SUPPORT
+    -DMBEDTLS_USE_PSA_CRYPTO
+    -DMBEDTLS_PSA_CRYPTO_C
+    -DMBEDTLS_PSA_CRYPTO_STORAGE_C
+    -DMBEDTLS_PSA_CRYPTO_STORAGE_FILE_C
+    -DMBEDTLS_FS_IO
+)
