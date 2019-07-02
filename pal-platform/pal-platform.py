@@ -170,13 +170,14 @@ def extract_repo_name(url):
     return m.group(7) or url
 
 
-def git_fetch(git_url, tree_ref, dest_dir, **stream_kwargs):
+def git_fetch(git_url, tree_ref, dest_dir, submodule, **stream_kwargs):
     """
     Fetch sources from a git url to a local directory
 
     :param git_url: Url of git repository
     :param tree_ref: Branch name / hash tag
     :param dest_dir: Destination directory
+    :param submodule: The name of the submodule to fetch (may be None)
     :param stream_kwargs:
         * *stdout* --
           Standard output handle
@@ -214,6 +215,10 @@ def git_fetch(git_url, tree_ref, dest_dir, **stream_kwargs):
 
         if not is_hash and is_git_pull_required(dest_dir, tree_ref, **stream_kwargs):
             check_cmd(['git', 'pull', '--rebase', '--tags', '--all'], cwd=dest_dir, **stream_kwargs)
+
+    if submodule:
+        check_cmd(['git', 'submodule', 'init', submodule], cwd=dest_dir, **stream_kwargs)
+        check_cmd(['git', 'submodule', 'update', submodule], cwd=dest_dir, **stream_kwargs)
 
 
 def download_file(url, dest_dir, file_name=None):
@@ -436,12 +441,16 @@ def check_output_and_raise(cmd, **kwargs):
     logger.debug(" ".join(cmd))
     return subprocess.check_output(cmd, **kwargs)
 
-
-class Source:
+class GitSourceSubmodule:
     def __init__(self, src, stream_kwargs):
-        self.location = src['location']
+        self.submodule = src.get('submodule', None)
         self.stream_kwargs = stream_kwargs
 
+class Source(GitSourceSubmodule):
+    def __init__(self, src, stream_kwargs):
+        super(Source, self).__init__(src, stream_kwargs)
+        self.location = src['location']
+        self.stream_kwargs = stream_kwargs
 
 class GitSource(Source):
     def __init__(self, src, stream_kwargs):
@@ -454,7 +463,7 @@ class GitSource(Source):
     def fetch(self, dst, name):
         logger.info('Getting %s from git', name)
         try:
-            git_fetch(self.location, self.tag, dst, **self.stream_kwargs)
+            git_fetch(self.location, self.tag, dst, self.submodule, **self.stream_kwargs)
         except Exception as e:
             logger.error(e)
             logger.error("** failed to fetch %s from git - please check that remote is correct and avialable **", name)
