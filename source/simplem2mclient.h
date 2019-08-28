@@ -72,7 +72,7 @@ public:
            is set, the update process will procede immediately in each step.
         */
         update_ui_set_cloud_client(&_cloud_client);
-        _cloud_client.set_update_authorize_handler(update_authorize);
+        _cloud_client.set_update_authorize_priority_handler(update_authorize_priority_handler);
         _cloud_client.set_update_progress_handler(update_progress);
 #endif
         return true;

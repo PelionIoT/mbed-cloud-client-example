@@ -22,12 +22,12 @@
 #include "mbed-cloud-client/MbedCloudClient.h"
 
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_UPDATE
-
 /**
  * @brief Function for authorizing firmware downloads and reboots.
  * @param request The request under consideration.
+ * @param priority The priority under consideration.
  */
-void update_authorize(int32_t request);
+void update_authorize_priority_handler(int32_t request, uint64_t priority);
 
 /**
  * @brief Callback function for reporting the firmware download progress.

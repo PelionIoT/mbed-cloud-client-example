@@ -55,6 +55,10 @@ int main(void)
 static M2MResource* button_res;
 static M2MResource* pattern_res;
 static M2MResource* blink_res;
+static M2MResource* unregister_res;
+
+void unregister_received(void);
+void unregister(void);
 
 // Pointer to mbedClient, used for calling close function.
 static SimpleM2MClient *client;
@@ -115,8 +119,27 @@ void notification_status_callback(const M2MBase& object,
     }
 }
 
+void sent_callback(const M2MBase& base,
+                   const M2MBase::MessageDeliveryStatus status,
+                   const M2MBase::MessageType /*type*/)
+{
+    switch(status) {
+        case M2MBase::MESSAGE_STATUS_DELIVERED:
+            unregister();
+            break;
+        default:
+            break;
+    }
+}
+
+void unregister_triggered(void)
+{
+    printf("Unregister resource triggered\n");
+    unregister_res->send_delayed_post_response();
+}
+
 // This function is called when a POST request is received for resource 5000/0/1.
-void unregister(void *)
+void unregister(void)
 {
     printf("Unregister resource executed\n");
     client->close();
@@ -219,9 +242,9 @@ void main_application(void)
     blink_res->set_delayed_response(true);
 
     // Create resource for unregistering the device. Path of this resource will be: 5000/0/1.
-    mbedClient.add_cloud_resource(5000, 0, 1, "unregister", M2MResourceInstance::STRING,
-                 M2MBase::POST_ALLOWED, NULL, false, (void*)unregister, NULL);
-
+    unregister_res = mbedClient.add_cloud_resource(5000, 0, 1, "unregister", M2MResourceInstance::STRING,
+                 M2MBase::POST_ALLOWED, NULL, false, (void*)unregister_triggered, (void*)sent_callback);
+    unregister_res->set_delayed_response(true);
     // Create resource for running factory reset for the device. Path of this resource will be: 5000/0/2.
     mbedClient.add_cloud_resource(5000, 0, 2, "factory_reset", M2MResourceInstance::STRING,
                  M2MBase::POST_ALLOWED, NULL, false, (void*)factory_reset, NULL);

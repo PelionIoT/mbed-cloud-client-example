@@ -14,8 +14,6 @@
             "rtos.main-thread-stack-size"               : 5120,
             "rtos.timer-thread-stack-size"              : 256,
             "rtos.idle-thread-stack-size"               : 256,
-            "mbed-client-pal.pal-dns-api-version"       : 2,
-            "mbed-cloud-client.external-sst-support"    : 1,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null
         },
@@ -41,6 +39,24 @@
             "storage.storage_type"                      : "FILESYSTEM",
             "storage_filesystem.filesystem"             : "LITTLE",
             "storage_filesystem.blockdevice"            : "SD"
+         },
+         "K66F": {
+            "target.network-default-interface-type"     : "ETHERNET",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-k66f-internal_flash-no_rot-v4.0.0.bin",
+            "target.header_offset"                      : "0x8000",
+            "target.app_offset"                         : "0x8400",
+            "rtos.main-thread-stack-size"               : 8192,
+            "update-client.bootloader-details"          : "0x4D58",
+            "update-client.application-details"         : "(32*1024)",
+            "update-client.storage-address"             : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS+MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
+            "update-client.storage-size"                : "(1024*1024-MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
+            "update-client.storage-page"                : 8,
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
+            "mbed-cloud-client.disable-certificate-enrollment": null,
+            "mbed-cloud-client.psa-support"             : 1,
+            "storage_tdb_internal.internal_base_address": "(1024*1024)",
+            "storage_tdb_internal.internal_size"        : "(96*1024)",
+            "storage.storage_type"                      : "TDB_INTERNAL"
         }
     },
     "config": {

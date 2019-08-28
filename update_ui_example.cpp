@@ -16,12 +16,26 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
+
 #include "update_ui_example.h"
 
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_UPDATE
 
+// Needed for PRIu64 on FreeRTOS
 #include <stdio.h>
 #include <stdint.h>
+
+// Note: this macro is needed on armcc to get the the limit macros like UINT16_MAX
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+
+// Note: this macro is needed on armcc to get the the PRI*32 macros
+// from inttypes.h in a C++ code.
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS
+#endif
+
 
 static MbedCloudClient* _client;
 
@@ -30,7 +44,7 @@ void update_ui_set_cloud_client(MbedCloudClient* client)
     _client = client;
 }
 
-void update_authorize(int32_t request)
+void update_authorize_priority_handler(int32_t request, uint64_t priority)
 {
     switch (request)
     {
@@ -46,6 +60,7 @@ void update_authorize(int32_t request)
         case MbedCloudClient::UpdateRequestDownload:
             printf("Firmware download requested\r\n");
             printf("Authorization granted\r\n");
+            printf("Priority of request %" PRIu64 "\r\n", priority);
             _client->update_authorize(MbedCloudClient::UpdateRequestDownload);
             break;
 
@@ -59,6 +74,7 @@ void update_authorize(int32_t request)
         case MbedCloudClient::UpdateRequestInstall:
             printf("Firmware install requested\r\n");
             printf("Authorization granted\r\n");
+            printf("Priority of request %" PRIu64 "\r\n", priority);
             _client->update_authorize(MbedCloudClient::UpdateRequestInstall);
             break;
 
