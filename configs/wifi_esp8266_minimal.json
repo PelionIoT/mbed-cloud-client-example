@@ -17,8 +17,6 @@
             "rtos.idle-thread-stack-size"               : 256,
             "client_app.platform-enable-button"         : 0,
             "client_app.platform-enable-led"            : 0,
-            "mbed-client-pal.pal-dns-api-version"       : 2,
-            "mbed-cloud-client.external-sst-support"    : 1,
             "nanostack-hal.event-loop-use-mbed-events"  : true,
             "nanostack-hal.event-loop-dispatch-from-application"    : false,
             "nanostack-hal.critical-section-usable-from-interrupt"  : true,

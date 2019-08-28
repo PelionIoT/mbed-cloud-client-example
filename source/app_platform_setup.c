@@ -45,22 +45,6 @@ int mcc_platform_reset_storage(void)
     int status = fcc_storage_delete();
     if (status != FCC_STATUS_SUCCESS) {
         printf("Failed to delete storage - %d\n", status);
-// Format call is not needed with SST implementation
-#ifndef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
-// Flagging here because of reformat contains only implementation for mbed-os.
-#ifdef TARGET_LIKE_MBED
-        status = mcc_platform_reformat_storage();
-        if (status == 0) {
-            printf("Storage reformatted, try reset storage again.\n");
-            // Try to reset storage again after format.
-            // It is required to run fcc_storage_delete() after format.
-            status = fcc_storage_delete();
-            if (status != FCC_STATUS_SUCCESS) {
-                printf("Failed to delete storage - %d\n", status);
-            }
-        }
-#endif
-#endif
     }
     return status;
 #else

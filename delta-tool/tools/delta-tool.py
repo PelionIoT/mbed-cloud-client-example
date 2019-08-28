@@ -97,9 +97,6 @@ def parse_arguments():
 
     group.add_argument('-c', '--size-check',
         help='Do not run delta image size check. Otherwise will report error if delta is larger than normal update', action='store_true')
-
-    parser.add_argument('-p', '--priority', metavar='priority',
-        default=0, help='Priority value passed to manifest-tool. Default value is 0')
     
     return parser.parse_args()
 
@@ -182,7 +179,6 @@ def main():
         'installedFile' : args.new.name,
         'deltaFile' : args.delta,
         'precursorFile' : args.original.name,
-        'priority' : args.priority
     }
     config.update(ucc)
     args.output_config.write(json.dumps(config))

@@ -39,8 +39,7 @@
     },
     "to": "SDK/K64F_FreeRTOS/K64F_FreeRTOS"
   },
-  "x86_x64_NativeLinux_mbedtls":
-  {
+  "x86_x64_NativeLinux_mbedtls": {
     "device": {
       "name": "x86_x64"
     },
@@ -49,19 +48,20 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.17.0",
+        "version": "2.18.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.17.0",
-          "submodule": "crypto"
+          "tag": "mbedtls-2.18.1",
+          "submodules": {
+            "crypto": {}
+          }
         },
         "to": "Middleware/mbedtls/mbedtls"
       }
     }
   },
-  "Yocto_Generic_YoctoLinux_mbedtls":
-  {
+  "Yocto_Generic_YoctoLinux_mbedtls": {
     "device": {
       "name": "Yocto_Generic"
     },
@@ -71,18 +71,20 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.17.0",
+        "version": "2.18.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.17.0"
+          "tag": "mbedtls-2.18.1",
+          "submodules": {
+            "crypto": {}
+          }
         },
         "to": "Middleware/mbedtls/mbedtls"
       }
     }
   },
-    "ARM_OpenWRT_mbedtls":
-  {
+  "ARM_OpenWRT_mbedtls": {
     "device": {
       "name": "OpenWRT_Generic"
     },
@@ -91,11 +93,14 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.17.0",
+        "version": "2.18.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.17.0"
+          "tag": "mbedtls-2.18.1",
+          "submodules": {
+            "crypto": {}
+          }
         },
         "to": "Middleware/mbedtls/mbedtls"
       }

@@ -34,6 +34,7 @@ import requests
 import click
 
 logger = logging.getLogger('pal-platform')
+# logger.level = logging.INFO
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 PAL_PLATFORM_ROOT = SCRIPT_DIR
 PROG_NAME = os.path.basename(sys.argv[0])
@@ -170,14 +171,49 @@ def extract_repo_name(url):
     return m.group(7) or url
 
 
-def git_fetch(git_url, tree_ref, dest_dir, submodule, **stream_kwargs):
+def git_fetch_submodule(submodule_name, overwrite_url, overwrite_branch, dest_dir, **stream_kwargs):
+    """
+    Synchronize and fetch submodule sources to a local directory
+
+    :param overwrite_url: URL to overwrite submodule URL or None to use default
+    :param overwrite_branch: Branch name to overwrite submodule branch/hash or None to use default
+    :param dest_dir: Destination directory
+    :param stream_kwargs:
+        * *stdout* --
+          Standard output handle
+        * *stderr* --
+          Standard error handle
+    """
+    
+    # Overwrite submodule configuration in `.gitmodules`
+    if overwrite_url:
+        check_cmd(['git', 'config', '--file=.gitmodules', 'submodule.{}.url'.format(submodule_name), overwrite_url], cwd=dest_dir, **stream_kwargs)
+    if overwrite_branch:
+        check_cmd(['git', 'config', '--file=.gitmodules', 'submodule.{}.branch'.format(submodule_name), overwrite_branch], cwd=dest_dir, **stream_kwargs)
+
+    # Synchronizes submodules' configuration
+    check_cmd(['git', 'submodule', 'sync', '--', submodule_name], cwd=dest_dir, **stream_kwargs)
+
+    url = check_output(['git', 'config', '--file=.gitmodules', 'submodule.{}.url'.format(submodule_name)], cwd=dest_dir).decode(encoding='utf-8').strip()
+    # Update submodule to match superproject expects
+    if overwrite_url or overwrite_branch:
+        branch = check_output(['git', 'config', '--file=.gitmodules', 'submodule.{}.branch'.format(submodule_name)], cwd=dest_dir).decode(encoding='utf-8').strip()
+        logger.warning('Updating submodule \'%s\' from %s at \'%s\' remote branch HEAD', submodule_name, url, branch)
+        # Use submodule configuration to update the submodule
+        check_cmd(['git', 'submodule', 'update', '--init', '--recursive', '--remote', '--', submodule_name], cwd=dest_dir, **stream_kwargs)
+    else:
+        logger.info('Updating submodule \'%s\' from %s at superproject\'s commited hash', submodule_name, url)
+        # Use the superproject's recorded SHA-1 to update the submodule
+        check_cmd(['git', 'submodule', 'update', '--init', '--recursive', '--', submodule_name], cwd=dest_dir, **stream_kwargs)
+
+def git_fetch(git_url, tree_ref, dest_dir, submodules, **stream_kwargs):
     """
     Fetch sources from a git url to a local directory
 
     :param git_url: Url of git repository
     :param tree_ref: Branch name / hash tag
     :param dest_dir: Destination directory
-    :param submodule: The name of the submodule to fetch (may be None)
+    :param submodules: dictionary describe submodules to fetch (may be None)
     :param stream_kwargs:
         * *stdout* --
           Standard output handle
@@ -216,9 +252,14 @@ def git_fetch(git_url, tree_ref, dest_dir, submodule, **stream_kwargs):
         if not is_hash and is_git_pull_required(dest_dir, tree_ref, **stream_kwargs):
             check_cmd(['git', 'pull', '--rebase', '--tags', '--all'], cwd=dest_dir, **stream_kwargs)
 
-    if submodule:
-        check_cmd(['git', 'submodule', 'init', submodule], cwd=dest_dir, **stream_kwargs)
-        check_cmd(['git', 'submodule', 'update', submodule], cwd=dest_dir, **stream_kwargs)
+    if submodules:
+        # Reset .gitmodules to remove previously synced changes 
+        check_cmd(['git', 'checkout', '.gitmodules'], cwd=dest_dir, **stream_kwargs)
+        for submodule_name, submodule_desc in submodules.items():
+            git_fetch_submodule(submodule_name, 
+                               submodule_desc.get('overwrite-url', None),
+                               submodule_desc.get('overwrite-branch', None), 
+                               dest_dir, **stream_kwargs)
 
 
 def download_file(url, dest_dir, file_name=None):
@@ -441,14 +482,8 @@ def check_output_and_raise(cmd, **kwargs):
     logger.debug(" ".join(cmd))
     return subprocess.check_output(cmd, **kwargs)
 
-class GitSourceSubmodule:
+class Source:
     def __init__(self, src, stream_kwargs):
-        self.submodule = src.get('submodule', None)
-        self.stream_kwargs = stream_kwargs
-
-class Source(GitSourceSubmodule):
-    def __init__(self, src, stream_kwargs):
-        super(Source, self).__init__(src, stream_kwargs)
         self.location = src['location']
         self.stream_kwargs = stream_kwargs
 
@@ -456,6 +491,7 @@ class GitSource(Source):
     def __init__(self, src, stream_kwargs):
         super(GitSource, self).__init__(src, stream_kwargs)
         self.tag = src.get('tag', 'master')
+        self.submodules = src.get('submodules', None)
 
     def write(self, dst, out=sys.stdout):
         out.write('- Clone %s at %s to %s' % (self.location, self.tag, dst))
@@ -463,7 +499,7 @@ class GitSource(Source):
     def fetch(self, dst, name):
         logger.info('Getting %s from git', name)
         try:
-            git_fetch(self.location, self.tag, dst, self.submodule, **self.stream_kwargs)
+            git_fetch(self.location, self.tag, dst, self.submodules, **self.stream_kwargs)
         except Exception as e:
             logger.error(e)
             logger.error("** failed to fetch %s from git - please check that remote is correct and avialable **", name)
@@ -527,8 +563,8 @@ class SourceFactory(object):
             'remote-files': RemoteFilesSource
         }
         protocol = src['protocol']
-        assert protocol in sources.keys(), \
-            '%s is not a valid protocol, valid protocols are %s' % (protocol, sources.keys())
+        assert protocol in list(sources.keys()), \
+            '%s is not a valid protocol, valid protocols are %s' % (protocol, list(sources.keys()))
         return sources[protocol](src, stream_kwargs)
 
 
@@ -718,13 +754,13 @@ def cli(config, verbose, from_file):
     config.stream_kwargs = {'stdout': open(os.devnull, 'w'), 'stderr': subprocess.STDOUT}
     config.targets = json_read(from_file)
     global AVAILABLE_TARGETS
-    AVAILABLE_TARGETS = config.targets.keys()
+    AVAILABLE_TARGETS = list(config.targets.keys())
 
     parent_dir = os.path.normpath(os.path.join(from_file, os.pardir))
     toolchain_dir = os.path.join(parent_dir, "Toolchain")
-    list = os.listdir(toolchain_dir)
+    toolchain_list = os.listdir(toolchain_dir)
     global AVAILABLE_TOOLCHAINS
-    AVAILABLE_TOOLCHAINS = list
+    AVAILABLE_TOOLCHAINS = toolchain_list
 
     logging.basicConfig(
         level=logging.DEBUG if verbose else logging.INFO,

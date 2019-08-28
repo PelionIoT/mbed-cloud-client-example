@@ -12,8 +12,6 @@
             "rtos.main-thread-stack-size"               : 5120,
             "rtos.timer-thread-stack-size"              : 256,
             "rtos.idle-thread-stack-size"               : 256,
-            "mbed-client-pal.pal-dns-api-version"       : 2,
-            "mbed-cloud-client.external-sst-support"    : 1,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null,
             "nsapi.default-wifi-security"               : "WPA_WPA2",

@@ -1,5 +1,13 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 3.4.0 (28.08.2019)
+
+* Added PSA configuration for K66F (`configs-psa/eth_v4.json`).
+* Updated usage of new Update Authorization API, which enables [update priority](../updating-firmware/firmware-manifests.html) feature `set_update_authorize_priority_handler` instead of `set_update_authorize_handler`.
+* Use `set_message_delivery_status_cb` to ensure that a POST trigger on the `unregister resource` (`/5000/0/1`) does not result in closing the network connection before client is able to send the final ACK to server.
+* [Linux] Updated Mbed TLS to 2.18.1.
+* [Mbed OS] Removed the legacy ESFS-SOTP configurations from the applications. Only KVstore is supported for client storage.
+
 ## Release 3.3.0 (02.07.2019)
 
 * Updated to Mbed OS 5.13.0.

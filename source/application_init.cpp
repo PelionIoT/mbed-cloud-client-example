@@ -241,12 +241,6 @@ static bool application_init_fcc(void)
     // primary storage if no valid certificates exist.
     // This should never be used for any kind of production devices.
 #ifndef MBED_CONF_APP_MCC_NO_AUTO_FORMAT
-#ifndef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
-        printf("Certificate validation failed, trying autorecovery...\n");
-        if (mcc_platform_reformat_storage() != 0) {
-            return 1;
-        }
-#endif
         status = mcc_platform_reset_storage();
         if (status != FCC_STATUS_SUCCESS) {
             return 1;
