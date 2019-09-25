@@ -20,6 +20,10 @@
 #ifndef APPLICATION_INIT_H
 #define APPLICATION_INIT_H
 
+#ifndef STARTUP_MAX_RANDOM_DELAY
+#define STARTUP_MAX_RANDOM_DELAY 0
+#endif
+
 /*
  * Initializes tracing library.
  */
@@ -39,6 +43,16 @@ bool application_init(void);
  * Prints the FCC status and corresponding error description, if any.
  */
 void print_fcc_status(int fcc_status);
+
+/*
+ * Wait for random delay with maximum defined using MAX_STARTUP_DELAY.
+ * The delay is needed for devices connected to a large network with high latency
+ * and constrained bandwidth.
+ * For example in Wi-SUN, this stabilizes the early network formation when all
+ * clients do not register simultaneously.
+ */
+void wait_application_startup_delay();
+
 
 #endif //APPLICATION_INIT_H
 

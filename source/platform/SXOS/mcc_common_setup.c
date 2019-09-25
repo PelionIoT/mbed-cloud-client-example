@@ -1,18 +1,21 @@
-/*
- * Copyright (c) 2018 ARM Limited. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0
- * Licensed under the Apache License, Version 2.0 (the License); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an AS IS BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// ----------------------------------------------------------------------------
+// Copyright 2018-2019 ARM Ltd.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------------------------------------------------------
+
 #include "mcc_common_setup.h"
 #include "mcc_common_config.h"
 
@@ -236,7 +239,20 @@ static void restoreGprsLink(UINT8 nSIMID, UINT8 nCID)
 ////////////////////////////////
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
-int mcc_platform_init_connection(void)
+
+int mcc_platform_init_connection(void) {
+    return mcc_platform_interface_connect();
+}
+
+void* mcc_platform_get_network_interface(void) {
+    return mcc_platform_interface_get();
+}
+
+int mcc_platform_close_connection(void) {
+    return mcc_platform_interface_close();
+}
+
+int mcc_platform_interface_connect(void)
 {
     timeout = 0;
 
@@ -268,14 +284,16 @@ int mcc_platform_init_connection(void)
     }
 }
 
-int mcc_platform_close_connection(void)
+void mcc_platform_interface_init(void) {}
+
+int mcc_platform_interface_close(void)
 {
     network_interface = NULL;
     restoreGprsLink(nSim, (UINT8)nCid);
     return 0;
 }
 
-void* mcc_platform_get_network_interface(void)
+void* mcc_platform_interface_get(void)
 {
     return network_interface;
 }
@@ -395,8 +413,8 @@ int mcc_platform_reformat_storage(void)
 {
 // cleanup folders
 // to do:
-// PAL_FS_MOUNT_POINT_PRIMARY 
-// PAL_FS_MOUNT_POINT_SECONDARY 
+// PAL_FS_MOUNT_POINT_PRIMARY
+// PAL_FS_MOUNT_POINT_SECONDARY
     printf("mcc_platform_reformat_storage is not supported\n");
     return 0;
 }

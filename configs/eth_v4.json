@@ -1,6 +1,5 @@
 {
     "macros": [
-        "MBED_BOOTLOADER_SIZE=(32*1024)",
         "ARM_UC_USE_PAL_BLOCKDEVICE=1"
     ],
     "target_overrides": {
@@ -11,8 +10,6 @@
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
             "rtos.main-thread-stack-size"               : 5120,
-            "rtos.timer-thread-stack-size"              : 256,
-            "rtos.idle-thread-stack-size"               : 256,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null
         },
@@ -108,6 +105,11 @@
         "led-pinname"   : {
             "help"      : "PinName for led, which is attached to led blink resource.",
             "value"     : "LED_RED"
+        },
+        "bootloader-size": {
+            "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",
+            "value"     : "(32*1024)",
+            "macro_name": "MBED_BOOTLOADER_SIZE"
         }
     }
 }

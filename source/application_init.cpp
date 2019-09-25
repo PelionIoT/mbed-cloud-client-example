@@ -27,6 +27,7 @@
 #include "memory_tests.h"
 #endif
 #include "application_init.h"
+#include "mbed-client-randlib/randLIB.h"
 
 void print_fcc_status(int fcc_status)
 {
@@ -283,4 +284,12 @@ bool application_init(void)
     }
 
     return true;
+}
+
+void wait_application_startup_delay()
+{
+    randLIB_seed_random();
+    uint16_t delay = randLIB_get_random_in_range(1,STARTUP_MAX_RANDOM_DELAY);
+    printf("Delaying registration by %d seconds\n", delay);
+    mcc_platform_do_wait(delay * 1000);
 }

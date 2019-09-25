@@ -1,5 +1,5 @@
- // ----------------------------------------------------------------------------
-// Copyright 2018-2019 ARM Ltd.
+// ----------------------------------------------------------------------------
+// Copyright 2019 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,18 +16,22 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
-#ifndef MCC_COMMON_CONFIG_H
-#define MCC_COMMON_CONFIG_H
+#ifndef PSA_STORAGE_USER_CONFIG_H
+#define PSA_STORAGE_USER_CONFIG_H
 
-/* #define PLATFORM_ENABLE_BUTTON 1 for enabling button.*/
-#ifndef PLATFORM_ENABLE_BUTTON
-#define PLATFORM_ENABLE_BUTTON 0
-#endif 
-
-/* #define PLATFORM_ENABLE_LED 1 for enabling led.*/
-#ifndef PLATFORM_ENABLE_LED
-#define PLATFORM_ENABLE_LED 0 
+/**
+* \def PSA_STORAGE_FILE_C_STORAGE_PREFIX
+*
+* Define the path to the directory for Internal Trusted Storage
+* (PSA ITS) files representing persisted objects. For example,
+* to store files in "/home/username" define
+* PSA_STORAGE_FILE_C_STORAGE_PREFIX "/home/username/"
+* (note the appended "/").
+*/
+#ifdef PSA_STORAGE_FILE_C_STORAGE_PREFIX
+    #undef PSA_STORAGE_FILE_C_STORAGE_PREFIX
 #endif
 
-#endif /* MCC_COMMON_CONFIG_H */
+#define PSA_STORAGE_FILE_C_STORAGE_PREFIX "psa/"
 
+#endif /* PSA_STORAGE_USER_CONFIG_H */

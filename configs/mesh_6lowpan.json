@@ -10,12 +10,10 @@
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
             "rtos.main-thread-stack-size"               : 5120,
-            "rtos.timer-thread-stack-size"              : 256,
-            "rtos.idle-thread-stack-size"               : 256,
             "mbed-client.reconnection-count"            : 6,
-            "mbed-client.sn-coap-blockwise-max-time-data-stored": 120,
-            "mbed-client.tls-max-retry"                 : 240,
+            "mbed-client.sn-coap-blockwise-max-time-data-stored": 300,
             "client_app.pal_dtls_peer_min_timeout"      : "10000",
+            "client_app.startup_max_random_delay"       : 200,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null,
@@ -60,6 +58,11 @@
         "led-pinname"   : {
             "help"      : "PinName for led, which is attached to led blink resource.",
             "value"     : "LED_RED"
+        },
+        "bootloader-size": {
+            "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",
+            "value"     : "(32*1024)",
+            "macro_name": "MBED_BOOTLOADER_SIZE"
         }
     }
 }
