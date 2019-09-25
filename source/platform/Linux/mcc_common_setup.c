@@ -1,18 +1,20 @@
-/*
- * Copyright (c) 2015-2018 ARM Limited. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0
- * Licensed under the Apache License, Version 2.0 (the License); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an AS IS BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// ----------------------------------------------------------------------------
+// Copyright 2015-2019 ARM Ltd.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------------------------------------------------------
 
 ///////////
 // INCLUDES
@@ -41,19 +43,34 @@ static unsigned int network=0xFFFFFFFF;
 ////////////////////////////////
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
-int mcc_platform_init_connection() {
+
+int mcc_platform_init_connection(void) {
+    return mcc_platform_interface_connect();
+}
+
+void* mcc_platform_get_network_interface(void) {
+    return mcc_platform_interface_get();
+}
+
+int mcc_platform_close_connection(void) {
+    return mcc_platform_interface_close();
+}
+
+int mcc_platform_interface_connect() {
     network_interface = &network;
     return 0;
 }
 
-int mcc_platform_close_connection() {
+int mcc_platform_interface_close() {
     network_interface = NULL;
     return 0;
 }
 
-void* mcc_platform_get_network_interface() {
+void* mcc_platform_interface_get() {
     return network_interface;
 }
+
+void mcc_platform_interface_init(void) {}
 
 // Desktop Linux
 // In order for tests to pass for all partition configurations we need to simulate the case of multiple
@@ -166,7 +183,7 @@ void mcc_platform_do_wait(int timeout_ms)
     int stat;
 
     remaining_time.tv_sec =  timeout_ms / 1000;
-    remaining_time.tv_nsec = timeout_ms * 1000;
+    remaining_time.tv_nsec = (timeout_ms - ((long)remaining_time.tv_sec * 1000)) * 1000000;
     do {
         start_time.tv_sec = remaining_time.tv_sec;
         start_time.tv_nsec = remaining_time.tv_nsec;

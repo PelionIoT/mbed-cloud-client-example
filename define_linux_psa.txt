@@ -24,14 +24,12 @@ add_definitions(-DPLATFORM_ENABLE_LED=1)
 ### MBEDTLS PSA Crypto ###
 
 OPTION(USE_CRYPTO_SUBMODULE "Build and use libmbedcrypto from the crypto submodule." ON)
+option(LINK_WITH_TRUSTED_STORAGE "Explicitly link mbed TLS library to trusted_storage." ON)
 
 add_definitions(
-    -DCRYPTO_STORAGE_FILE_LOCATION="\\"pal/BACKUP/"\\"
+    -DPSA_STORAGE_USER_CONFIG_FILE="\\"psa_storage_user_config.h"\\"
     -DMBED_CONF_MBED_CLOUD_CLIENT_PSA_SUPPORT
     -DMBEDTLS_USE_PSA_CRYPTO
     -DMBEDTLS_PSA_CRYPTO_C
     -DMBEDTLS_PSA_CRYPTO_STORAGE_C
-    -DMBEDTLS_PSA_CRYPTO_STORAGE_FILE_C
-    -DMBEDTLS_FS_IO
-    -DMBEDTLS_PSA_ITS_FILE_C
 )

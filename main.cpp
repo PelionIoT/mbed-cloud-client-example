@@ -145,19 +145,6 @@ void unregister(void)
     client->close();
 }
 
-// This function is called when a POST request is received for resource 5000/0/2.
-void factory_reset(void *)
-{
-    printf("Factory reset resource executed\n");
-    client->close();
-    kcm_status_e kcm_status = kcm_factory_reset();
-    if (kcm_status != KCM_STATUS_SUCCESS) {
-        printf("Failed to do factory reset - %d\n", kcm_status);
-    } else {
-        printf("Factory reset completed. Now restart the device\n");
-    }
-}
-
 void main_application(void)
 {
 #if defined(__linux__) && (MBED_CONF_MBED_TRACE_ENABLE == 0)
@@ -184,16 +171,6 @@ void main_application(void)
         return;
     }
 
-    // Print platform information
-    mcc_platform_sw_build_info();
-
-    // Initialize network
-    if (!mcc_platform_init_connection()) {
-        printf("Network initialized, registering...\n");
-    } else {
-        return;
-    }
-
     // Print some statistics of the object sizes and their heap memory consumption.
     // NOTE: This *must* be done before creating MbedCloudClient, as the statistic calculation
     // creates and deletes M2MSecurity and M2MDevice singleton objects, which are also used by
@@ -205,6 +182,23 @@ void main_application(void)
     // SimpleClient is used for registering and unregistering resources to a server.
     SimpleM2MClient mbedClient;
 
+    // Save pointer to mbedClient so that other functions can access it.
+    client = &mbedClient;
+
+    /*
+     * Pre-initialize network stack and client library.
+     *
+     * Specifically for nanostack mesh networks on Mbed OS platform it is important to initialize
+     * the components in correct order to avoid out-of-memory issues in Device Management Client initialization.
+     * The order for these use cases should be:
+     * 1. Initialize network stack using `nsapi_create_stack()` (Mbed OS only). // Implemented in `mcc_platform_interface_init()`.
+     * 2. Initialize Device Management Client using `init()`.                   // Implemented in `mbedClient.init()`.
+     * 3. Connect to network interface using 'connect()`.                       // Implemented in `mcc_platform_interface_connect()`.
+     * 4. Connect Device Management Client to service using `setup()`.          // Implemented in `mbedClient.register_and_connect)`.
+     */
+    (void) mcc_platform_interface_init();
+    mbedClient.init();
+
     // application_init() runs the following initializations:
     //  1. platform initialization
     //  2. print memory statistics if MBED_HEAP_STATS_ENABLED is defined
@@ -214,8 +208,15 @@ void main_application(void)
         return;
     }
 
-    // Save pointer to mbedClient so that other functions can access it.
-    client = &mbedClient;
+    // Print platform information
+    mcc_platform_sw_build_info();
+
+    // Initialize network
+    if (!mcc_platform_interface_connect()) {
+        printf("Network initialized, registering...\n");
+    } else {
+        return;
+    }
 
 #ifdef MBED_HEAP_STATS_ENABLED
     printf("Client initialized\r\n");
@@ -245,9 +246,18 @@ void main_application(void)
     unregister_res = mbedClient.add_cloud_resource(5000, 0, 1, "unregister", M2MResourceInstance::STRING,
                  M2MBase::POST_ALLOWED, NULL, false, (void*)unregister_triggered, (void*)sent_callback);
     unregister_res->set_delayed_response(true);
-    // Create resource for running factory reset for the device. Path of this resource will be: 5000/0/2.
-    mbedClient.add_cloud_resource(5000, 0, 2, "factory_reset", M2MResourceInstance::STRING,
-                 M2MBase::POST_ALLOWED, NULL, false, (void*)factory_reset, NULL);
+
+    // Create resource for running factory reset for the device. Path of this resource will be: 3/0/6.
+    M2MInterfaceFactory::create_device()->create_resource(M2MDevice::FactoryReset);
+
+#endif
+
+// For high-latency networks with limited total bandwidth combined with large number
+// of endpoints, it helps to stabilize the network when Device Management Client has
+// delayed registration to Device Management after the network formation.
+// This is applicable in large Wi-SUN networks.
+#if defined(STARTUP_MAX_RANDOM_DELAY) && (STARTUP_MAX_RANDOM_DELAY > 0)
+    wait_application_startup_delay();
 #endif
 
     mbedClient.register_and_connect();
@@ -281,6 +291,6 @@ void main_application(void)
     }
 
     // Client unregistered, disconnect and exit program.
-    mcc_platform_close_connection();
+    mcc_platform_interface_close();
 #endif
 }

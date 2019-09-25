@@ -61,6 +61,7 @@ LOCAL_ADD_INCLUDE += . \
                          ${LOCAL_NAME}/mbed-cloud-client/mbed-client-pal/Configs/pal_config/SXOS \
                          ${LOCAL_NAME}/mbed-cloud-client/mbed-client/mbed-client-c \
                          ${LOCAL_NAME}/mbed-cloud-client/mbed-coap/mbed-coap \
+                         ${LOCAL_NAME}/mbed-cloud-client/mbed-client-randlib \
                          ${LOCAL_NAME}/mbed-cloud-client/nanostack-libservice \
                          ${LOCAL_NAME}/mbed-cloud-client/sal-stack-nanostack-eventloop \
                          ${LOCAL_NAME}/mbed-cloud-client/certificate-enrollment-client/certificate-enrollment-client \
@@ -75,7 +76,6 @@ LOCAL_EXPORT_FLAG += "'MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_us
 
 LOCAL_EXPORT_FLAG += "'MBED_CONF_MBED_CLIENT_EVENT_LOOP_SIZE=12000'"
 LOCAL_EXPORT_FLAG += "PAL_SIMULATOR_FLASH_OVER_FILE_SYSTEM=1"
-LOCAL_EXPORT_FLAG += "MBED_CONF_MBED_TRACE_ENABLE"
 LOCAL_EXPORT_FLAG += "MBED_CONF_APP_CLOUD_MODE=1"
 LOCAL_EXPORT_FLAG += "MBED_CONF_APP_DEVELOPER_MODE=1"
 

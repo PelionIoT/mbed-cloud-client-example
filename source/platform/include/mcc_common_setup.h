@@ -1,18 +1,20 @@
-/*
- * Copyright (c) 2015-2018 ARM Limited. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0
- * Licensed under the Apache License, Version 2.0 (the License); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an AS IS BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// ----------------------------------------------------------------------------
+// Copyright 2018-2019 ARM Ltd.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------------------------------------------------------
 
 #ifndef MCC_COMMON_SETUP_H
 #define MCC_COMMON_SETUP_H
@@ -32,21 +34,33 @@ typedef void (*main_t)(void);
 //   0 for success, anything else for error
 int mcc_platform_init(void);
 
-// Initialize network connection
-int mcc_platform_init_connection(void);
+// Connect to network interface.
+int mcc_platform_interface_connect(void);
 
-// Close network connection
-int mcc_platform_close_connection(void);
+// Initialize network interface pointer.
+void mcc_platform_interface_init(void);
 
-// Return network interface.
-void *mcc_platform_get_network_interface(void);
+// Close network interface.
+int mcc_platform_interface_close(void);
 
-// Format storage (DEPRECATED)
+// Get network interface pointer.
+// On success: Returns pointer to network interface with GLOBAL_UP state if connected.
+// On failure: Returns NULL.
+void *mcc_platform_interface_get(void);
+
+// Format storage (DEPRECATED).
 int mcc_platform_reformat_storage(void);
 
 // initialize common details for storage for storing KCM data etc.
 // creates default folders, reformat.
 int mcc_platform_storage_init(void);
+
+// Connect to network interface (Deprecated).
+int mcc_platform_init_connection(void);
+// Close network interface (Deprecated).
+int mcc_platform_close_connection(void);
+// Get network interface pointer (Deprecated).
+void *mcc_platform_get_network_interface(void);
 
 // Wait
 void mcc_platform_do_wait(int timeout_ms);

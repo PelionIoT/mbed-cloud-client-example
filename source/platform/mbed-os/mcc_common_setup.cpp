@@ -1,18 +1,20 @@
-/*
- * Copyright (c) 2015-2018 ARM Limited. All rights reserved.
- * SPDX-License-Identifier: Apache-2.0
- * Licensed under the Apache License, Version 2.0 (the License); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an AS IS BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// ----------------------------------------------------------------------------
+// Copyright 2015-2019 ARM Ltd.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------------------------------------------------------
 
 ///////////
 // INCLUDES
@@ -27,9 +29,7 @@
 #include "mbed.h"
 #include "mcc_common_setup.h"
 #include "mcc_common_config.h"
-#ifdef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
 #include "kv_config.h"
-#endif
 #include "mbed_trace.h"
 
 #define TRACE_GROUP "plat"
@@ -56,19 +56,48 @@ const char* network_type(NetworkInterface *iface);
 
 static NetworkInterface* network_interface=NULL;
 
-/* Callback function which informs about status of connected NetworkInterface.
- * */
+/*
+ * Callback function which informs about status of connected NetworkInterface.
+ */
 static void network_status_callback(nsapi_event_t status, intptr_t param);
 
-#ifdef MCC_USE_MBED_EVENTS
+/*
+ * Note: `interface_connected` flag is used both via callbacks, and via blocking API
+ * calls. For well-behaving network stacks we should be able to relay on callbacks
+ * alone, but some network stacks might not implement network callbacks correctly,
+ * thus this ensures that also such stacks are handled correctly.
+ */
 static bool interface_connected = false;
-#endif
 
 ////////////////////////////////
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
 
+void mcc_platform_interface_init(void) {
+    network_interface = NetworkInterface::get_default_instance();
+    if(network_interface == NULL) {
+        printf("ERROR: No NetworkInterface found!\n");
+        return;
+    }
+    if (!nsapi_create_stack(network_interface)) {
+        printf("ERROR: nsapi_create_stack() failed!\n");
+        return;
+    }
+}
+
 int mcc_platform_init_connection(void) {
+    return mcc_platform_interface_connect();
+}
+
+void* mcc_platform_get_network_interface(void) {
+    return mcc_platform_interface_get();
+}
+
+int mcc_platform_close_connection(void) {
+    return mcc_platform_interface_close();
+}
+
+int mcc_platform_interface_connect(void) {
 // Perform number of retries if network init fails.
 #ifndef MCC_PLATFORM_CONNECTION_RETRY_COUNT
 #define MCC_PLATFORM_CONNECTION_RETRY_COUNT 5
@@ -76,17 +105,18 @@ int mcc_platform_init_connection(void) {
 #ifndef MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT
 #define MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT 1000
 #endif
-    printf("mcc_platform_init_connection()\n");
+    printf("mcc_platform_interface_connect()\n");
     network_interface = NetworkInterface::get_default_instance();
     if(network_interface == NULL) {
         printf("ERROR: No NetworkInterface found!\n");
         return -1;
     }
-
+    // Delete the callback first in case the API is being called multiple times to prevent creation of multiple callbacks.
+    network_interface->remove_event_listener(mbed::callback(&network_status_callback));
     network_interface->add_event_listener(mbed::callback(&network_status_callback));
-    printf("Connecting with interface: %s\n", network_type(NetworkInterface::get_default_instance()));
-#ifdef MCC_USE_MBED_EVENTS
+    printf("Connecting with interface: %s\n", network_type(network_interface));
     interface_connected = false;
+#ifdef MCC_USE_MBED_EVENTS
     network_interface->set_blocking(false);
 
     if (network_interface->connect() != NSAPI_ERROR_OK) {
@@ -104,13 +134,13 @@ int mcc_platform_init_connection(void) {
     }
 #else
     for (int i=1; i <= MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
-        nsapi_error_t e;
-        e = network_interface->connect();
-        if (e == NSAPI_ERROR_OK || e == NSAPI_ERROR_IS_CONNECTED) {
+        nsapi_error_t err = network_interface->connect();
+        if (err == NSAPI_ERROR_OK || err == NSAPI_ERROR_IS_CONNECTED) {
             printf("IP: %s\n", network_interface->get_ip_address());
+            interface_connected = true;
             return 0;
         }
-        printf("Failed to connect! error=%d. Retry %d/%d\n", e, i, MCC_PLATFORM_CONNECTION_RETRY_COUNT);
+        printf("Failed to connect! error=%d. Retry %d/%d\n", err, i, MCC_PLATFORM_CONNECTION_RETRY_COUNT);
         (void) network_interface->disconnect();
         mcc_platform_do_wait(MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT * i);
     }
@@ -118,21 +148,25 @@ int mcc_platform_init_connection(void) {
 #endif
 }
 
-int mcc_platform_close_connection(void) {
+int mcc_platform_interface_close(void) {
 
     if (network_interface) {
-        const nsapi_error_t err = network_interface->disconnect();
+        nsapi_error_t err = network_interface->disconnect();
         if (err == NSAPI_ERROR_OK) {
             network_interface->remove_event_listener(mbed::callback(&network_status_callback));
             network_interface = NULL;
+            interface_connected = false;
             return 0;
         }
     }
     return -1;
 }
 
-void* mcc_platform_get_network_interface(void) {
-    return network_interface;
+void* mcc_platform_interface_get(void) {
+    if (interface_connected) {
+        return network_interface;
+    }
+    return NULL;
 }
 
 void network_status_callback(nsapi_event_t status, intptr_t param)
@@ -147,8 +181,8 @@ void network_status_callback(nsapi_event_t status, intptr_t param)
                 if (!interface_connected) {
                     queue->break_dispatch();
                 }
-                interface_connected = true;
 #endif
+                interface_connected = true;
 
 #if MBED_CONF_MBED_TRACE_ENABLE
                 tr_info("NSAPI_STATUS_GLOBAL_UP");
@@ -169,6 +203,7 @@ void network_status_callback(nsapi_event_t status, intptr_t param)
 #else
                 printf("NSAPI_STATUS_DISCONNECTED\n");
 #endif
+                interface_connected = false;
                 break;
             case NSAPI_STATUS_CONNECTING:
 #if MBED_CONF_MBED_TRACE_ENABLE
@@ -178,13 +213,7 @@ void network_status_callback(nsapi_event_t status, intptr_t param)
 #endif
                 break;
             case NSAPI_STATUS_ERROR_UNSUPPORTED:
-#ifdef MCC_USE_MBED_EVENTS
-                if (!interface_connected) {
-                    queue->break_dispatch();
-                }
-                queue->break_dispatch();
-#endif
-
+            default:
 #if MBED_CONF_MBED_TRACE_ENABLE
                 tr_info("NSAPI_STATUS_ERROR_UNSUPPORTED");
 #else
@@ -249,7 +278,7 @@ int mcc_platform_init(void)
 
 void mcc_platform_do_wait(int timeout_ms)
 {
-    wait_ms(timeout_ms);
+    ThisThread::sleep_for(timeout_ms);
 }
 
 int mcc_platform_run_program(main_t mainFunc)
@@ -270,353 +299,12 @@ void mcc_platform_sw_build_info(void) {
 #endif
 }
 
-#ifdef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
 int mcc_platform_storage_init(void) {
     // This wait will allow the board more time to initialize
-    wait_ms(MCC_PLATFORM_WAIT_BEFORE_BD_INIT * SECONDS_TO_MS);
+    mcc_platform_do_wait(MCC_PLATFORM_WAIT_BEFORE_BD_INIT * SECONDS_TO_MS);
     int status = kv_init_storage_config();
     if (status != MBED_SUCCESS) {
         printf("kv_init_storage_config() - failed, status %d\n", status);
     }
     return status;
 }
-#endif
-
-/* Rest is legacy storage implementation not needed for SST enabled client.
- * This implementation will be removed in future release.
- */
-#ifndef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
-
-static int mcc_platform_reformat_partition(FileSystem *fs, BlockDevice* part);
-static int mcc_platform_test_filesystem(FileSystem *fs, BlockDevice* part);
-#if (MCC_PLATFORM_PARTITION_MODE == 1)
-static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** part, int number_of_partition, const char* mount_point);
-#if (MCC_PLATFORM_AUTO_PARTITION == 1)
-static int mcc_platform_create_partitions();
-#endif
-#endif
-
-// This is for single or dual partition mode. This is supposed to be used with storage for data e.g. SD card.
-// Enable by 1/disable by 0.
-#ifndef MCC_PLATFORM_PARTITION_MODE
-#define MCC_PLATFORM_PARTITION_MODE 0
-#endif
-
-#include "pal.h"
-#if (MCC_PLATFORM_PARTITION_MODE == 1)
-#include "MBRBlockDevice.h"
-#include "FATFileSystem.h"
-
-// Set to 1 for enabling automatic partitioning storage if required. This is effective only if MCC_PLATFORM_PARTITION_MODE is defined to 1.
-// Partioning will be triggered only if initialization of available partitions fail.
-#ifndef MCC_PLATFORM_AUTO_PARTITION
-#define MCC_PLATFORM_AUTO_PARTITION 0
-#endif
-
-#ifndef PRIMARY_PARTITION_NUMBER
-#define PRIMARY_PARTITION_NUMBER 1
-#endif
-
-#ifndef PRIMARY_PARTITION_START
-#define PRIMARY_PARTITION_START 0
-#endif
-
-#ifndef PRIMARY_PARTITION_SIZE
-#define PRIMARY_PARTITION_SIZE 1024*1024*1024 // default partition size 1GB
-#endif
-
-#ifndef SECONDARY_PARTITION_NUMBER
-#define SECONDARY_PARTITION_NUMBER 2
-#endif
-
-#ifndef SECONDARY_PARTITION_START
-#define SECONDARY_PARTITION_START PRIMARY_PARTITION_SIZE
-#endif
-
-#ifndef SECONDARY_PARTITION_SIZE
-#define SECONDARY_PARTITION_SIZE 1024*1024*1024 // default partition size 1GB
-#endif
-
-#ifndef NUMBER_OF_PARTITIONS
-#define NUMBER_OF_PARTITIONS PAL_NUMBER_OF_PARTITIONS
-#endif
-
-#ifndef MOUNT_POINT_PRIMARY
-#define MOUNT_POINT_PRIMARY PAL_FS_MOUNT_POINT_PRIMARY
-#endif
-
-#ifndef MOUNT_POINT_SECONDARY
-#define MOUNT_POINT_SECONDARY PAL_FS_MOUNT_POINT_SECONDARY
-#endif
-
-// for checking that PRIMARY_PARTITION_SIZE and SECONDARY_PARTITION_SIZE do not overflow.
-static bd_size_t mcc_platform_storage_size = 0;
-#endif // MCC_PLATFORM_PARTITION_MODE
-
-// blockdevice and filesystem pointers for storage
-static BlockDevice* bd = NULL;
-static BlockDevice *part1 = NULL;
-static FileSystem *fs1 = NULL;
-
-#if (MCC_PLATFORM_PARTITION_MODE == 1)
-#if (NUMBER_OF_PARTITIONS == 2)
-static BlockDevice *part2 = NULL;
-static FileSystem *fs2 = NULL;
-#endif
-#if (NUMBER_OF_PARTITIONS > 2)
-#error "Invalid number of partitions!!!"
-#endif
-#endif // MCC_PLATFORM_PARTITION_MODE
-
-/* help function format partition. */
-static int mcc_platform_reformat_partition(FileSystem *fs, BlockDevice* part) {
-    int status;
-
-    printf("mcc_platform_reformat_partition\n");
-    status = fs->reformat(part);
-    if (status != 0) {
-        printf("Reformat partition failed with error %d\n", status);
-    }
-
-    return status;
-}
-
-/* help function for testing filesystem availbility by umount and
- * mount filesystem again.
- * */
-static int mcc_platform_test_filesystem(FileSystem *fs, BlockDevice* part) {
-    // unmount
-    int status = fs->unmount();
-    if (status != 0) {
-        printf("mcc_platform_test_filesystem() - unmount fail %d.\n", status);
-        return -1;
-    }
-    // mount again
-    status = fs->mount(part);
-    if (status != 0) {
-        printf("mcc_platform_test_filesystem() - mount fail %d.\n", status);
-        return -1;
-    }
-    return status;
-}
-
-#if (MCC_PLATFORM_PARTITION_MODE == 1)
-FileSystem *FileSystem::get_default_instance()
-{
-    return fs1;
-}
-#endif
-
-#if (MCC_PLATFORM_PARTITION_MODE == 1)
-// bd must be initialized before calling this function.
-static int mcc_platform_init_and_mount_partition(FileSystem **fs, BlockDevice** part, int number_of_partition, const char* mount_point) {
-    int status;
-
-    // Init fs only once.
-    if (&(**fs) == NULL) {
-        if (&(**part) == NULL) {
-            *part = new MBRBlockDevice(bd, number_of_partition);
-        }
-        status = (**part).init();
-        if (status != 0) {
-            (**part).deinit();
-            printf("Init of partition %d fail !!!\n", number_of_partition);
-            return status;
-        }
-        /* This next change mean that filesystem will be FAT. */
-        *fs = new FATFileSystem(mount_point, &(**part));  /* this also mount fs. */
-     }
-     // re-init and format.
-     else {
-        status = (**part).init();
-        if (status != 0) {
-            (**part).deinit();
-            printf("Init of partition %d fail !!!\n", number_of_partition);
-            return status;
-        }
-
-        printf("Formatting partition %d ...\n", number_of_partition);
-        status = mcc_platform_reformat_partition(&(**fs), &(**part));
-        if (status != 0) {
-            printf("Formatting partition %d failed with 0x%X !!!\n", number_of_partition, status);
-            return status;
-        }
-    }
-
-    status = mcc_platform_test_filesystem(&(**fs), &(**part));
-    if (status != 0) {
-        printf("Formatting partition %d ...\n", number_of_partition);
-        status = mcc_platform_reformat_partition(&(**fs), &(**part));
-        if (status != 0) {
-            printf("Formatting partition %d failed with 0x%X !!!\n", number_of_partition, status);
-            return status;
-        }
-    }
-
-    return status;
-}
-#endif
-
-// create partitions, initialize and mount partitions
-#if ((MCC_PLATFORM_PARTITION_MODE == 1) && (MCC_PLATFORM_AUTO_PARTITION == 1))
-static int mcc_platform_create_partitions(void) {
-    int status;
-
-#if (NUMBER_OF_PARTITIONS > 0)
-    if (mcc_platform_storage_size < PRIMARY_PARTITION_SIZE) {
-        printf("mcc_platform_create_partitions PRIMARY_PARTITION_SIZE too large!!! Storage's size is %" PRIu64 \
-                " and PRIMARY_PARTITION_SIZE is %" PRIu64 "\n",
-                (uint64_t)mcc_platform_storage_size, (uint64_t)PRIMARY_PARTITION_SIZE);
-        assert(0);
-    }
-
-    status = MBRBlockDevice::partition(bd, PRIMARY_PARTITION_NUMBER, 0x83, PRIMARY_PARTITION_START, PRIMARY_PARTITION_START + PRIMARY_PARTITION_SIZE);
-    printf("Creating primary partition ...\n");
-    if (status != 0) {
-        printf("Creating primary partition fail 0x%X !!!\n", status);
-        return status;
-    }
-
-    // init and format partition 1
-    status = mcc_platform_init_and_mount_partition(&fs1, &part1, PRIMARY_PARTITION_NUMBER, ((const char*) MOUNT_POINT_PRIMARY+1));
-    if (status != 0) {
-        return status;
-    }
-#if (NUMBER_OF_PARTITIONS == 2)
-    // use cast (uint64_t) for fixing compile warning.
-    if (mcc_platform_storage_size < ((uint64_t)PRIMARY_PARTITION_SIZE + (uint64_t)SECONDARY_PARTITION_SIZE)) {
-        printf("mcc_platform_create_partitions (PRIMARY_PARTITION_SIZE+SECONDARY_PARTITION_SIZE) too large!!! Storage's size is %" PRIu64 \
-                " and (PRIMARY_PARTITION_SIZE+SECONDARY_PARTITION_SIZE) %" PRIu64 "\n",
-                (uint64_t)mcc_platform_storage_size, (uint64_t)(PRIMARY_PARTITION_SIZE+SECONDARY_PARTITION_SIZE));
-        assert(0);
-    }
-
-    // use cast (uint64_t) for fixing compile warning.
-    status = MBRBlockDevice::partition(bd, SECONDARY_PARTITION_NUMBER, 0x83, SECONDARY_PARTITION_START, (uint64_t) SECONDARY_PARTITION_START + (uint64_t) SECONDARY_PARTITION_SIZE);
-    printf("Creating secondary partition ...\n");
-    if (status != 0) {
-        printf("Creating secondary partition fail 0x%X !!!\n", status);
-        return status;
-    }
-
-    // init and format partition 2
-    status = mcc_platform_init_and_mount_partition(&fs2, &part2, SECONDARY_PARTITION_NUMBER, ((const char*) MOUNT_POINT_SECONDARY+1));
-    if (status != 0) {
-        return status;
-    }
-#endif
-#if (NUMBER_OF_PARTITIONS > 2)
-#error "Invalid number of partitions!!!"
-#endif
-#endif // (NUMBER_OF_PARTITIONS > 0)
-    return status;
-}
-#endif // ((MCC_PLATFORM_PARTITION_MODE == 1) && (MCC_PLATFORM_AUTO_PARTITION == 1))
-
-
-int mcc_platform_storage_init(void) {
-
-    int status=0;
-
-    static bool init_done=false;
-
-    if(!init_done) {
-        bd = BlockDevice::get_default_instance();
-        if (bd) {
-            // SD-driver initialization can fails with bd->init() -5005.
-            // This wait will allow the board more time to initialize.
-            wait_ms(MCC_PLATFORM_WAIT_BEFORE_BD_INIT * SECONDS_TO_MS);
-            status = bd->init();
-
-            if (status != BD_ERROR_OK) {
-                printf("mcc_platform_storage_init() - bd->init() failed with %d\n", status);
-                return -1;
-            }
-
-#if (MCC_PLATFORM_PARTITION_MODE == 1)
-            // store partition size
-            mcc_platform_storage_size = bd->size();
-#endif
-            printf("mcc_platform_storage_init() - bd->size() = %llu\n", bd->size());
-            printf("mcc_platform_storage_init() - BlockDevice init OK.\n");
-        }
-
-#if (MCC_PLATFORM_PARTITION_MODE == 1)
-#if (NUMBER_OF_PARTITIONS > 0)
-        status = mcc_platform_init_and_mount_partition(&fs1, &part1, PRIMARY_PARTITION_NUMBER, ((const char*) MOUNT_POINT_PRIMARY+1));
-        if (status != 0) {
-#if (MCC_PLATFORM_AUTO_PARTITION == 1)
-            status = mcc_platform_create_partitions();
-            if (status != 0) {
-                return status;
-            }
-#else
-            printf("mcc_platform_storage_init() - primary partition init fail!!!\n");
-            return status;
-#endif
-        }
-
-#if (NUMBER_OF_PARTITIONS == 2)
-        status = mcc_platform_init_and_mount_partition(&fs2, &part2, SECONDARY_PARTITION_NUMBER, ((const char*) MOUNT_POINT_SECONDARY+1));
-        if (status != 0) {
-#if (MCC_PLATFORM_AUTO_PARTITION == 1)
-            status = mcc_platform_create_partitions();
-            if (status != 0) {
-                return status;
-            }
-#else
-            printf("mcc_platform_storage_init() - secondary partition init fail!!!\n");
-            return status;
-#endif
-        }
-#endif // (NUMBER_OF_PARTITIONS == 2)
-#if (NUMBER_OF_PARTITIONS > 2)
-#error "Invalid number of partitions!!!"
-#endif
-#endif // (NUMBER_OF_PARTITIONS > 0)
-#else  // Else for #if (MCC_PLATFORM_PARTITION_MODE == 1)
-    fs1 = FileSystem::get_default_instance();  /* this also mount fs. */
-    part1 = bd;                   /* required for mcc_platform_reformat_storage */
-    status = mcc_platform_test_filesystem(fs1, bd);
-    if (status != 0) {
-        printf("Formatting ...\n");
-        status = mcc_platform_reformat_partition(fs1, bd);
-        if (status != 0) {
-            printf("Formatting failed with 0x%X !!!\n", status);
-            return status;
-        }
-    }
-#endif // MCC_PLATFORM_PARTITION_MODE
-        init_done=true;
-    }
-    else {
-        printf("mcc_platform_storage_init() - init already done.\n");
-    }
-    return status;
-}
-
-int mcc_platform_reformat_storage(void) {
-   int status = -1;
-   printf("Reformat the storage.\n");
-   if (bd) {
-#if (NUMBER_OF_PARTITIONS > 0)
-        status = mcc_platform_reformat_partition(fs1, part1);
-        if (status != 0) {
-            printf("Formatting primary partition failed with 0x%X !!!\n", status);
-            return status;
-        }
-#if (NUMBER_OF_PARTITIONS == 2)
-        status = mcc_platform_reformat_partition(fs2, part2);
-        if (status != 0) {
-            printf("Formatting secondary partition failed with 0x%X !!!\n", status);
-            return status;
-        }
-#endif
-#if (NUMBER_OF_PARTITIONS > 2)
-#error "Invalid number of partitions!!!"
-#endif
-#endif
-    }
-   return status;
-}
-#endif // #ifndef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT

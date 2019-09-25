@@ -78,6 +78,9 @@ public:
         return true;
     }
 
+    void init() {
+        _cloud_client.init();
+    }
     void close() {
         _cloud_client.close();
     }
@@ -209,6 +212,15 @@ public:
                 break;
             case MbedCloudClient::UpdateErrorConnection:
                 error = "MbedCloudClient::UpdateErrorConnection";
+                break;
+            case MbedCloudClient::UpdateWarningAuthorizationRejected:
+                error = "MbedCloudClient::UpdateWarningAuthorizationRejected";
+                break;
+            case MbedCloudClient::UpdateWarningAuthorizationUnavailable:
+                error = "MbedCloudClient::UpdateWarningAuthorizationUnavailable";
+                break;
+            case MbedCloudClient::UpdateCertificateInsertion:
+                error = "MbedCloudClient::UpdateCertificateInsertion";
                 break;
 #endif
 #ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT

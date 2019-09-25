@@ -1,10 +1,26 @@
 # Changelog for Pelion Device Management Client example application
 
-## Release 3.4.0 (28.08.2019)
+## Release 4.0.0 (25.09.2019)
+
+* Updated to Mbed OS 5.14.0.
+* [Linux] Updated Mbed TLS to 2.19.1.
+* The example application initialization is now done in multiple steps. This ensures the succcessful initialization of the Device Management Client library. It needs to be properly initialized before the memory intensive components (for example nanostack mesh stack).
+* Removed `CY8CKIT_062_WIFI_BT_PSA`, which is no longer supported starting from Mbed OS 5.13.1.
+* [Linux] Fixed busy-loop when `stdin` is not connected.
+* Added default behavior for optionally created `Factory Reset` Resource located under the `Device` Object `/3/0/5`.
+* You can overwrite both `Reboot` and `Factory Reset` Resource default behavior by implementing corresponding handler functions.
+* Added support for Discovery `L475VG IOT01A` target board (`configs/wifi.json`).
+* Added PSA support for `NUCLEO_F411RE` target board (`configs-psa/wifi.json`).
+* Added PSA support for Linux (`define_linux_psa.txt`).
+* Changed `NUCLEO_F411RE` Wi-Fi configuration to use ESP8266 module instead of the deprecated X-Nucleo IDW01M1.
+* Unified Wi-Fi configuration files. `configs/wifi.json` and `configs-psa/wifi.json` now include all supported Wi-Fi configurations except the minimum configuration example, which is still in `configs/wifi_esp8266_minimal.json`.
+* New application feature to introduce random delay for Device Management Client registration after the network connection has been established. You can use this feature to stabilize large mesh-type networks with high latency and limited bandwidth. By default, it is enabled for mesh-type networks and disabled for other configurations. To enable the random delay, define `STARTUP_MAX_RANDOM_DELAY` in seconds.
+
+## Release 3.4.0 (15.08.2019)
 
 * Added PSA configuration for K66F (`configs-psa/eth_v4.json`).
-* Updated usage of new Update Authorization API, which enables [update priority](../updating-firmware/firmware-manifests.html) feature `set_update_authorize_priority_handler` instead of `set_update_authorize_handler`.
-* Use `set_message_delivery_status_cb` to ensure that a POST trigger on the `unregister resource` (`/5000/0/1`) does not result in closing the network connection before client is able to send the final ACK to server.
+* Updated usage of new Update Authorization API, which takes in priority as well, `set_update_authorize_priority_handler` instead of `set_update_authorize_handler`.
+* Use `set_message_delivery_status_cb` as part of unregister resource triggering to make sure device does not close the network connection before client is able to send the final ACK to server. 
 * [Linux] Updated Mbed TLS to 2.18.1.
 * [Mbed OS] Removed the legacy ESFS-SOTP configurations from the applications. Only KVstore is supported for client storage.
 
