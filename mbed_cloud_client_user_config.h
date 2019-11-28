@@ -21,30 +21,30 @@
 #define MBED_CLOUD_CLIENT_USER_CONFIG_H
 
 #define MBED_CLOUD_CLIENT_ENDPOINT_TYPE             "default"
-#define MBED_CLOUD_CLIENT_LIFETIME                  3600
+#define MBED_CLOUD_CLIENT_LIFETIME                  86400       /* 24 hours */
 
-#ifdef __FREERTOS__
-    #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE      512
-    #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_TCP
-#elif defined(__SXOS__)
-    #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE      512
+#if defined(__SXOS__)
     #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
 #else
-#ifdef MBED_CONF_MBED_CLIENT_SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
-    #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE    MBED_CONF_MBED_CLIENT_SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
-#else
-    #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE      512
-#endif
     #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_TCP
 #endif
 
-/* set flag to enable update support in Pelion Device Management Client */
+#ifdef MBED_CONF_MBED_CLIENT_SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+    #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE      MBED_CONF_MBED_CLIENT_SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+#else
+    #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE      512
+#endif
+
+/* Sets the flag to enable update support in Pelion Device Management Client */
 #if defined(__linux__) || defined(TARGET_LIKE_MBED) || defined(__SXOS__)
     #define MBED_CLOUD_CLIENT_SUPPORT_UPDATE
 #endif
 
-/* set download buffer size in bytes (min. 1024 bytes) */
-/* Use larger buffers in Linux */
+/* Sets the download buffer for update client in bytes (min. 2048 bytes).
+ * This must be at least twice the SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE value.
+ * Linux can use much larger buffers.
+ */
+
 #ifdef __linux__
 #define MBED_CLOUD_CLIENT_UPDATE_BUFFER             (2 * 1024 * 1024)
 #else
@@ -52,7 +52,7 @@
 #endif
 
 /* Developer flags for Update feature */
-#if MBED_CONF_APP_DEVELOPER_MODE == 1
+#if defined(MBED_CONF_APP_DEVELOPER_MODE) &&  (MBED_CONF_APP_DEVELOPER_MODE == 1)
     #define MBED_CLOUD_DEV_UPDATE_CERT
     #define MBED_CLOUD_DEV_UPDATE_ID
 #endif /* MBED_CONF_APP_DEVELOPER_MODE */

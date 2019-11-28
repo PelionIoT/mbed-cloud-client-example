@@ -24,7 +24,7 @@
         },
         "K64F": {
             "target.network-default-interface-type"     : "ETHERNET",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.0.0.bin",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.1.0.bin",
             "target.header_offset"                      : "0xa000",
             "target.app_offset"                         : "0xa400",
             "target.components_add"                     : ["SD"],
@@ -43,7 +43,7 @@
         },
         "K66F": {
             "target.network-default-interface-type"     : "ETHERNET",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-k66f-internal_flash-no_rot-v4.0.0.bin",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-k66f-internal_flash-no_rot-v4.1.0.bin",
             "target.header_offset"                      : "0x8000",
             "target.app_offset"                         : "0x8400",
             "rtos.main-thread-stack-size"               : 8192,
@@ -60,7 +60,7 @@
         },
         "NUCLEO_F429ZI": {
             "target.network-default-interface-type"     : "ETHERNET",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f429zi-internal_flash-no_rot-v4.0.0.bin",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f429zi-internal_flash-no_rot-v4.1.0.bin",
             "target.header_offset"                      : "0x8000",
             "target.app_offset"                         : "0x8400",
             "update-client.bootloader-details"          : "0x080078CC",
@@ -75,7 +75,7 @@
         },
         "UBLOX_EVK_ODIN_W2": {
             "target.network-default-interface-type"     : "ETHERNET",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-ublox_evk_odin_w2-block_device-kvstore-v4.0.0.bin",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-ublox_evk_odin_w2-block_device-kvstore-v4.1.0.bin",
             "target.header_offset"                      : "0x10000",
             "target.app_offset"                         : "0x10400",
             "target.components_add"                     : ["SD"],

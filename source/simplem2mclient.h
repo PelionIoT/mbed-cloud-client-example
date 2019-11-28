@@ -101,7 +101,7 @@ public:
 #else
                 printf("Endpoint Name: %s\r\n", endpoint->endpoint_name.c_str());
 #endif
-                printf("Device Id: %s\r\n", endpoint->internal_endpoint_name.c_str());
+                printf("Device ID: %s\r\n", endpoint->internal_endpoint_name.c_str());
             }
         }
 #ifdef MBED_HEAP_STATS_ENABLED
