@@ -37,12 +37,16 @@ If you have prepared a manifest (see below the instructions for `device_update` 
 icetea --suite full_tests.json --suitedir TESTS/E2E/ --tcdir ./TESTS/E2E/ --tc_cfg TESTS/E2E/pelion.tc_cfg
 ```
 
-### Running a single test
+### Running part of the tests
 
 To run a single test, use the following command:
 
 ```
-icetea --tc basic_get --tcdir ./TESTS/E2E/ --tc_cfg TESTS/E2E/pelion.tc_cfg
+icetea --tc get --tcdir ./TESTS/E2E/ --tc_cfg TESTS/E2E/pelion.tc_cfg
+```
+Testing connect-only testcases without bringing the device offline:
+```
+icetea --tc register,get,put,post,observation --tcdir ./TESTS/E2E/ --tc_cfg TESTS/E2E/pelion.tc_cfg
 ```
 
 ## Current tests

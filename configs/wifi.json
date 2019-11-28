@@ -20,7 +20,7 @@
         },
         "K64F": {
             "target.network-default-interface-type"     : "WIFI",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.0.0.bin",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.1.0.bin",
             "target.header_offset"                      : "0xa000",
             "target.app_offset"                         : "0xa400",
             "target.components_add"                     : ["SD"],
@@ -41,7 +41,7 @@
             "esp8266.rst"                               : "D8",
             "esp8266.rts"                               : "PTC1",
             "esp8266.cts"                               : "PTC2",
-            "esp8266.provide-default"                    : true
+            "esp8266.provide-default"                   : true
         },
         "NUCLEO_F411RE": {
             "client_app.mbedtls-user-config-file"       : "\"mbedTLSConfig_mbedOS_SW_TRNG_PSA.h\"",
@@ -49,7 +49,7 @@
             "target.extra_labels_add"                   : ["PSA"],
             "target.macros_add"                         : ["DISABLE_ERROR_DESCRIPTION", "MBEDTLS_ENTROPY_NV_SEED"],
             "target.network-default-interface-type"     : "WIFI",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f411re-block_device-kvstore-v4.0.0.bin",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f411re-block_device-kvstore-v4.1.0.bin",
             "target.header_offset"                      : "0x10000",
             "target.app_offset"                         : "0x10400",
             "target.components_add"                     : ["SD"],
@@ -59,7 +59,7 @@
             "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
             "storage_filesystem.internal_base_address"  : "(MBED_ROM_START + MBED_BOOTLOADER_SIZE)",
-            "storage_filesystem.rbp_internal_size"      :  "(32*1024)",
+            "storage_filesystem.rbp_internal_size"      : "(32*1024)",
             "storage_filesystem.external_base_address"  : "(0x0)",
             "storage_filesystem.external_size"          : "(1024*1024*64)",
             "storage.storage_type"                      : "FILESYSTEM",
@@ -72,14 +72,14 @@
             "sd.SPI_CS"                                 : "PB_9",
             "esp8266.rx"                                : "PB_7",
             "esp8266.tx"                                : "PA_15",
-            "esp8266.rst"                               : null,
+            "esp8266.rst"                               : "PA_7",
             "esp8266.rts"                               : "PA_12",
             "esp8266.cts"                               : "PA_11",
-            "esp8266.provide-default"                    : true
+            "esp8266.provide-default"                   : true
         },
         "UBLOX_EVK_ODIN_W2": {
             "target.network-default-interface-type"     : "WIFI",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-ublox_evk_odin_w2-block_device-kvstore-v4.0.0.bin",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-ublox_evk_odin_w2-block_device-kvstore-v4.1.0.bin",
             "target.header_offset"                      : "0x10000",
             "target.app_offset"                         : "0x10400",
             "target.components_add"                     : ["SD"],
@@ -100,11 +100,11 @@
         },
         "DISCO_L475VG_IOT01A": {
             "target.network-default-interface-type"     : "WIFI",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-disco_l475vg_iot01a-internal_qspif-kvstore.bin",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-disco_l475vg_iot01a-internal_qspif-kvstore-v4.1.0.bin",
             "target.header_offset"                      : "0x11000",
             "target.app_offset"                         : "0x11400",
             "target.components_add"                     : ["QSPIF", "WIFI_ISM43362"],
-            "bootloader-size"                            : "(36*1024)",
+            "bootloader-size"                           : "(36*1024)",
             "ism43362.read-thread-stack-size"           : 1024,
             "led-pinname"                               : "LED1",
             "mbed-client.sn-coap-max-blockwise-payload-size" : 256,

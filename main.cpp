@@ -56,8 +56,8 @@ static M2MResource* button_res;
 static M2MResource* pattern_res;
 static M2MResource* blink_res;
 static M2MResource* unregister_res;
+static M2MResource* factory_reset_res;
 
-void unregister_received(void);
 void unregister(void);
 
 // Pointer to mbedClient, used for calling close function.
@@ -70,9 +70,8 @@ void pattern_updated(const char *)
 
 void blink_callback(void *)
 {
-    String pattern_string = pattern_res->get_value_string();
-    const char *pattern = pattern_string.c_str();
-    printf("LED pattern = %s\n", pattern);
+    String pattern_string = pattern_res->get_value_string();    
+    printf("POST executed\n");
 
     // The pattern is something like 500:200:500, so parse that.
     // LED blinking is done while parsing.
@@ -136,6 +135,19 @@ void unregister_triggered(void)
 {
     printf("Unregister resource triggered\n");
     unregister_res->send_delayed_post_response();
+}
+
+void factory_reset_triggered(void*)
+{
+    printf("Factory reset resource triggered\n");
+
+    // First send response, so server won't be left waiting.
+    // Factory reset resource is by default expecting explicit
+    // delayed response sending.
+    factory_reset_res->send_delayed_post_response();
+
+    // Then run potentially long-taking factory reset routines.
+    kcm_factory_reset();
 }
 
 // This function is called when a POST request is received for resource 5000/0/1.
@@ -247,8 +259,11 @@ void main_application(void)
                  M2MBase::POST_ALLOWED, NULL, false, (void*)unregister_triggered, (void*)sent_callback);
     unregister_res->set_delayed_response(true);
 
-    // Create resource for running factory reset for the device. Path of this resource will be: 3/0/6.
-    M2MInterfaceFactory::create_device()->create_resource(M2MDevice::FactoryReset);
+    // Create optional Device resource for running factory reset for the device. Path of this resource will be: 3/0/6.
+    factory_reset_res = M2MInterfaceFactory::create_device()->create_resource(M2MDevice::FactoryReset);
+    if (factory_reset_res) {
+        factory_reset_res->set_execute_function(factory_reset_triggered);
+    }
 
 #endif
 

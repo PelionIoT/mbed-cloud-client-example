@@ -1,5 +1,15 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.1.0 (28.11.2019)
+
+* [Mbed OS] Replaced `X-Nucleo IDW01M1` with the `ESP8266` Wi-Fi module in `mbed_app.json`.
+* Added reset pin for the ESP Wi-Fi module on the `Nucleo F411RE` configuration.
+* Added flow control and reset pins for the ESP Wi-Fi module on the `LPC55S69` configuration.
+* Updated bootloaders to v4.1.0. `LPC55S69_NS` bootloader is retained in v4.0.1.
+* [Mbed OS] Optimized `Wi-SUN` configuration for 100-node networks.
+* Increased application default lifetime to 24 hours (`mbed_cloud_client_user_config.h`).
+* Updated to Mbed OS 5.14.2.
+
 ## Release 4.0.0 (25.09.2019)
 
 * Updated to Mbed OS 5.14.0.
