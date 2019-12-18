@@ -1,5 +1,14 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.2.0 (18.12.2019)
+
+* Added support for Nucleo F303RE + ESP8266 + SPI-flash. Firmware update is not yet supported on this target due to data corruption issues during firmware download.
+* Added a timer that automatically increments the value of the button press resource. This allows you to test the example application on devices with no hardware buttons.
+* On Mbed OS 5.15, added support for all Wi-SUN channel configuration settings for testing purposes to the Mbed OS
+  mesh configuration interface. You can use the settings for test configurations, for example for fixed channel mode. Do not use them on normal Wi-SUN operation. Removed unnecessary Wi-SUN channel configuration settings from the Wi-SUN configuration file.
+* Updated to Mbed OS 5.15.0.
+* Extended the mesh network configuration with a new macro `STARTUP_MIN_RANDOM_DELAY` to supplement the existing `STARTUP_MAX_RANDOM_DELAY`. The new macro defaults to `STARTUP_MAX_RANDOM_DELAY/4` (the value of `STARTUP_MAX_RANDOM_DELAY` divided by four). You can use these configurations to provide mesh networks more time to properly stabilize before the client application starts its registration flow. For Mbed OS, you can use the configuration options `client_app.startup_min_random_delay` and `client_app.startup_max_random_delay` to define `STARTUP_MIN_RANDOM_DELAY` and `STARTUP_MAX_RANDOM_DELAY` in the application configuration. See `configs/mesh_wisun.json` for an example.
+
 ## Release 4.1.0 (28.11.2019)
 
 * [Mbed OS] Replaced `X-Nucleo IDW01M1` with the `ESP8266` Wi-Fi module in `mbed_app.json`.

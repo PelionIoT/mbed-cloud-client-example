@@ -288,8 +288,11 @@ bool application_init(void)
 
 void wait_application_startup_delay()
 {
+#if (STARTUP_MIN_RANDOM_DELAY > STARTUP_MAX_RANDOM_DELAY)
+#error "STARTUP_MAX_RANDOM_DELAY must be larger than STARTUP_MIN_RANDOM_DELAY"
+#endif
     randLIB_seed_random();
-    uint16_t delay = randLIB_get_random_in_range(1,STARTUP_MAX_RANDOM_DELAY);
+    uint16_t delay = randLIB_get_random_in_range(STARTUP_MIN_RANDOM_DELAY, STARTUP_MAX_RANDOM_DELAY);
     printf("Delaying registration by %d seconds\n", delay);
     mcc_platform_do_wait(delay * 1000);
 }

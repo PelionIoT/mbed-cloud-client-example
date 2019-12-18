@@ -44,12 +44,15 @@
  * This must be at least twice the SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE value.
  * Linux can use much larger buffers.
  */
-
+#ifdef MBED_CONF_APP_MBED_CLOUD_CLIENT_UPDATE_BUFFER_SIZE
+#define MBED_CLOUD_CLIENT_UPDATE_BUFFER MBED_CONF_APP_MBED_CLOUD_CLIENT_UPDATE_BUFFER_SIZE
+#else
 #ifdef __linux__
 #define MBED_CLOUD_CLIENT_UPDATE_BUFFER             (2 * 1024 * 1024)
 #else
 #define MBED_CLOUD_CLIENT_UPDATE_BUFFER             2048
 #endif
+#endif // #ifdef MBED_CONF_APP_MBED_CLOUD_CLIENT_UPDATE_BUFFER_SIZE
 
 /* Developer flags for Update feature */
 #if defined(MBED_CONF_APP_DEVELOPER_MODE) &&  (MBED_CONF_APP_DEVELOPER_MODE == 1)
