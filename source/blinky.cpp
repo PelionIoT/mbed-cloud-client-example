@@ -37,8 +37,10 @@
 #define BLINKY_TASKLET_PATTERN_INIT_EVENT 1
 #define BLINKY_TASKLET_PATTERN_TIMER 2
 #define BLINKY_TASKLET_LOOP_TIMER 3
+#define BLINKY_TASKLET_AUTOMATIC_INCREMENT_TIMER 4
 
 #define BUTTON_POLL_INTERVAL_MS 100
+#define AUTOMATIC_INCREMENT_INTERVAL_MS 5000
 
 int8_t Blinky::_tasklet = -1;
 
@@ -189,6 +191,9 @@ void Blinky::event_handler(const arm_event_s &event)
         case BLINKY_TASKLET_LOOP_TIMER:
             handle_buttons();
             break;
+        case BLINKY_TASKLET_AUTOMATIC_INCREMENT_TIMER:
+            handle_automatic_increment();
+            break;
         case BLINKY_TASKLET_PATTERN_INIT_EVENT:
         default:
             break;
@@ -209,6 +214,11 @@ void Blinky::handle_pattern_event()
 void Blinky::request_next_loop_event()
 {
     request_timed_event(BLINKY_TASKLET_LOOP_TIMER, ARM_LIB_LOW_PRIORITY_EVENT, BUTTON_POLL_INTERVAL_MS);
+}
+
+void Blinky::request_automatic_increment_event()
+{
+    request_timed_event(BLINKY_TASKLET_AUTOMATIC_INCREMENT_TIMER, ARM_LIB_LOW_PRIORITY_EVENT, AUTOMATIC_INCREMENT_INTERVAL_MS);
 }
 
 // helper for requesting a event by given type after given delay (ms)
@@ -244,7 +254,21 @@ void Blinky::handle_buttons()
     if (_client->is_register_called()) {
         if (mcc_platform_button_clicked()) {
             _button_resource->set_value(++_button_count);
-            printf("Button resource updated. Value %d\n", _button_count);
+            printf("Button resource manually updated. Value %d\n", _button_count);
         }
+    }
+}
+
+void Blinky::handle_automatic_increment()
+{
+    assert(_client);
+    assert(_button_resource);
+
+    // this might be stopped now, but the loop should then be restarted after re-registration
+    request_automatic_increment_event();
+
+    if (_client->is_register_called()) {
+        _button_resource->set_value(++_button_count);
+        printf("Button resource automatically updated. Value %d\n", _button_count);
     }
 }

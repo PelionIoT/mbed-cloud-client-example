@@ -49,6 +49,7 @@ public:
     void event_handler(const arm_event_s &event);
 
     void request_next_loop_event();
+    void request_automatic_increment_event();
 
 private:
     void create_tasklet();
@@ -56,6 +57,7 @@ private:
     bool request_timed_event(uint8_t event_type, arm_library_event_priority_e priority, int32_t delay);
 
     void handle_buttons();
+    void handle_automatic_increment();
 
 private:
     int get_next_int();

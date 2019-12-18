@@ -280,6 +280,7 @@ void main_application(void)
 #ifndef MCC_MINIMAL
     blinky.init(mbedClient, button_res);
     blinky.request_next_loop_event();
+    blinky.request_automatic_increment_event();
 #endif
 
 

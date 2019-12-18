@@ -25,6 +25,11 @@ if (${TLS_LIBRARY} MATCHES mbedTLS)
     message("PAL_TLS_BSP_DIR ${PAL_TLS_BSP_DIR}/pal_${OS_BRAND}.h")
 endif()
 
+if(PAL_SIMULATOR_FILE_SYSTEM_OVER_RAM)
+    message(WARNING "You are using simulation of File System over RAM")
+    add_definitions(-DPAL_SIMULATOR_FILE_SYSTEM_OVER_RAM=${PAL_SIMULATOR_FILE_SYSTEM_OVER_RAM})
+endif(PAL_SIMULATOR_FILE_SYSTEM_OVER_RAM)
+
 add_definitions(-DPAL_DTLS_PEER_MIN_TIMEOUT=5000)
 add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
 add_definitions(-DMBED_CONF_MBED_TRACE_ENABLE=0)

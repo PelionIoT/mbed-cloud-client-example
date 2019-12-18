@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2017 ARM Ltd.
+// Copyright 2016-2019 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -24,6 +24,10 @@
 #define STARTUP_MAX_RANDOM_DELAY 0
 #endif
 
+#ifndef STARTUP_MIN_RANDOM_DELAY
+#define STARTUP_MIN_RANDOM_DELAY STARTUP_MAX_RANDOM_DELAY/4
+#endif
+
 /*
  * Initializes tracing library.
  */
@@ -45,7 +49,9 @@ bool application_init(void);
 void print_fcc_status(int fcc_status);
 
 /*
- * Wait for random delay with maximum defined using MAX_STARTUP_DELAY.
+ * Wait for random delay with maximum defined using STARTUP_MAX_RANDOM_DELAY.
+ * Lower limit can be defined via STARTUP_MIN_RANDOM_DELAY. The lower limit defaults to
+ * STARTUP_MAX_RANDOM_DELAY/4.
  * The delay is needed for devices connected to a large network with high latency
  * and constrained bandwidth.
  * For example in Wi-SUN, this stabilizes the early network formation when all
