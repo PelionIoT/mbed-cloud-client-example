@@ -1,22 +1,26 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.2.1 (20.12.2019)
+
+No changes.
+
 ## Release 4.2.0 (18.12.2019)
 
 * Added support for Nucleo F303RE + ESP8266 + SPI-flash. Firmware update is not yet supported on this target due to data corruption issues during firmware download.
-* Added a timer that automatically increments the value of the button press resource. This allows you to test the example application on devices with no hardware buttons.
+* Added a timer that automatically increments the value of the button press resource. This allows testing the example application on devices with no hardware buttons.
 * On Mbed OS 5.15, added support for all Wi-SUN channel configuration settings for testing purposes to the Mbed OS
   mesh configuration interface. You can use the settings for test configurations, for example for fixed channel mode. Do not use them on normal Wi-SUN operation. Removed unnecessary Wi-SUN channel configuration settings from the Wi-SUN configuration file.
 * Updated to Mbed OS 5.15.0.
-* Extended the mesh network configuration with a new macro `STARTUP_MIN_RANDOM_DELAY` to supplement the existing `STARTUP_MAX_RANDOM_DELAY`. The new macro defaults to `STARTUP_MAX_RANDOM_DELAY/4` (the value of `STARTUP_MAX_RANDOM_DELAY` divided by four). You can use these configurations to provide mesh networks more time to properly stabilize before the client application starts its registration flow. For Mbed OS, you can use the configuration options `client_app.startup_min_random_delay` and `client_app.startup_max_random_delay` to define `STARTUP_MIN_RANDOM_DELAY` and `STARTUP_MAX_RANDOM_DELAY` in the application configuration. See `configs/mesh_wisun.json` for an example.
+* Extended the mesh network configuration with a new macro `STARTUP_MIN_RANDOM_DELAY` to supplement the existing `STARTUP_MAX_RANDOM_DELAY`. The new macro defaults to `STARTUP_MAX_RANDOM_DELAY/4`. You can use these configurations to provide mesh networks more time to properly stabilize before the client application starts its registration flow. For Mbed OS, you can use the configuration options `client_app.startup_min_random_delay` and `client_app.startup_max_random_delay` to define `STARTUP_MIN_RANDOM_DELAY` and `STARTUP_MAX_RANDOM_DELAY` in the application configuration. See `configs/mesh_wisun.json` for an example.
 
 ## Release 4.1.0 (28.11.2019)
 
-* [Mbed OS] Replaced `X-Nucleo IDW01M1` with the `ESP8266` Wi-Fi module in `mbed_app.json`.
-* Added reset pin for the ESP Wi-Fi module on the `Nucleo F411RE` configuration.
-* Added flow control and reset pins for the ESP Wi-Fi module on the `LPC55S69` configuration.
+* [Mbed OS] Replace `X-Nucleo IDW01M1` with `ESP8266` Wi-Fi module in `mbed_app.json`.
+* Added reset pin for ESP wifi module on Nucleo F411RE configuration.
+* Added flow control and reset pins for ESP wifi module on LPC55S69 configuration.
 * Updated bootloaders to v4.1.0. `LPC55S69_NS` bootloader is retained in v4.0.1.
-* [Mbed OS] Optimized `Wi-SUN` configuration for 100-node networks.
-* Increased application default lifetime to 24 hours (`mbed_cloud_client_user_config.h`).
+* [Mbed OS] Optimize `Wi-SUN` configuration for 100-node networks.
+* Increase application default lifetime to 24 hours (`mbed_cloud_client_user_config.h´).
 * Updated to Mbed OS 5.14.2.
 
 ## Release 4.0.0 (25.09.2019)
