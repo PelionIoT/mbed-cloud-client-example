@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2015-2019 ARM Ltd.
+// Copyright 2015-2020 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -105,6 +105,9 @@ int mcc_platform_interface_connect(void) {
 #ifndef MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT
 #define MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT 1000
 #endif
+    SocketAddress sa;
+    nsapi_error_t err;
+
     printf("mcc_platform_interface_connect()\n");
     network_interface = NetworkInterface::get_default_instance();
     if(network_interface == NULL) {
@@ -127,20 +130,31 @@ int mcc_platform_interface_connect(void) {
     EventQueue *queue = mbed::mbed_event_queue();
     queue->dispatch_forever();
     if (interface_connected) {
-        printf("IP: %s\n", network_interface->get_ip_address());
+        err = network_interface->get_ip_address(&sa);
+        if (err != NSAPI_ERROR_OK) {
+            printf("get_ip_address() - failed, status %d\n", err);
+            return -1;
+        }
+        printf("IP: %s\n", sa.get_ip_address() ? sa.get_ip_address() : "None");
         return 0;
     } else {
         return -1;
     }
 #else
     for (int i=1; i <= MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
-        nsapi_error_t err = network_interface->connect();
+        err = network_interface->connect();
         if (err == NSAPI_ERROR_OK || err == NSAPI_ERROR_IS_CONNECTED) {
-            printf("IP: %s\n", network_interface->get_ip_address());
+        	err = network_interface->get_ip_address(&sa);
+        	if (err != NSAPI_ERROR_OK) {
+                printf("get_ip_address() - failed, status %d\n", err);
+                goto retry;
+            }
+            printf("IP: %s\n", sa.get_ip_address() ? sa.get_ip_address() : "None");
             interface_connected = true;
             return 0;
         }
         printf("Failed to connect! error=%d. Retry %d/%d\n", err, i, MCC_PLATFORM_CONNECTION_RETRY_COUNT);
+retry:
         (void) network_interface->disconnect();
         mcc_platform_do_wait(MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT * i);
     }
@@ -224,12 +238,15 @@ void network_status_callback(nsapi_event_t status, intptr_t param)
     }
 }
 
+#define xstr(s) str(s)
+#define str(s) #s
+
 const char* network_type(NetworkInterface *iface)
 {
     if (iface->ethInterface()) {
         return "Ethernet";
     } else if (iface->wifiInterface()) {
-        return "WiFi";
+        return "Wi-Fi " xstr(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID);
     } else if (iface->meshInterface()) {
         return "Mesh";
     } else if (iface->cellularInterface()) {

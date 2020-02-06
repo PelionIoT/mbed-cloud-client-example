@@ -1,8 +1,9 @@
 {
     "macros": [
         "ARM_UC_USE_PAL_BLOCKDEVICE=1",
-        "MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED",
-        "MBEDTLS_ECJPAKE_C"
+        "MBEDTLS_USE_PSA_CRYPTO",
+        "MBED_CONF_APP_SECURE_ELEMENT_ATCA_SUPPORT",
+        "MBEDTLS_PSA_CRYPTO_SE_C"
     ],
     "target_overrides": {
         "*": {
@@ -12,31 +13,27 @@
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
             "rtos.main-thread-stack-size"               : 5120,
-            "mbed-client.reconnection-count"            : 6,
-            "mbed-client.sn-coap-blockwise-max-time-data-stored": 300,
-            "client_app.pal_dtls_peer_min_timeout"      : "10000",
-            "client_app.startup_max_random_delay"       : 200,
-            "nanostack-hal.event_loop_thread_stack_size": 8192,
+            "events.shared-stacksize"                   : 2048,
+            "events.shared-eventsize"                   : 1536,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null,
-            "mbed-mesh-api.thread-config-channel"       : 22,
-            "mbed-mesh-api.thread-config-panid"         : "0x0700",
-            "nsapi.default-mesh-type"                   : "THREAD",
-            "nanostack.configuration"                   : "thread_router",
-            "atmel-rf.provide-default"                  : true,
-            "target.device_has_add"                     : ["802_15_4_PHY"]
+            "target.OUTPUT_EXT"                         : "hex",
+            "mbed-os-atecc608a.i2c-iface-devtype"       : "ATECC608A",
+            "mbed-os-atecc608a.i2c-iface-slave_address" : "0x6C"
         },
         "K64F": {
-            "target.network-default-interface-type"     : "MESH",
+            "target.network-default-interface-type"     : "ETHERNET",
             "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.1.0.bin",
             "target.header_offset"                      : "0xa000",
             "target.app_offset"                         : "0xa400",
-            "target.components_add"                     : ["SD"],
+            "target.components_add"                     : ["SD", "ATECC608A"],
             "update-client.bootloader-details"          : "0x00007188",
             "update-client.application-details"         : "(40*1024)",
             "update-client.storage-address"             : "(1024*1024*64)",
             "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
+            "mbed-cloud-client.psa-support"             : 1,
+            "mbed-cloud-client.secure-element-support"  : 1,
             "storage_filesystem.internal_base_address"  : "(32*1024)",
             "storage_filesystem.rbp_internal_size"      : "(8*1024)",
             "storage_filesystem.external_base_address"  : "(0x0)",
@@ -44,7 +41,7 @@
             "storage.storage_type"                      : "FILESYSTEM",
             "storage_filesystem.filesystem"             : "LITTLE",
             "storage_filesystem.blockdevice"            : "SD"
-        }
+         }
     },
     "config": {
         "developer-mode": {

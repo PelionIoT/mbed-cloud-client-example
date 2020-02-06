@@ -28,6 +28,9 @@
 #endif
 #include "application_init.h"
 #include "mbed-client-randlib/randLIB.h"
+#ifdef MBED_CONF_MBED_CLOUD_CLIENT_SECURE_ELEMENT_SUPPORT
+#include "mcc_se_init.h"
+#endif 
 
 void print_fcc_status(int fcc_status)
 {
@@ -170,6 +173,13 @@ bool application_init_mbed_trace(void)
 
     // Initialize mbed trace
     (void) mbed_trace_init();
+    // If you want, you can filter out the trace set.
+    // For example  mbed_trace_include_filters_set("COAP");
+    // would enable only the COAP level traces.
+    // Or           mbed_trace_exclude_filters_set("COAP");
+    // would leave them out.
+    // More details on mbed_trace.h file.
+
 #ifndef MCC_MINIMAL
     mbed_trace_mutex_wait_function_set(mbed_trace_helper_mutex_wait);
     mbed_trace_mutex_release_function_set(mbed_trace_helper_mutex_release);
@@ -189,6 +199,7 @@ static bool application_init_verify_cloud_configuration()
 
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
     printf("Starting developer flow\n");
+
     status = fcc_developer_flow();
     if (status == FCC_STATUS_KCM_FILE_EXIST_ERROR) {
         printf("Developer credentials already exist, continuing..\n");
@@ -235,6 +246,14 @@ static bool application_init_fcc(void)
     }
 #endif
 
+#ifdef MBED_CONF_MBED_CLOUD_CLIENT_SECURE_ELEMENT_SUPPORT
+    //Initialize secure element
+    status = mcc_se_init();
+    if (status != 0) {
+        printf("Failed to initialize secure element\n");
+        return 1;
+    }
+#endif
     status = application_init_verify_cloud_configuration();
     if (status != 0) {
 #ifndef MCC_MINIMAL

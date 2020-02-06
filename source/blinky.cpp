@@ -253,7 +253,8 @@ void Blinky::handle_buttons()
 
     if (_client->is_register_called()) {
         if (mcc_platform_button_clicked()) {
-            _button_resource->set_value(++_button_count);
+            _button_count = _button_resource->get_value_int() + 1;
+            _button_resource->set_value(_button_count);
             printf("Button resource manually updated. Value %d\n", _button_count);
         }
     }
@@ -268,7 +269,8 @@ void Blinky::handle_automatic_increment()
     request_automatic_increment_event();
 
     if (_client->is_register_called()) {
-        _button_resource->set_value(++_button_count);
+        _button_count = _button_resource->get_value_int() + 1;
+        _button_resource->set_value(_button_count);
         printf("Button resource automatically updated. Value %d\n", _button_count);
     }
 }
