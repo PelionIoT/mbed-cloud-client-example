@@ -35,7 +35,7 @@
 #endif
 
 // event based LED blinker, controlled via pattern_resource
-#ifndef MCC_MINIMAL
+#ifndef MCC_MEMORY
 static Blinky blinky;
 #endif
 
@@ -63,6 +63,11 @@ void unregister(void);
 // Pointer to mbedClient, used for calling close function.
 static SimpleM2MClient *client;
 
+void counter_updated(const char*)
+{
+    printf("Counter resource set to %d\n", button_res->get_value_int());
+}
+
 void pattern_updated(const char *)
 {
     printf("PUT received, new value: %s\n", pattern_res->get_value_string().c_str());
@@ -75,7 +80,7 @@ void blink_callback(void *)
 
     // The pattern is something like 500:200:500, so parse that.
     // LED blinking is done while parsing.
-#ifndef MCC_MINIMAL
+#ifndef MCC_MEMORY
     const bool restart_pattern = false;
     if (blinky.start((char*)pattern_res->value(), pattern_res->value_length(), restart_pattern) == false) {
         printf("out of memory error\n");
@@ -241,7 +246,7 @@ void main_application(void)
 #ifndef MCC_MEMORY
     // Create resource for button count. Path of this resource will be: 3200/0/5501.
     button_res = mbedClient.add_cloud_resource(3200, 0, 5501, "button_resource", M2MResourceInstance::INTEGER,
-                              M2MBase::GET_ALLOWED, 0, true, NULL, (void*)notification_status_callback);
+                              M2MBase::GET_PUT_ALLOWED, 0, true, (void*)counter_updated, (void*)notification_status_callback);
     button_res->set_value(0);
 
     // Create resource for led blinking pattern. Path of this resource will be: 3201/0/5853.
@@ -277,7 +282,7 @@ void main_application(void)
 
     mbedClient.register_and_connect();
 
-#ifndef MCC_MINIMAL
+#ifndef MCC_MEMORY
     blinky.init(mbedClient, button_res);
     blinky.request_next_loop_event();
     blinky.request_automatic_increment_event();

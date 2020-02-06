@@ -1,5 +1,16 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.3.0 (06.02.2020)
+
+* Made the button counter resource writable to allow resetting it.
+* Mbed OS platform setup now uses the new SocketAddress-based APIs for IP address printing.
+* Removed `configs/eth_v4.json` and `configs/eth_v6.json`. Dropping configuration for `Ublox EVK Odin W2` Ethernet and explicit `IPv6` Ethernet support. The rest of the configurations are in the root-level `mbed_app.json`.
+* Removed the duplicate configurations in `configs/wifi.json`. All configurations are already in `mbed_app.json`.
+* Removed support for `6LoWPAN` and `Thread` Mesh configurations. The application will focus on providing `Wi-SUN` Mesh support.
+* Added support for Atmel secure element (ATECC608A) with K64F target board (`configs-psa/eth_v4_with_se_atmel.json`). Atmel SE holds pre-provisioned bootstrap key and certificate, that Device Management Client uses for secure connection with Device Management.
+* Wi-Fi driver ISM 43362 (`.lib`) updated to pull in the latest release from the master of the driver.
+    * The SocketAddress-based `get_ip_address()` API will not work with older versions.
+
 ## Release 4.2.1 (20.12.2019)
 
 No changes.
