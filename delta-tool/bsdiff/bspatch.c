@@ -81,15 +81,15 @@
 #define BS_PATCH_HEADERLEN 8
 
 // internal helper functions for BS Patching
-int bspatch_readInitialHeaderAndContinue(bspatch_stream* stream);
+int bspatch_readInitialHeaderAndContinue(struct bspatch_stream* stream);
 
-int bspatch_allocWorkingBuffers(bspatch_stream* stream);
+int bspatch_allocWorkingBuffers(struct bspatch_stream* stream);
 
-int read_controldata(bspatch_stream* stream);
-int read_controldata_header(struct bspatch_stream* stream);
+//int read_controldata(struct bspatch_stream* stream);
+//int read_controldata_header(struct bspatch_stream* stream);
 int read_controldata_process(struct bspatch_stream* stream);
-int sendPatchReadRequest(const bspatch_stream* stream, void* buffer, uint64_t length);
-int bspatch_readInitialHeaderAndContinueReadOfPatchDone(bspatch_stream* stream);
+int sendPatchReadRequest(const struct bspatch_stream* stream, void* buffer, uint64_t length);
+int bspatch_readInitialHeaderAndContinueReadOfPatchDone(struct bspatch_stream* stream);
 int read_deCompressBuffer_process(struct bspatch_stream* stream, int64_t frame_len);
 //void process_read_frame_len(struct bspatch_stream* stream);
 int bspatch_processSingeExtraStrLenCompress(struct bspatch_stream* stream);
@@ -311,13 +311,14 @@ int bspatch_allocWorkingBuffers(struct bspatch_stream* stream)
     stream->nonCompressedDataBuffer = (uint8_t*) allignTo8ByteBoundary((uint64_t) & (stream->bsMemoryBuffer)); // this should already be alligned
 
     uint32_t diff1 = (uint64_t)stream->nonCompressedDataBuffer-(uint64_t)stream->bsMemoryBuffer;
-
+    (void)diff1;  /* avoid unused warning when log is disabled */
     stream->bufferForCompressedData = ((uint8_t*) &(stream->bsMemoryBuffer)) + stream->max_compressedDataBuffer;
 
 
     uint8_t* allignedAdress = (uint8_t*) allignTo8ByteBoundary((uint64_t) stream->bufferForCompressedData);
 
     uint32_t diff2 = (uint64_t)allignedAdress-(uint64_t)stream->bufferForCompressedData;
+    (void)diff2;  /* avoid unused warning when log is disabled */
     stream->bufferForCompressedData = allignedAdress;
     log("align extra1 %u align extra2 %u", diff1, diff2);
 

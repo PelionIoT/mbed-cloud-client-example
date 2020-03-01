@@ -33,19 +33,18 @@
 #include <stdio.h>
 #include <assert.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wlong-long"
 #include "lz4.h"
-#pragma GCC diagnostic pop
 
 #define MIN(x,y) (((x)<(y)) ? (x) : (y))
-#define MAX_FRAME_SIZE_DEFAULT 512
+
+
 //#define TRACING
 #ifdef TRACING
 #define log(...) printf(__VA_ARGS__)
 #else
 #define log(...)
 #endif
+
 
 static void split(int64_t *I, int64_t *V, int64_t start, int64_t len, int64_t h)
 {
@@ -223,7 +222,7 @@ static int64_t search(const int64_t *I, const uint8_t *old, int64_t oldsize, con
     };
 }
 
-static void offtout(int64_t x, uint8_t *buf)
+void offtout(int64_t x, uint8_t *buf)
 {
     int64_t y;
 
@@ -277,10 +276,10 @@ static int writedeCompressBuffer(struct bsdiff_stream* stream, const void* buffe
         return 0;
 
     temp = stream->malloc(max_frame_size);
-    src_ptr = MIN(length, max_frame_size);
+    src_ptr = (int)(MIN(length, max_frame_size));
 
     do {
-        deCompressBuffer_size = LZ4_compress_destSize(buffer, temp, &src_ptr, max_frame_size);
+        deCompressBuffer_size = LZ4_compress_destSize(buffer, temp, &src_ptr, (int)(max_frame_size));
 
         if (deCompressBuffer_size == 0) {
             stream->free(temp);
@@ -300,7 +299,7 @@ static int writedeCompressBuffer(struct bsdiff_stream* stream, const void* buffe
         buffer = (char*) buffer + src_ptr;
         written += src_ptr;
 
-        src_ptr = MIN(length - written, max_frame_size);
+        src_ptr = (int)(MIN(length - written, max_frame_size));
 
         if (deCompressBuffer_size > *max_deCompressBuffer_size){
             *max_deCompressBuffer_size = deCompressBuffer_size;
@@ -496,112 +495,3 @@ int bsdiff(const uint8_t* old, int64_t oldsize, const uint8_t* new, int64_t news
     return result;
 }
 
-#if defined(BSDIFF_EXECUTABLE)
-
-#include <sys/types.h>
-
-#include <err.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-static int file_write(struct bsdiff_stream* stream, const void* buffer,
-        uint64_t size) {
-    return fwrite(buffer, 1, size, (FILE*) stream->opaque) == size ? 0 : -1;
-}
-
-int main(int argc, char *argv[]) {
-    int fd;
-    uint8_t *old, *new;
-    off_t oldsize, newsize;
-    uint8_t buf[24];
-    FILE * pf;
-    struct bsdiff_stream stream;
-    int64_t max_deCompressBuffer_size = 0;
-    int64_t patch_file_size = 0;
-    int64_t max_frame_size = MAX_FRAME_SIZE_DEFAULT;
-
-    stream.malloc = malloc;
-    stream.free = free;
-    stream.write = file_write;
-
-    if (argc < 4 || argc > 5) {
-        errx(1, "usage: %s oldfile newfile patchfile <max_frame_size>\n",
-                argv[0]);
-    }
-
-    if (argc == 5) {
-        max_frame_size = strtol(argv[4], 0, 10);
-    } else {
-        printf("Using default max frame size of %d.\n", MAX_FRAME_SIZE_DEFAULT);
-    }
-
-    if (max_frame_size < 64) {
-        err(1, "Please define max frame size as integer >= 64");
-    }
-
-    /* Allocate oldsize+1 bytes instead of oldsize bytes to ensure
-     that we never try to malloc(0) and get a NULL pointer */
-    if (((fd = open(argv[1], O_RDONLY, 0)) < 0)
-            || ((oldsize = lseek(fd, 0, SEEK_END)) == -1)
-            || ((old = malloc(oldsize + 1)) == NULL)
-            || (lseek(fd, 0, SEEK_SET) != 0)
-            || (read(fd, old, oldsize) != oldsize) || (close(fd) == -1)) {
-        err(1, "%s", argv[1]);
-    }
-
-    /* Allocate newsize+1 bytes instead of newsize bytes to ensure
-     that we never try to malloc(0) and get a NULL pointer */
-    if (((fd = open(argv[2], O_RDONLY, 0)) < 0)
-            || ((newsize = lseek(fd, 0, SEEK_END)) == -1)
-            || ((new = malloc(newsize + 1)) == NULL)
-            || (lseek(fd, 0, SEEK_SET) != 0)
-            || (read(fd, new, newsize) != newsize) || (close(fd) == -1)) {
-        err(1, "%s", argv[2]);
-    }
-
-    /* Create the patch file */
-    if ((pf = fopen(argv[3], "w")) == NULL) {
-        err(1, "%s", argv[3]);
-    }
-
-    /* Write header (signature+newsize+max undeCompressBuffer+maxdeCompressBuffer)*/
-    offtout(newsize, buf);
-    offtout(max_frame_size, buf + 8);
-    offtout(max_deCompressBuffer_size, buf + 16);
-    if (fwrite("PELION/BSDIFF001", 16, 1, pf) != 1
-            || fwrite(buf, sizeof(buf), 1, pf) != 1)
-    err(1, "Failed to write header");
-
-    stream.opaque = pf;
-    if (bsdiff(old, oldsize, new, newsize, &stream, &max_deCompressBuffer_size,
-                    max_frame_size)) {
-        err(1, "bsdiff");
-    }
-
-    /* Go back to header and fill the maxdeCompressBuffer properly */
-    offtout(max_deCompressBuffer_size, buf);
-    fseek(pf, 32, SEEK_SET);
-    fwrite(buf, 1, 8, pf);
-
-    fseek(pf, 0, SEEK_END);
-    patch_file_size = ftell(pf);
-
-    if (fclose(pf)) {
-        err(1, "fclose");
-    }
-
-    printf(
-            "Wrote diff file %s, size %ld. Max undeCompressBuffer frame size was %ld, max deCompressBuffer frame size was %ld.\n",
-            argv[3], patch_file_size, max_frame_size,
-            max_deCompressBuffer_size);
-
-    /* Free the memory we used */
-    free(old);
-    free(new);
-
-    return 0;
-}
-
-#endif

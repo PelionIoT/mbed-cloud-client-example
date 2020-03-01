@@ -27,14 +27,11 @@
  */
 
 #include <stdio.h>
-
-#include <err.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+#include "bspatch_private.h"
 #include <fcntl.h>
 #include <assert.h>
-
 #include "bspatch.h"
 
 #define MAX_NEXT_SIZE 512
@@ -59,7 +56,7 @@ static int read_old(const struct bspatch_stream* stream, void* buffer,
     FILE* f = ((FILE**) ( ARM_BS_GetOpaque(stream) ))[1];
     unsigned int read = (unsigned int)fread(buffer, 1, length, f);
     if ( read != length)
-        printf("Read old err: %u (%lu) - %ld\n", read, length,
+        printf("Read old err: %u (%llu) - %ld\n", read, length,
                ftell(f));
 
     assert(read == length);
@@ -115,28 +112,36 @@ static int write_new(const struct bspatch_stream* stream, void* buffer,
 }
 
 // lets make this global to have size better visible in compile time
+
 struct bspatch_stream bs_patch;
 
-#include "bspatch_private.h"
 int main(int argc, char * argv[]) {
     FILE* f[3];
 
     int status;
 
-    if (argc != 4)
-        errx(1, "usage: %s oldfile newfile patchfile\n", argv[0]);
+    if (argc != 4) {
+        fprintf(stderr, "usage: %s oldfile newfile patchfile\n", argv[0]);
+        exit(1);
+    }
 
     /* Open patch file */
-    if ((f[0] = fopen(argv[3], "rb")) == NULL)
-        err(1, "fopen(%s)", argv[3]);
+    if ((f[0] = fopen(argv[3], "rb")) == NULL) {
+        fprintf(stderr, "fopen(%s)", argv[3]);
+		exit(1);
+	}
 
     /* Open old file */
-    if ((f[1] = fopen(argv[1], "rb")) == NULL)
-        err(1, "fopen(%s)", argv[1]);
+    if ((f[1] = fopen(argv[1], "rb")) == NULL) {
+        fprintf(stderr, "fopen(%s)", argv[1]);
+		exit(1);
+    }
 
     /* Open new file */
-    if ((f[2] = fopen(argv[2], "wbx")) == NULL)
-        err(1, "fopen(%s)", argv[2]);
+    if ((f[2] = fopen(argv[2], "wbx")) == NULL) {
+        fprintf(stderr, "fopen(%s)", argv[2]);
+		exit(1);
+	}
 
     ARM_BS_Init(&bs_patch, f,
                 read_patch,
@@ -159,8 +164,10 @@ int main(int argc, char * argv[]) {
 
     status = ARM_BS_Free(&bs_patch);
 
-    if (status != 0)
-        errx(1, "bspatch fail: %d", status);
+    if (status != 0) {
+        fprintf(stderr, "bspatch fail: %d", status);
+		exit(1);
+	}
 
     /* close file handles */
     fclose(f[2]);

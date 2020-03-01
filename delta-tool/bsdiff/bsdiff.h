@@ -34,13 +34,18 @@
 
 struct bsdiff_stream {
     void* opaque;
-
     void* (*malloc)(size_t size);
     void (*free)(void* ptr);
     int (*write)(struct bsdiff_stream* stream, const void* buffer,
             uint64_t size);
 };
 
-int bsdiff(const uint8_t* old, int64_t oldsize, const uint8_t* new, int64_t newsize, struct bsdiff_stream* stream, int64_t* max_deCompressBuffer_size, const int64_t max_frame_size);
+int bsdiff(
+    const uint8_t* old, int64_t oldsize,
+    const uint8_t* new, int64_t newsize,
+    struct bsdiff_stream* stream,
+    int64_t* max_deCompressBuffer_size,
+    const int64_t max_frame_size
+);
 
 #endif

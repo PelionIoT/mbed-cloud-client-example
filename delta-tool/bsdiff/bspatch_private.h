@@ -19,16 +19,15 @@
 #ifndef INCLUDE_BSPATCH_PRIVATE_H_
 #define INCLUDE_BSPATCH_PRIVATE_H_
 
-
 #include "bspatch.h"
+#include "common.h"
 
-/* Patch applied succesfully, but new file is not ready yet. User should re-fill patch buffer and call bspatch again. */
+/* Patch applied successfully, but new file is not ready yet. User should re-fill patch buffer and call bspatch again. */
 #define BSPATCH_NEED_MORE_PATCH_DATA 1
 
-/* Patch applied succesfully, and new file is fully written. */
+/* Patch applied successfully, and new file is fully written. */
 #define BSPATCH_DONE 0
-#define FILE_MAGIC "PELION/BSDIFF001"
-#define FILE_MAGIC_LEN (sizeof(FILE_MAGIC) - 1)
+
 
 #define CONTROL_LEN (8 * 3)
 #define FILE_HEADER_LEN (FILE_MAGIC_LEN + 24)

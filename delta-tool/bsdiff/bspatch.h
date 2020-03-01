@@ -31,16 +31,6 @@
 
 #include <stdint.h>
 
-
-// BS_PATCH_COMPILE_TIME_MEMORY_ALLOC this allows allocating memory to bsdiff during compile time
-// basically to be safe this should be 2*framesize defined to bsdiff.
-//#define BS_PATCH_COMPILE_TIME_MEMORY_ALLOC 1024
-#ifndef BS_PATCH_COMPILE_TIME_MEMORY_ALLOC
-#warning "using default memory allocation"
-#define BS_PATCH_COMPILE_TIME_MEMORY_ALLOC 1024
-#endif
-
-
 struct bspatch_stream;
 
 // todo compile time assert from some header
