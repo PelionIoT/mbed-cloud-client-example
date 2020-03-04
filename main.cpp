@@ -264,7 +264,7 @@ void main_application(void)
                  M2MBase::POST_ALLOWED, NULL, false, (void*)unregister_triggered, (void*)sent_callback);
     unregister_res->set_delayed_response(true);
 
-    // Create optional Device resource for running factory reset for the device. Path of this resource will be: 3/0/6.
+    // Create optional Device resource for running factory reset for the device. Path of this resource will be: 3/0/5.
     factory_reset_res = M2MInterfaceFactory::create_device()->create_resource(M2MDevice::FactoryReset);
     if (factory_reset_res) {
         factory_reset_res->set_execute_function(factory_reset_triggered);
