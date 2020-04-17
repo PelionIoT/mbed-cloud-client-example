@@ -1,12 +1,12 @@
 #################################################################################
 #  Copyright 2016-2018 ARM Ltd.
-#  
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
-#  
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-#  
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS,
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -114,18 +114,18 @@ foreach(TEST_LIB ${TEST_LIBS})
     endif()
 
     add_executable (${TEST_LIB}.elf ${Additional_SRC})
-	if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-		TARGET_LINK_LIBRARIES(${TEST_LIB}.elf -Wl,--start-group)
-	endif()
+        if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+                TARGET_LINK_LIBRARIES(${TEST_LIB}.elf -Wl,--start-group)
+        endif()
     target_link_libraries (${TEST_LIB}.elf  ${TEST_LIB} ${SRC_LIBS} ${PLATFORM_LIBS} ) # SRC_LIBS appear twice to resolve linker dependency issues between pal and tls static libraries
 
     if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
         target_link_libraries(${TEST_LIB}.elf debug m)
         target_link_libraries(${TEST_LIB}.elf debug c)
-        #target_link_libraries(${PROJECT_NAME} debug gcc)
+        target_link_libraries(${TEST_LIB}.elf debug gcc)
         target_link_libraries(${TEST_LIB}.elf optimized m)
         target_link_libraries(${TEST_LIB}.elf optimized c)
-        #target_link_libraries(${PROJECT_NAME} optimized gcc)
+        target_link_libraries(${TEST_LIB}.elf optimized gcc)
 
         if (${OS_BRAND} MATCHES FreeRTOS)
             target_link_libraries(${TEST_LIB}.elf optimized nosys)
@@ -141,11 +141,12 @@ foreach(TEST_LIB ${TEST_LIBS})
         target_link_libraries(${TEST_LIB}.elf debug pthread)
     endif ()
 
-	if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-		TARGET_LINK_LIBRARIES(${TEST_LIB}.elf -Wl,--end-group)
-	endif()
+        if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+                TARGET_LINK_LIBRARIES(${TEST_LIB}.elf -Wl,--end-group)
+        endif()
 
     if (NOT (${OS_BRAND} MATCHES "Linux"))
+        message("name of the binary is ${TEST_LIB}")
         ELF_TO_BIN(${TEST_LIB} ${EXECUTABLE_OUTPUT_PATH})
     endif()
 

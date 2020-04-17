@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2018 ARM Ltd.
+// Copyright 2018-2020 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,7 +19,7 @@
 #ifndef __BLINKY_H__
 #define __BLINKY_H__
 
-#include "nanostack-event-loop/eventOS_event.h"
+#include "sal-stack-nanostack-eventloop/nanostack-event-loop/eventOS_event.h"
 
 class SimpleM2MClient;
 class M2MResource;

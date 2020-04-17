@@ -1,4 +1,17 @@
 {
+  "LPC54628_NXP": {
+    "comment": "Extra comments\nfor the instructions",
+    "device": {
+          "name": "LPC54628"
+        },
+    "os": {
+        "name": "NXP"
+    },
+    "sdk": {
+      "name": "LPCXpresso54628",
+      "version": "2.7.0"
+    }
+  },
   "K64F_FreeRTOS_mbedtls": {
     "comment": "Extra comments\nfor the instructions",
     "device": {
@@ -16,14 +29,18 @@
         "version": "1.4.1"
       },
       "mbedtls": {
-        "version": "2.4.2",
+        "version": "2.19.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.4.2"
+          "tag": "mbedtls-2.19.1",
+          "submodules": {
+            "crypto": {}
+          }
         },
         "to": "SDK/K64F_FreeRTOS/K64F_FreeRTOS/Middleware/mbedtls",
-        "patch_file": "SDK/K64F_FreeRTOS/K64F_FreeRTOS/Middleware/mbedtls.patch"
+        "patch_file": "SDK/K64F_FreeRTOS/K64F_FreeRTOS.patch"
+
       },
       "mmcau_2.0.0": {
         "version": "2.0.0"
@@ -35,7 +52,7 @@
     "from": {
       "protocol": "git",
       "location": "git@github.com:ARMmbed/Example-PAL-Port-using-FreeRTOS.git",
-      "tag": "PAL-RR.1.2.5-RC2"
+      "tag": "4.4.1"
     },
     "to": "SDK/K64F_FreeRTOS/K64F_FreeRTOS"
   },
@@ -112,6 +129,69 @@
           }
         },
         "to": "Middleware/mbedtls/mbedtls"
+      }
+    }
+  },
+  "Renesas_EK_RA6M3": {
+    "comment": "Renesas Flexible Software Package",
+    "device": {
+          "name": "RA6M3"
+        },
+    "os": {
+          "name": "Renesas_FreeRTOS"
+        },
+    "sdk": {
+          "name": "Renesas_EK_RA6M3",
+          "version": "0.8.0"
+    },
+    "middleware": {
+      "freertos": {
+        "version": "202002.00",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/aws/amazon-freertos.git",
+          "tag": "202002.00",
+          "submodules": {
+            "freertos_kernel": {}
+          }
+        },
+        "to": "SDK/Renesas_EK_RA6M3/amazon-freertos"    
+      },
+      "fsp": {
+        "version": "1.0.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/renesas/fsp.git",
+          "tag": "v1.0.0"
+        },
+        "to": "SDK/Renesas_EK_RA6M3/fsp"
+      },
+      "fsp-examples": {
+        "version": "0.8.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/renesas/ra-fsp-examples.git",
+          "tag": "v0.8.0-examples"
+        },
+        "to": "SDK/Renesas_EK_RA6M3/fsp_examples"
+      },
+      "lwip": {
+        "version": "79cd89f99d1032cc5375569e5b24c375b9d230fa",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/lwip-tcpip/lwip.git",
+          "tag": "79cd89f99d1032cc5375569e5b24c375b9d230fa"
+        },
+        "to": "SDK/Renesas_EK_RA6M3/lwip"
+      },
+      "cmsis": {
+        "version": "5.6.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/ARM-software/CMSIS_5.git",
+          "tag": "5.6.0"
+        },
+        "to": "SDK/Renesas_EK_RA6M3/CMSIS_5"
       }
     }
   }

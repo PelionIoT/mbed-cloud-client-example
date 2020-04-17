@@ -1,0 +1,44 @@
+if (NOT (${OS_BRAND} MATCHES "Renesas_EK_RA6M3"))
+    message(FATAL_ERROR "define_Renesas_EK-RA6M3.txt to be used only with Renesas RA builds.")
+endif()
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
+
+add_definitions(-DMBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\")
+add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\")
+add_definitions(-DPAL_USER_DEFINED_CONFIGURATION=\"pal_config_Renesas_RA.h\")
+
+SET(PAL_TLS_BSP_DIR ${NEW_CMAKE_SOURCE_DIR}/mbed-cloud-client/mbed-client-pal/Configs/${TLS_LIBRARY})
+
+add_definitions(-DMBEDTLS_CONFIG_FILE=\"${PAL_TLS_BSP_DIR}/mbedTLSConfig_${OS_BRAND}.h\")
+
+add_definitions(-DMBED_CONF_NS_HAL_PAL_EVENT_LOOP_THREAD_STACK_SIZE=8000)
+add_definitions(-DPAL_DTLS_PEER_MIN_TIMEOUT=5000)
+add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
+add_definitions(-DPLATFORM_ENABLE_BUTTON=1)
+add_definitions(-DPLATFORM_ENABLE_LED=1)
+
+add_definitions(-DMBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS=0x001F0000)
+add_definitions(-DMBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE=0x00010000)
+add_definitions(-DMBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT=1)
+add_definitions(-DMBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT=1)
+add_definitions(-DMBED_CONF_STORAGE_STORAGE_TYPE=TDB_INTERNAL)
+add_definitions(-DMBED_CONF_MBED_CLIENT_SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE=512)
+add_definitions(-DMBED_CONF_MBED_TRACE_ENABLE=0)
+add_definitions(-DMBED_TRACE_CONFIG=TRACE_ACTIVE_LEVEL_ALL)
+add_definitions(-DFLASHIAP_APP_ROM_END_ADDR=0x00200000)
+add_definitions(-DCOMPONENT_FLASHIAP=1)
+
+# For FreeRTOS configs beginning with configUSE* or -Dconfig, please use FreeRTOSConfig.h file instead.
+
+##### PORT TESTS #####
+add_definitions(-DPAL_SKIP_TEST_MODULE_SOTP=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_FILESYSTEM=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_INTERNALFLASH=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_UPDATE=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_ROT=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_DRBG=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_TIME=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_CRYPTO=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_TLS=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_SST=1)

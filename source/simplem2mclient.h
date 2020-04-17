@@ -65,6 +65,11 @@ public:
             return false;
         }
 
+#ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
+        callback_handler cb(this, &SimpleM2MClient::sleep_callback_function);
+        _cloud_client.set_queue_sleep_handler(cb);
+#endif
+
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_UPDATE
         /* Set callback functions for authorizing updates and monitoring progress.
            Code is implemented in update_ui_example.cpp
@@ -91,7 +96,7 @@ public:
 
     void client_registered() {
         _registered = true;
-        printf("Client registered\n");
+        printf("Client registered\r\n");
         static const ConnectorClientEndpointInfo* endpoint = NULL;
         if (endpoint == NULL) {
             endpoint = _cloud_client.endpoint_info();
@@ -273,6 +278,12 @@ public:
         return _cloud_client;
     }
 
+#ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
+    void sleep_callback_function() {
+        printf("Pelion client is going to sleep\r\n");
+    }
+#endif
+
     M2MResource* add_cloud_resource(uint16_t object_id, uint16_t instance_id,
                               uint16_t resource_id, const char *resource_type,
                               M2MResourceInstance::ResourceType data_type,
@@ -280,6 +291,7 @@ public:
                               bool observable, void *cb, void *message_status_cb) {
          return add_resource(&_obj_list, object_id, instance_id, resource_id, resource_type, data_type,
                       allowed, value, observable, cb, message_status_cb);
+
     }
 
 private:

@@ -3,6 +3,9 @@ INCLUDE(CMakeForceCompiler)
 cmake_minimum_required (VERSION 3.5)
 SET(CMAKE_SYSTEM_NAME Generic)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 project(mbedCloudClientExample)
 
 add_definitions(-DNS_EXCLUDE_HIGHRES_TIMER)
@@ -18,8 +21,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/include)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/platform")
 
 FILE(GLOB MBED_CLOUD_CLIENT_EXAMPLE_SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/source/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp"
     )
@@ -27,5 +30,6 @@ FILE(GLOB MBED_CLOUD_CLIENT_EXAMPLE_SRC
 CREATE_TEST_LIBRARY(mbedCloudClientExample "${MBED_CLOUD_CLIENT_EXAMPLE_SRC}" "")
 
 add_dependencies(mbedCloudClientExample mbedCloudClient)
+
 
 ADDSUBDIRS()

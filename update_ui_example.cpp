@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2017 ARM Ltd.
+// Copyright 2016-2020 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,26 +16,12 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
-
 #include "update_ui_example.h"
+#include "m2mstring.h"
+
+#include <stdio.h>
 
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_UPDATE
-
-// Needed for PRIu64 on FreeRTOS
-#include <stdio.h>
-#include <stdint.h>
-
-// Note: this macro is needed on armcc to get the the limit macros like UINT16_MAX
-#ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
-#endif
-
-// Note: this macro is needed on armcc to get the the PRI*32 macros
-// from inttypes.h in a C++ code.
-#ifndef __STDC_FORMAT_MACROS
-#define __STDC_FORMAT_MACROS
-#endif
-
 
 static MbedCloudClient* _client;
 
@@ -46,6 +32,9 @@ void update_ui_set_cloud_client(MbedCloudClient* client)
 
 void update_authorize_priority_handler(int32_t request, uint64_t priority)
 {
+    // Converts uint64_t to a string to remove the dependency for int64 printf implementation.
+    char buffer[20+1];
+    (void) m2m::itoa_c(priority, buffer);
     switch (request)
     {
         /* Cloud Client wishes to download new firmware. This can have a negative
@@ -60,7 +49,7 @@ void update_authorize_priority_handler(int32_t request, uint64_t priority)
         case MbedCloudClient::UpdateRequestDownload:
             printf("Firmware download requested\r\n");
             printf("Authorization granted\r\n");
-            printf("Priority of request %" PRIu64 "\r\n", priority);
+            printf("Priority of request %s\r\n", buffer);
             _client->update_authorize(MbedCloudClient::UpdateRequestDownload);
             break;
 
@@ -74,7 +63,7 @@ void update_authorize_priority_handler(int32_t request, uint64_t priority)
         case MbedCloudClient::UpdateRequestInstall:
             printf("Firmware install requested\r\n");
             printf("Authorization granted\r\n");
-            printf("Priority of request %" PRIu64 "\r\n", priority);
+            printf("Priority of the request %s\r\n", buffer);
             _client->update_authorize(MbedCloudClient::UpdateRequestInstall);
             break;
 

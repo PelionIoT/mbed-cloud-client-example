@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2018 ARM Ltd.
+// Copyright 2018-2020 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,18 +18,17 @@
 
 #include "blinky.h"
 
-#include "nanostack-event-loop/eventOS_event.h"
-#include "nanostack-event-loop/eventOS_event_timer.h"
-#include "ns_hal_init.h"
+#include "sal-stack-nanostack-eventloop/nanostack-event-loop/eventOS_event.h"
+#include "sal-stack-nanostack-eventloop/nanostack-event-loop/eventOS_event_timer.h"
+#include "ns-hal-pal/ns_hal_init.h"
+#include "mbed-trace/mbed_trace.h"
 
 #include "mcc_common_button_and_led.h"
-#include "mbed-trace/mbed_trace.h"
 #include "simplem2mclient.h"
 #include "m2mresource.h"
 
 #include <assert.h>
 #include <string.h>
-#include "stdio.h"
 
 #define TRACE_GROUP "blky"
 
@@ -251,11 +250,11 @@ void Blinky::handle_buttons()
     // this might be stopped now, but the loop should then be restarted after re-registration
     request_next_loop_event();
 
-    if (_client->is_register_called()) {
+    if (_client->is_client_registered()) {
         if (mcc_platform_button_clicked()) {
             _button_count = _button_resource->get_value_int() + 1;
             _button_resource->set_value(_button_count);
-            printf("Button resource manually updated. Value %d\n", _button_count);
+            printf("Button resource manually updated. Value %d\r\n", _button_count);
         }
     }
 }
@@ -268,9 +267,9 @@ void Blinky::handle_automatic_increment()
     // this might be stopped now, but the loop should then be restarted after re-registration
     request_automatic_increment_event();
 
-    if (_client->is_register_called()) {
+    if (_client->is_client_registered()) {
         _button_count = _button_resource->get_value_int() + 1;
         _button_resource->set_value(_button_count);
-        printf("Button resource automatically updated. Value %d\n", _button_count);
+        printf("Button resource automatically updated. Value %d\r\n", _button_count);
     }
 }

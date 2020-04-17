@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2019 ARM Ltd.
+// Copyright 2016-2020 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,6 +16,9 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
+#ifdef MBED_CLOUD_CLIENT_USER_CONFIG_FILE
+#include MBED_CLOUD_CLIENT_USER_CONFIG_FILE
+#endif
 
 #include "mbed-trace/mbed_trace.h"
 #include "mbed-trace-helper.h"
@@ -27,10 +30,10 @@
 #include "memory_tests.h"
 #endif
 #include "application_init.h"
-#include "mbed-client-randlib/randLIB.h"
+#include "mbed-client-randlib/mbed-client-randlib/randLIB.h"
 #ifdef MBED_CONF_MBED_CLOUD_CLIENT_SECURE_ELEMENT_SUPPORT
 #include "mcc_se_init.h"
-#endif 
+#endif
 
 void print_fcc_status(int fcc_status)
 {
@@ -148,18 +151,20 @@ void print_fcc_status(int fcc_status)
         default:
             error = "UNKNOWN";
     }
-    printf("\nFactory Configurator Client [ERROR]: %s\r\n\n", error);
+    printf("\nFactory Configurator Client [ERROR]: %s\r\n", error);
 #endif
 #endif
 }
 
-#if defined(__SXOS__)
+#if defined(__SXOS__) || defined(__RTX)
+
 extern "C"
 void trace_printer(const char* str)
 {
     printf("%s\r\n", str);
 }
-#endif
+
+#endif 
 
 bool application_init_mbed_trace(void)
 {
@@ -185,7 +190,7 @@ bool application_init_mbed_trace(void)
     mbed_trace_mutex_release_function_set(mbed_trace_helper_mutex_release);
 #endif
 
-#if defined(__SXOS__)
+#if defined(__SXOS__) || defined(__RTX)
     mbed_trace_print_function_set(trace_printer);
 #endif
 
@@ -198,14 +203,13 @@ static bool application_init_verify_cloud_configuration()
     bool result = 0;
 
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
-    printf("Starting developer flow\n");
-
+    printf("Starting developer flow\r\n");
     status = fcc_developer_flow();
     if (status == FCC_STATUS_KCM_FILE_EXIST_ERROR) {
-        printf("Developer credentials already exist, continuing..\n");
+        printf("Developer credentials already exist, continuing..\r\n");
         result = 0;
     } else if (status != FCC_STATUS_SUCCESS) {
-        printf("Failed to load developer credentials\n");
+        printf("Failed to load developer credentials\r\n");
         result = 1;
     }
 #endif
@@ -229,19 +233,19 @@ static bool application_init_fcc(void)
     int status;
     status = mcc_platform_fcc_init();
     if(status != FCC_STATUS_SUCCESS) {
-        printf("application_init_fcc fcc_init failed with status %d! - exit\n", status);
+        printf("application_init_fcc fcc_init failed with status %d! - exit\r\n", status);
         return 1;
     }
 #if RESET_STORAGE
     status = mcc_platform_reset_storage();
     if(status != FCC_STATUS_SUCCESS) {
-        printf("application_init_fcc reset_storage failed with status %d! - exit\n", status);
+        printf("application_init_fcc reset_storage failed with status %d! - exit\r\n", status);
         return 1;
     }
     // Reinitialize SOTP
     status = mcc_platform_sotp_init();
     if (status != FCC_STATUS_SUCCESS) {
-        printf("application_init_fcc sotp_init failed with status %d! - exit\n", status);
+        printf("application_init_fcc sotp_init failed with status %d! - exit\r\n", status);
         return 1;
     }
 #endif
@@ -272,7 +276,7 @@ static bool application_init_fcc(void)
         status = application_init_verify_cloud_configuration();
         if (status != 0) {
             return 1;
-        }        
+        }
 #else
         return 1;
 #endif
@@ -295,10 +299,10 @@ bool application_init(void)
 #ifdef MBED_STACK_STATS_ENABLED
     print_stack_statistics();
 #endif
-    printf("Start Device Management Client\n");
+    printf("Start Device Management Client\r\n");
 
     if (application_init_fcc() != 0) {
-        printf("Failed initializing FCC\n" );
+        printf("Failed initializing FCC\r\n" );
         return false;
     }
 
@@ -312,6 +316,6 @@ void wait_application_startup_delay()
 #endif
     randLIB_seed_random();
     uint16_t delay = randLIB_get_random_in_range(STARTUP_MIN_RANDOM_DELAY, STARTUP_MAX_RANDOM_DELAY);
-    printf("Delaying registration by %d seconds\n", delay);
+    printf("Delaying registration by %d seconds\r\n", delay);
     mcc_platform_do_wait(delay * 1000);
 }

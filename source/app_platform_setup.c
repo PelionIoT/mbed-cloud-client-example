@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
+#ifdef MBED_CLOUD_CLIENT_USER_CONFIG_FILE
+#include MBED_CLOUD_CLIENT_USER_CONFIG_FILE
+#endif
+
 #include <stdio.h>
 #include "app_platform_setup.h"
 #include "mcc_common_setup.h"
 #include "mcc_common_config.h"
 #include "factory_configurator_client.h"
+#include "pal.h"
 
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
 #ifdef PAL_USER_DEFINED_CONFIGURATION
@@ -41,10 +46,10 @@ const uint8_t MBED_CLOUD_DEV_ENTROPY[FCC_ENTROPY_SIZE] = { 0xf6, 0xd6, 0xc0, 0x0
 int mcc_platform_reset_storage(void)
 {
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
-    printf("Resets storage to an empty state.\n");
+    printf("Resets storage to an empty state.\r\n");
     int status = fcc_storage_delete();
     if (status != FCC_STATUS_SUCCESS) {
-        printf("Failed to delete storage - %d\n", status);
+        printf("Failed to delete storage - %d\r\n", status);
     }
     return status;
 #else
@@ -58,12 +63,12 @@ int mcc_platform_fcc_init(void)
     int status = fcc_init();
     // Ignore pre-existing RoT/Entropy in SOTP
     if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ENTROPY_ERROR && status != FCC_STATUS_ROT_ERROR) {
-        printf("fcc_init failed with status %d! - exit\n", status);
+        printf("fcc_init failed with status %d! - exit\r\n", status);
         return status;
     }
     status = mcc_platform_sotp_init();
     if (status != FCC_STATUS_SUCCESS) {
-        printf("fcc_init failed with status %d! - exit\n", status);
+        printf("fcc_init failed with status %d! - exit\r\n", status);
         mcc_platform_fcc_finalize();
     } else {
         // We can return SUCCESS here as preexisting RoT/Entropy is expected flow.
@@ -85,7 +90,7 @@ int mcc_platform_sotp_init(void)
     status = fcc_entropy_set(MBED_CLOUD_DEV_ENTROPY, FCC_ENTROPY_SIZE);
 
     if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ENTROPY_ERROR) {
-        printf("fcc_entropy_set failed with status %d! - exit\n", status);
+        printf("fcc_entropy_set failed with status %d! - exit\r\n", status);
         mcc_platform_fcc_finalize();
         return status;
     }
@@ -96,11 +101,11 @@ int mcc_platform_sotp_init(void)
     status = fcc_rot_set(MBED_CLOUD_DEV_ROT, FCC_ROT_SIZE);
 
     if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ROT_ERROR) {
-        printf("fcc_rot_set failed with status %d! - exit\n", status);
+        printf("fcc_rot_set failed with status %d! - exit\r\n", status);
         mcc_platform_fcc_finalize();
     } else {
         // We can return SUCCESS here as preexisting RoT/Entropy is expected flow.
-        printf("Using hardcoded Root of Trust, not suitable for production use.\n");
+        printf("Using hardcoded Root of Trust, not suitable for production use.\r\n");
         status = FCC_STATUS_SUCCESS;
     }
 #endif // PAL_USER_DEFINED_CONFIGURATION

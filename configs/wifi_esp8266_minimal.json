@@ -38,7 +38,7 @@
             "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-internal_flash-no_rot-v4.1.0.bin",
             "target.header_offset"                      : "0x8000",
             "target.app_offset"                         : "0x8400",
-            "target.restrict_size"                      : "0x74000",
+            "target.restrict_size"                      : "0x77C00",
             "update-client.bootloader-details"          : "0x4A6C",
             "update-client.application-details"         : "(MBED_ROM_START + MBED_BOOTLOADER_SIZE)",
             "update-client.storage-address"             : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS+MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
