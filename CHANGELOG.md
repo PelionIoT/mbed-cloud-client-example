@@ -1,5 +1,22 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.4.0 (17.04.2020)
+
+* Added support for NXP FreeRTOS SDK.
+  * The supported board is `LPCXpresso54628`.
+
+      <span class="notes">**Note**: Select the correct QSPI chip in the board configuration file (`define_NXP_LPC54628.txt`). This depends on the board revision.</span>
+
+* Added support for Renesas FreeRTOS SDK.
+  * The supported board is `EK-RA6M3`.
+* Replaced Icetea-based test framework and tests with the Pelion E2E Test Library v0.2.5.
+* Updated to Mbed OS 5.15.1.
+* Added a sleep callback function on application to indicate when client goes to sleep using `MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE` mode.
+* Changed the default DTLS fragmentation to 1024 bytes for Wi-SUN mesh.
+* Removed application dependency for int64 printf support which is not present in the nanolib-C library.
+* Restricted the size of applications using internal storage on Mbed OS builds.
+* pal-platform: Fixed an issue in `pal-platform.json` due to an incompatibility with `click` version later than 7.0.
+
 ## Release 4.3.0 (06.02.2020)
 
 * Made the button counter resource writable to allow resetting it.

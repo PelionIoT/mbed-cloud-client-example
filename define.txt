@@ -1,27 +1,25 @@
+cmake_policy(SET CMP0005 OLD)  # definitions escaped explicitly (default)
+cmake_policy(SET CMP0011 OLD)  # policy flow old way (default)
+
+if (NOT (${OS_BRAND} MATCHES "Linux"))
+    message(FATAL_ERROR "define.txt to be used only with Linux builds.")
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 
-if (NOT (${OS_BRAND} MATCHES "FreeRTOS"))
-    add_definitions(-DMBED_CLIENT_USER_CONFIG_FILE="\\"mbed_cloud_client_user_config.h"\\")
-    add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE="\\"mbed_cloud_client_user_config.h"\\")
-    add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="\\"sotp_fs_config_linux.h"\\")
-    if(RESET_STORAGE)
-       add_definitions(-DRESET_STORAGE)
-    endif(RESET_STORAGE)
-else()
-    add_definitions(-DMBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\")
-    add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\")
-    add_definitions(-DPAL_USER_DEFINED_CONFIGURATION=\"sotp_fs_config_FreeRTOS.h\")
-endif()
+add_definitions(-DMBED_CLIENT_USER_CONFIG_FILE="\\"mbed_cloud_client_user_config.h"\\")
+add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE="\\"mbed_cloud_client_user_config.h"\\")
+add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="\\"sotp_fs_config_linux.h"\\")
+add_definitions(-DTARGET_LIKE_POSIX)
+if(RESET_STORAGE)
+    add_definitions(-DRESET_STORAGE)
+endif(RESET_STORAGE)
 
 SET(PAL_TLS_BSP_DIR ${NEW_CMAKE_SOURCE_DIR}/mbed-cloud-client/mbed-client-pal/Configs/${TLS_LIBRARY})
 
 if (${TLS_LIBRARY} MATCHES mbedTLS)
     # PAL specific configurations for mbedTLS
-    if (NOT (${OS_BRAND} MATCHES "FreeRTOS"))
-        add_definitions(-DMBEDTLS_CONFIG_FILE="\\"${PAL_TLS_BSP_DIR}/mbedTLSConfig_${OS_BRAND}.h"\\")
-    else()
-        add_definitions(-DMBEDTLS_CONFIG_FILE=\"${PAL_TLS_BSP_DIR}/mbedTLSConfig_${OS_BRAND}.h\")
-    endif()
+    add_definitions(-DMBEDTLS_CONFIG_FILE="\\"${PAL_TLS_BSP_DIR}/mbedTLSConfig_${OS_BRAND}.h"\\")
     message("PAL_TLS_BSP_DIR ${PAL_TLS_BSP_DIR}/pal_${OS_BRAND}.h")
 endif()
 
@@ -31,7 +29,12 @@ if(PAL_SIMULATOR_FILE_SYSTEM_OVER_RAM)
 endif(PAL_SIMULATOR_FILE_SYSTEM_OVER_RAM)
 
 add_definitions(-DPAL_DTLS_PEER_MIN_TIMEOUT=5000)
-add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
+
+# Set to 1 to enable tracing
 add_definitions(-DMBED_CONF_MBED_TRACE_ENABLE=0)
+
+add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
+
 add_definitions(-DPLATFORM_ENABLE_BUTTON=1)
 add_definitions(-DPLATFORM_ENABLE_LED=1)
+

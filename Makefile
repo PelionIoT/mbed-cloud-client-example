@@ -123,6 +123,10 @@ LOCAL_EXPORT_FLAG += "SOTP_TESTING"
 LOCAL_EXPORT_FLAG += "RBP_TESTING"
 endif
 
+ifdef RESET_STORAGE
+LOCAL_EXPORT_FLAG += "RESET_STORAGE=1"
+endif
+
 # Generate the revision (version) file automatically during the make process.
 AUTO_GEN_REVISION_HEADER := no
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #################################################################################
-#  Copyright 2016-2019 ARM Ltd.
+#  Copyright 2016-2020 ARM Ltd.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ set (MBED_CLOUD_CLIENT_DEVICE $mbed_cloud_client_device)
 set (MBED_CLOUD_CLIENT_MIDDLEWARE $mbed_cloud_client_mw_list)
 set (MBED_CLOUD_CLIENT_TOOLCHAIN $mbed_cloud_client_toolchain)
 set (MBED_CLOUD_CLIENT_BUILD_SYS_MIN_VER $mbed_cloud_client_build_sys_min_ver)
+set (MBED_CLOUD_CLIENT_NATIVE_SDK $mbed_cloud_client_native_sdk)
 '''
 
 # for 2.7 compatibility:
@@ -74,6 +75,7 @@ class DynamicChoice(click.Choice):
     name = 'DynamicChoice'
 
     def __init__(self, func, **kwargs):
+        super(DynamicChoice, self).__init__(True)
         self.choices = []
         self.func = func
         self.kwargs = kwargs
@@ -184,7 +186,7 @@ def git_fetch_submodule(submodule_name, overwrite_url, overwrite_branch, dest_di
         * *stderr* --
           Standard error handle
     """
-    
+
     # Overwrite submodule configuration in `.gitmodules`
     if overwrite_url:
         check_cmd(['git', 'config', '--file=.gitmodules', 'submodule.{}.url'.format(submodule_name), overwrite_url], cwd=dest_dir, **stream_kwargs)
@@ -253,12 +255,12 @@ def git_fetch(git_url, tree_ref, dest_dir, submodules, **stream_kwargs):
             check_cmd(['git', 'pull', '--rebase', '--tags', '--all'], cwd=dest_dir, **stream_kwargs)
 
     if submodules:
-        # Reset .gitmodules to remove previously synced changes 
+        # Reset .gitmodules to remove previously synced changes
         check_cmd(['git', 'checkout', '.gitmodules'], cwd=dest_dir, **stream_kwargs)
         for submodule_name, submodule_desc in submodules.items():
-            git_fetch_submodule(submodule_name, 
+            git_fetch_submodule(submodule_name,
                                submodule_desc.get('overwrite-url', None),
-                               submodule_desc.get('overwrite-branch', None), 
+                               submodule_desc.get('overwrite-branch', None),
                                dest_dir, **stream_kwargs)
 
 
@@ -377,7 +379,7 @@ def apply_patch(patch_file, reverse=False, **stream_kwargs):
     return is_integrated
 
 
-def generate_plat_cmake(target):
+def generate_plat_cmake(target, native_sdk):
     """
     Generate target-dependent cmake files
 
@@ -389,7 +391,15 @@ def generate_plat_cmake(target):
         _os += '_' + target.os.version
     _device = target.device.name
     _mw_list = [mw.name for mw in target.middleware]
-    _sdk = ' '
+    if not target.sdk:
+        _sdk = ''
+    else:
+        _sdk = target.sdk.name
+
+    if not native_sdk:
+       _native_sdk = False
+    else:
+       _native_sdk = native_sdk
 
     if target.name == 'K64F_FreeRTOS_mbedtls':
         _os, _device = (' ', ' ')
@@ -414,6 +424,7 @@ def generate_plat_cmake(target):
                 mbed_cloud_client_mw_list=' '.join(_mw_list),
                 mbed_cloud_client_toolchain=' ',
                 mbed_cloud_client_build_sys_min_ver=BUILD_SYS_MIN_VER,
+                mbed_cloud_client_native_sdk=_native_sdk
             )
         )
     logger.info('Generated %s', autogen_file)
@@ -435,7 +446,7 @@ def check_cmd_and_raise(cmd, **kwargs):
     logger.debug(" ".join(cmd))
 
     subprocess.check_call(cmd, **kwargs)
-    
+
 def check_cmd(cmd, **kwargs):
     """
     Wrapper function for subprocess.check_call
@@ -656,6 +667,12 @@ class Target(Element):
         super(Target, self).__init__(data, stream_kwargs, name)
         self.os = Element(data['os'], stream_kwargs)
         self.device = Element(data['device'], stream_kwargs)
+        sdk_val = data.get('sdk')
+        if sdk_val:
+            self.sdk = Element(data['sdk'], stream_kwargs)
+        else:
+            self.sdk = ''
+
         mw = data.get('middleware', {})
         self.middleware = []
         for k in mw:
@@ -817,8 +834,12 @@ def deploy(config, target_name, skip_update, instructions):
     help='The target to generate platform-dependent files for',
     type=DynamicChoice(get_available_targets)
 )
+@click.option(
+    '-n', '--native-sdk', type=bool, required=False,
+    help='Build in the native SDK. Omit this if not sure.'
+)
 @pass_config
-def generate(config, target_name):
+def generate(config, target_name, native_sdk):
     """Generate files to be used by build-system"""
     if target_name:
         config.target_name = target_name
@@ -833,7 +854,7 @@ def generate(config, target_name):
                 (config.target_name, PROG_NAME, config.target_name)
             )
             raise click.Abort
-        out_dir = generate_plat_cmake(target)
+        out_dir = generate_plat_cmake(target, native_sdk)
         shutil.copy(
             os.path.join(PAL_PLATFORM_ROOT, 'mbedCloudClientCmake.txt'),
             os.path.join(out_dir, 'CMakeLists.txt')
@@ -1025,7 +1046,7 @@ def checkToolchainEnv(toolchain):
     type=int
 )
 @pass_config
-def fullbuild(config, target_name, toolchain, external, name, keep_sources, numOfBuildThreads):
+def fullbuild(config, target_name, toolchain, external, name, keep_sources, numOfBuildThreads, native_sdk):
     """deploy and build target files"""
     config.target_name = target_name
     logger.info('fullBuild option has been DEPRECATED and will be removed in future release.')
@@ -1033,7 +1054,7 @@ def fullbuild(config, target_name, toolchain, external, name, keep_sources, numO
 
     ctx = click.get_current_context()
     ctx.invoke(deploy, target_name=target_name, skip_update=None, instructions=None)
-    ctx.invoke(generate, target_name=target_name)
+    ctx.invoke(generate, target_name=target_name, native_sdk=native_sdk)
 
     envPair = checkToolchainEnv(toolchain)
     if (None == envPair):
@@ -1053,7 +1074,7 @@ def fullbuild(config, target_name, toolchain, external, name, keep_sources, numO
     isDebug = 0 # generate and build release version
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
-    ctx.invoke(generate, target_name=target_name)
+    ctx.invoke(generate, target_name=target_name, native_sdk=native_sdk)
 
     runCmakeAndMake(out_dir, isDebug, toolchain, output, envPair, external, name, numOfBuildThreads)  # CMAKE + build release version
 

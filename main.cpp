@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2019 ARM Ltd.
+// Copyright 2016-2020 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,6 +16,21 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
+// Needed for PRIu64 on FreeRTOS
+#include <stdio.h>
+// Note: this macro is needed on armcc to get the the limit macros like UINT16_MAX
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+
+// Note: this macro is needed on armcc to get the the PRI*32 macros
+// from inttypes.h in a C++ code.
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS
+#endif
+#if defined (__RTX)
+#include "pdmc_main.h"
+#endif
 #include "simplem2mclient.h"
 #ifdef TARGET_LIKE_MBED
 #include "mbed.h"
@@ -46,7 +61,7 @@ extern "C"
 int mbed_cloud_application_entrypoint(void)
 #else
 int main(void)
-#endif
+#endif //MBED_CLOUD_APPLICATION_NONSTANDARD_ENTRYPOINT
 {
     return mcc_platform_run_program(main_application);
 }
@@ -65,25 +80,28 @@ static SimpleM2MClient *client;
 
 void counter_updated(const char*)
 {
-    printf("Counter resource set to %d\n", button_res->get_value_int());
+    // Converts uint64_t to a string to remove the dependency for int64 printf implementation.
+    char buffer[20+1];
+    (void) m2m::itoa_c(button_res->get_value_int(), buffer);
+    printf("Counter resource set to %s\r\n", buffer);
 }
 
 void pattern_updated(const char *)
 {
-    printf("PUT received, new value: %s\n", pattern_res->get_value_string().c_str());
+    printf("PUT received, new value: %s\r\n", pattern_res->get_value_string().c_str());
 }
 
 void blink_callback(void *)
 {
-    String pattern_string = pattern_res->get_value_string();    
-    printf("POST executed\n");
+    String pattern_string = pattern_res->get_value_string();
+    printf("POST executed\r\n");
 
     // The pattern is something like 500:200:500, so parse that.
     // LED blinking is done while parsing.
 #ifndef MCC_MEMORY
     const bool restart_pattern = false;
     if (blinky.start((char*)pattern_res->value(), pattern_res->value_length(), restart_pattern) == false) {
-        printf("out of memory error\n");
+        printf("out of memory error\r\n");
     }
 #endif
     blink_res->send_delayed_post_response();
@@ -95,28 +113,28 @@ void notification_status_callback(const M2MBase& object,
 {
     switch(status) {
         case M2MBase::MESSAGE_STATUS_BUILD_ERROR:
-            printf("Message status callback: (%s) error when building CoAP message\n", object.uri_path());
+            printf("Message status callback: (%s) error when building CoAP message\r\n", object.uri_path());
             break;
         case M2MBase::MESSAGE_STATUS_RESEND_QUEUE_FULL:
-            printf("Message status callback: (%s) CoAP resend queue full\n", object.uri_path());
+            printf("Message status callback: (%s) CoAP resend queue full\r\n", object.uri_path());
             break;
         case M2MBase::MESSAGE_STATUS_SENT:
-            printf("Message status callback: (%s) Message sent to server\n", object.uri_path());
+            printf("Message status callback: (%s) Message sent to server\r\n", object.uri_path());
             break;
         case M2MBase::MESSAGE_STATUS_DELIVERED:
-            printf("Message status callback: (%s) Message delivered\n", object.uri_path());
+            printf("Message status callback: (%s) Message delivered\r\n", object.uri_path());
             break;
         case M2MBase::MESSAGE_STATUS_SEND_FAILED:
-            printf("Message status callback: (%s) Message sending failed\n", object.uri_path());
+            printf("Message status callback: (%s) Message sending failed\r\n", object.uri_path());
             break;
         case M2MBase::MESSAGE_STATUS_SUBSCRIBED:
-            printf("Message status callback: (%s) subscribed\n", object.uri_path());
+            printf("Message status callback: (%s) subscribed\r\n", object.uri_path());
             break;
         case M2MBase::MESSAGE_STATUS_UNSUBSCRIBED:
-            printf("Message status callback: (%s) subscription removed\n", object.uri_path());
+            printf("Message status callback: (%s) subscription removed\r\n", object.uri_path());
             break;
         case M2MBase::MESSAGE_STATUS_REJECTED:
-            printf("Message status callback: (%s) server has rejected the message\n", object.uri_path());
+            printf("Message status callback: (%s) server has rejected the message\r\n", object.uri_path());
             break;
         default:
             break;
@@ -138,13 +156,13 @@ void sent_callback(const M2MBase& base,
 
 void unregister_triggered(void)
 {
-    printf("Unregister resource triggered\n");
+    printf("Unregister resource triggered\r\n");
     unregister_res->send_delayed_post_response();
 }
 
 void factory_reset_triggered(void*)
 {
-    printf("Factory reset resource triggered\n");
+    printf("Factory reset resource triggered\r\n");
 
     // First send response, so server won't be left waiting.
     // Factory reset resource is by default expecting explicit
@@ -158,7 +176,7 @@ void factory_reset_triggered(void*)
 // This function is called when a POST request is received for resource 5000/0/1.
 void unregister(void)
 {
-    printf("Unregister resource executed\n");
+    printf("Unregister resource executed\r\n");
     client->close();
 }
 
@@ -172,19 +190,19 @@ void main_application(void)
 
     // Initialize trace-library first
     if (application_init_mbed_trace() != 0) {
-        printf("Failed initializing mbed trace\n" );
+        printf("Failed initializing mbed trace\r\n" );
         return;
     }
 
     // Initialize storage
     if (mcc_platform_storage_init() != 0) {
-        printf("Failed to initialize storage\n" );
+        printf("Failed to initialize storage\r\n" );
         return;
     }
 
     // Initialize platform-specific components
     if(mcc_platform_init() != 0) {
-        printf("ERROR - platform_init() failed!\n");
+        printf("ERROR - platform_init() failed!\r\n");
         return;
     }
 
@@ -221,7 +239,7 @@ void main_application(void)
     //  2. print memory statistics if MBED_HEAP_STATS_ENABLED is defined
     //  3. FCC initialization.
     if (!application_init()) {
-        printf("Initialization failed, exiting application!\n");
+        printf("Initialization failed, exiting application!\r\n");
         return;
     }
 
@@ -230,7 +248,7 @@ void main_application(void)
 
     // Initialize network
     if (!mcc_platform_interface_connect()) {
-        printf("Network initialized, registering...\n");
+        printf("Network initialized, registering...\r\n");
     } else {
         return;
     }
@@ -264,7 +282,7 @@ void main_application(void)
                  M2MBase::POST_ALLOWED, NULL, false, (void*)unregister_triggered, (void*)sent_callback);
     unregister_res->set_delayed_response(true);
 
-    // Create optional Device resource for running factory reset for the device. Path of this resource will be: 3/0/6.
+    // Create optional Device resource for running factory reset for the device. Path of this resource will be: 3/0/5.
     factory_reset_res = M2MInterfaceFactory::create_device()->create_resource(M2MDevice::FactoryReset);
     if (factory_reset_res) {
         factory_reset_res->set_execute_function(factory_reset_triggered);
@@ -298,7 +316,7 @@ void main_application(void)
  (MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS == 1) && \
  defined(MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION) && \
  (MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION == 1)
-    printf("Starting mbed eventloop...\n");
+    printf("Starting mbed eventloop...\r\n");
 
     eventOS_scheduler_mutex_wait();
 
