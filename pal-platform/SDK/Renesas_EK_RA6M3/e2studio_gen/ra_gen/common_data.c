@@ -25,7 +25,7 @@ __attribute__((__aligned__(16)))  ether_instance_descriptor_t g_ether0_rx_descri
 __attribute__((__aligned__(32)))uint8_t g_ether0_ether_buffer0[1514];
 __attribute__((__aligned__(32)))uint8_t g_ether0_ether_buffer1[1514];
 
-uint8_t *pp_g_ether0_ether_buffers[(1 + 1)] =
+uint8_t *pp_g_ether0_ether_buffers[(4 + 4)] =
 { (uint8_t *) &g_ether0_ether_buffer0[0], (uint8_t *) &g_ether0_ether_buffer1[0],
 
 };

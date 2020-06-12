@@ -12,6 +12,19 @@
       "version": "2.7.0"
     }
   },
+  "MIMXRT1060_NXP": {
+    "comment": "Extra comments\nfor the instructions",
+    "device": {
+          "name": "MIMXRT1060"
+        },
+    "os": {
+        "name": "NXP"
+    },
+    "sdk": {
+      "name": "EVK-MIMXRT1060",
+      "version": "2.7.0"
+    }
+  },
   "K64F_FreeRTOS_mbedtls": {
     "comment": "Extra comments\nfor the instructions",
     "device": {
@@ -155,7 +168,7 @@
             "freertos_kernel": {}
           }
         },
-        "to": "SDK/Renesas_EK_RA6M3/amazon-freertos"    
+        "to": "SDK/Renesas_EK_RA6M3/amazon-freertos"
       },
       "fsp": {
         "version": "1.0.0",

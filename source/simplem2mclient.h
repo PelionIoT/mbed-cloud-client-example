@@ -42,13 +42,22 @@
 #include "memory_tests.h"
 #endif
 
+#ifndef MAX_ERROR_COUNT
+#define MAX_ERROR_COUNT 5
+#endif
+
 class SimpleM2MClient {
 
 public:
 
     SimpleM2MClient() :
         _registered(false),
-        _register_called(false){
+        _register_called(false),
+        _error_count(0)
+#ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
+       ,_paused(false)
+#endif
+    {
     }
 
     bool call_register() {
@@ -97,6 +106,7 @@ public:
     void client_registered() {
         _registered = true;
         printf("Client registered\r\n");
+        _error_count = 0;
         static const ConnectorClientEndpointInfo* endpoint = NULL;
         if (endpoint == NULL) {
             endpoint = _cloud_client.endpoint_info();
@@ -119,9 +129,13 @@ public:
 
     void client_registration_updated() {
         printf("Client registration updated\n");
+        _error_count = 0;
     }
 
     void client_unregistered() {
+#ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
+        _paused = false;
+#endif
         _registered = false;
         _register_called = false;
         printf("Client unregistered - Exiting application\n");
@@ -240,6 +254,16 @@ public:
         printf("\nError occurred : %s\r\n", error);
         printf("Error code : %d\r\n", error_code);
         printf("Error details : %s\r\n",_cloud_client.error_description());
+
+        if (error_code == MbedCloudClient::ConnectNetworkError ||
+            error_code == MbedCloudClient::ConnectDnsResolvingFailed ||
+            error_code == MbedCloudClient::ConnectSecureConnectionFailed) {
+            if(++_error_count == MAX_ERROR_COUNT) {
+                printf("Max error count %d reached, rebooting.\n\n", MAX_ERROR_COUNT);
+                mcc_platform_do_wait(1*1000);
+                mcc_platform_reboot();
+            }
+        }
     }
 
     bool is_client_registered() {
@@ -280,8 +304,22 @@ public:
 
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
     void sleep_callback_function() {
-        printf("Pelion client is going to sleep\r\n");
+        printf("Pelion client is going to sleep - Pausing the client\r\n");
+        _paused = true;
+        _cloud_client.pause();
+        mcc_platform_interface_close();
     }
+
+    bool is_client_paused() {
+        return _paused;
+    }
+
+    void client_resumed() {
+        _paused = false;
+        mcc_platform_interface_connect();
+        _cloud_client.resume(mcc_platform_get_network_interface());
+    }
+
 #endif
 
     M2MResource* add_cloud_resource(uint16_t object_id, uint16_t instance_id,
@@ -299,6 +337,10 @@ private:
     MbedCloudClient     _cloud_client;
     bool                _registered;
     bool                _register_called;
+    int                 _error_count;
+#ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
+    volatile bool       _paused;
+#endif
 
 };
 

@@ -32,6 +32,10 @@
 #include "kv_config.h"
 #include "mbed_trace.h"
 
+#if MBED_MAJOR_VERSION > 5
+#include "DeviceKey.h"
+#endif
+
 #define TRACE_GROUP "plat"
 
 #define SECONDS_TO_MS 1000  // to avoid using floats, wait() uses floats
@@ -324,4 +328,17 @@ int mcc_platform_storage_init(void) {
         printf("kv_init_storage_config() - failed, status %d\n", status);
     }
     return status;
+}
+
+void mcc_platform_reboot(void) {
+    NVIC_SystemReset();
+}
+
+int mcc_platform_rot_generate(void) {
+#if MBED_MAJOR_VERSION > 5
+    DeviceKey &devkey = DeviceKey::get_instance();
+    return devkey.generate_root_of_trust();
+#else
+    return 0;
+#endif
 }

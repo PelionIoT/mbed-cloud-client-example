@@ -21,10 +21,6 @@
         "Freescale": {
             "lwip.mem-size"                             : 12500
         },
-        "STM_EMAC": {
-            "lwip.pbuf-pool-size"                       : 16,
-            "lwip.mem-size"                             : 12500
-        },
         "K64F": {
             "target.network-default-interface-type"     : "ETHERNET",
             "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.1.0.bin",
@@ -58,6 +54,10 @@
             "update-client.storage-page"                : 8,
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
             "mbed-cloud-client.disable-certificate-enrollment": null,
+            "mbed-cloud-client.enable-device-sentry"    : true,
+            "nsapi.socket-stats-enabled"                : true,
+            "platform.cpu-stats-enabled"                : 1,
+            "platform.heap-stats-enabled"               : 1,
             "storage_tdb_internal.internal_base_address": "(1024*1024)",
             "storage_tdb_internal.internal_size"        : "(96*1024)",
             "storage.storage_type"                      : "TDB_INTERNAL"

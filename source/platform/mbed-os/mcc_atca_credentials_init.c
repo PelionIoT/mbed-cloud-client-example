@@ -36,10 +36,10 @@
 #include "atecc608a_se.h"
 #include "cust_def_1_signer.h"
 #include "cust_def_2_device.h"
-#include "tng22_cert_def_1_signer.h"
-#include "tng22_cert_def_2_device.h"
-#include "tngtn_cert_def_1_signer.h"
-#include "tngtn_cert_def_2_device.h"
+#include "tngtls_cert_def_1_signer.h"
+#include "tngtls_cert_def_2_device.h"
+#include "tnglora_cert_def_1_signer.h"
+#include "tnglora_cert_def_2_device.h"
 #define TRACE_GROUP "atml"
 
 /*Global certificate structure pointers, should be set during mcc_atca_init 
@@ -259,12 +259,12 @@ static int mcc_atca_init(void)
         //Set CA public key of the signer, use cryptoauth define
         g_mcc_cert_ca_public_key_1_signer = &g_cryptoauth_root_ca_002_cert[CRYPTOAUTH_ROOT_CA_002_PUBLIC_KEY_OFFSET];
 
-        if (type == TNGTYPE_TN) {//TNGTYPE_TN - use g_tngtn_*** structures
-            g_mcc_cert_def_1_signer = (atcacert_def_t *)&g_tngtn_cert_def_1_signer;
-            g_mcc_cert_def_2_device = (atcacert_def_t *)&g_tngtn_cert_def_2_device;
+        if (type == TNGTYPE_LORA) {//TNGTYPE_LORA - use g_tnglora_*** structures
+            g_mcc_cert_def_1_signer = (atcacert_def_t *)&g_tnglora_cert_def_1_signer;
+            g_mcc_cert_def_2_device = (atcacert_def_t *)&g_tnglora_cert_def_2_device;
         } else {//TNGTYPE_22- use g_tng2_*** structures
-            g_mcc_cert_def_1_signer = (atcacert_def_t *)&g_tng22_cert_def_1_signer;
-            g_mcc_cert_def_2_device = (atcacert_def_t *)&g_tng22_cert_def_2_device;
+            g_mcc_cert_def_1_signer = (atcacert_def_t *)&g_tngtls_cert_def_1_signer;
+            g_mcc_cert_def_2_device = (atcacert_def_t *)&g_tngtls_cert_def_2_device;
         }
     } else { //Customer credentials - use custom templates
         g_mcc_cert_def_1_signer = (atcacert_def_t *)&g_cert_def_1_signer;

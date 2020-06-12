@@ -1,5 +1,22 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.5.0 (12.06.2020)
+
+* Added support for MIMXRT1060-EVK board for NXP FreeRTOS SDK.
+* Increased the Renesas RA6M3 Ethernet buffers from 1+1 to 4+4 to increase stability.
+* Updated to Pelion E2E test library v0.2.6.
+* Added a network error counter that resets the device if too many errors have occurred
+* Added sleeping device example that is enabled with `MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE` option. The sleepy device will `pause` the client when client goes to sleep,
+whenever application will try to send notification, if the client is `paused` then application will first `resume` client and then send notification. 
+* Added support for Device Sentry feature for Mbed OS and Linux.
+  * Mbed OS - the feature is enabled for K66F board.
+  * Linux - the feature is enabled by passing cmake ENABLE_DEVICE_SENTRY flag to cmake.
+* **Breaking changes** (Due to update of SE ATECC608A driver , the application is not compatible with previous releases of SE ATECC608A driver).
+    * Updated SE ATECC608A driver `COMPONENT_ATECC608A.lib`.
+    * Updated mbed-cloud-client-platform-common `platform.lib` - includes adaptation for new SE ATECC608A driver.
+* Updated `EK-RA6M3` to use Renesas `Arm® Secure Boot Solution for RA6M3 MCU Group` version 1.1.0.
+* [Mbed OS] Added explicit Device Key generation. This is for future-compatibility with Mbed OS 6 and is only in use with Mbed OS 6 builds.
+
 ## Release 4.4.0 (17.04.2020)
 
 * Added support for NXP FreeRTOS SDK.

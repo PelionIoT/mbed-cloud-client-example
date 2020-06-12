@@ -20,6 +20,7 @@
 // INCLUDES
 ///////////
 #include "mcc_common_setup.h"
+#include "pal.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -124,3 +125,12 @@ void mcc_platform_do_wait(int timeout_ms)
 void mcc_platform_sw_build_info(void) {
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
 }
+
+void mcc_platform_reboot(void) {
+    pal_osReboot();
+}
+
+int mcc_platform_rot_generate(void) {
+    return 0;
+}
+

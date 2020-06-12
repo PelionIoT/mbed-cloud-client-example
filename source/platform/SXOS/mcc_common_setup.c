@@ -18,6 +18,7 @@
 
 #include "mcc_common_setup.h"
 #include "mcc_common_config.h"
+#include "pal.h"
 
 #include "cos.h"
 #include "drv.h"
@@ -433,6 +434,16 @@ int mcc_platform_run_program(main_t mainFunc)
 void mcc_platform_sw_build_info(void)
 {
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
+}
+
+void mcc_platform_reboot(void)
+{
+    pal_osReboot();
+}
+
+int mcc_platform_rot_generate(void)
+{
+    return 0;
 }
 
 int getchar(void)

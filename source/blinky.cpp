@@ -39,7 +39,12 @@
 #define BLINKY_TASKLET_AUTOMATIC_INCREMENT_TIMER 4
 
 #define BUTTON_POLL_INTERVAL_MS 100
-#define AUTOMATIC_INCREMENT_INTERVAL_MS 5000
+
+#ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
+#define AUTOMATIC_INCREMENT_INTERVAL_MS 300000 // Update resource periodically every 300 seconds
+#else
+#define AUTOMATIC_INCREMENT_INTERVAL_MS 5000   // Update resource periodically every 5 seconds
+#endif
 
 int8_t Blinky::_tasklet = -1;
 
@@ -225,7 +230,7 @@ bool Blinky::request_timed_event(uint8_t event_type, arm_library_event_priority_
 {
     assert(_tasklet >= 0);
 
-    arm_event_t event = { 0 };
+    arm_event_t event;
 
     event.event_type = event_type;
     event.receiver = _tasklet;
@@ -252,6 +257,12 @@ void Blinky::handle_buttons()
 
     if (_client->is_client_registered()) {
         if (mcc_platform_button_clicked()) {
+#ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
+        if(_client->is_client_paused()) {
+            printf("Calling Pelion Client resumed()\r\n");
+            _client->client_resumed();
+        }
+#endif
             _button_count = _button_resource->get_value_int() + 1;
             _button_resource->set_value(_button_count);
             printf("Button resource manually updated. Value %d\r\n", _button_count);
@@ -268,6 +279,12 @@ void Blinky::handle_automatic_increment()
     request_automatic_increment_event();
 
     if (_client->is_client_registered()) {
+#ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
+        if(_client->is_client_paused()) {
+            printf("Calling Pelion Client resumed()\r\n");
+            _client->client_resumed();
+        }
+#endif
         _button_count = _button_resource->get_value_int() + 1;
         _button_resource->set_value(_button_count);
         printf("Button resource automatically updated. Value %d\r\n", _button_count);
