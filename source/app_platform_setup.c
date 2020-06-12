@@ -85,8 +85,7 @@ int mcc_platform_sotp_init(void)
     int status = FCC_STATUS_SUCCESS;
 // Include this only for Developer mode and a device which doesn't have in-built TRNG support.
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
-#ifdef PAL_USER_DEFINED_CONFIGURATION
-#if !PAL_USE_HW_TRNG
+#if defined (PAL_USER_DEFINED_CONFIGURATION) && !PAL_USE_HW_TRNG
     status = fcc_entropy_set(MBED_CLOUD_DEV_ENTROPY, FCC_ENTROPY_SIZE);
 
     if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ENTROPY_ERROR) {
@@ -108,7 +107,8 @@ int mcc_platform_sotp_init(void)
         printf("Using hardcoded Root of Trust, not suitable for production use.\r\n");
         status = FCC_STATUS_SUCCESS;
     }
-#endif // PAL_USER_DEFINED_CONFIGURATION
+#else
+    status = mcc_platform_rot_generate();
 #endif // #if MBED_CONF_APP_DEVELOPER_MODE == 1
     return status;
 }

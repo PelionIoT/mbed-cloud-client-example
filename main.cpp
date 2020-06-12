@@ -288,6 +288,14 @@ void main_application(void)
         factory_reset_res->set_execute_function(factory_reset_triggered);
     }
 
+#ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
+    button_res->set_auto_observable(true);
+    pattern_res->set_auto_observable(true);
+    blink_res->set_auto_observable(true);
+    unregister_res->set_auto_observable(true);
+    factory_reset_res->set_auto_observable(true);
+#endif
+
 #endif
 
 // For high-latency networks with limited total bandwidth combined with large number

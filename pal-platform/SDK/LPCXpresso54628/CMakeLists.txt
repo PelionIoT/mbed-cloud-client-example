@@ -39,8 +39,10 @@ SET(LWIP_PORT_SOURCE_DIR ${SDK_FOLDER}/middleware/lwip/port)
 SET(BOARD_DIR ${SDK_FOLDER}/boards/lpcxpresso54628)
 if ("${MBED_CLOUD_CLIENT_NATIVE_SDK}" STREQUAL "True")
    SET(BOARD_BSP_DIR ${CMAKE_SOURCE_DIR}/../)
+   SET(BOARD_EXAMPLE_DIR ${CMAKE_SOURCE_DIR}/../)
 else()
-   SET(BOARD_BSP_DIR ${SDK_FOLDER}/../)
+   SET(BOARD_BSP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated/)
+   SET(BOARD_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pelion_enet/)
 endif()
 SET(DEVICE_DIR ${SDK_FOLDER}/devices/LPC54628)
 SET(BOARD_UTIL_DIR ${DEVICE_DIR}/utilities)
@@ -76,7 +78,7 @@ SET(FreeRTOS_SRCS
         ${BOARD_BSP_DIR}/board.c
         ${BOARD_BSP_DIR}/pin_mux.c
         ${BOARD_BSP_DIR}/clock_config.c
-        ${BOARD_BSP_DIR}/rtos_startup.c
+        ${BOARD_EXAMPLE_DIR}/rtos_startup.c
         ${KSDK_SOURCE_DIR}/ksdk_mbedtls.c
         ${KSDK_SOURCE_DIR}/aes_alt.c
         ${KSDK_SOURCE_DIR}/des_alt.c
@@ -100,6 +102,8 @@ SET(LWIP_PORT_SRCS
 
 add_library(lwip_port STATIC ${LWIP_PORT_SRCS})
 
+include_directories (${BOARD_EXAMPLE_DIR})
+
 SET(BOARD_SOURCES
         ${BOARD_COMPILER_DIR}/startup_LPC54628.S
         ${BOARD_COMPONENTS_DIR}/serial_manager/serial_manager.c
@@ -118,7 +122,7 @@ SET(BOARD_SOURCES
         ${BOARD_BSP_DIR}/board.c
         ${BOARD_BSP_DIR}/clock_config.c
         ${BOARD_BSP_DIR}/pin_mux.c
-        ${BOARD_BSP_DIR}/rtos_startup.c
+        ${BOARD_EXAMPLE_DIR}/rtos_startup.c
         ${BOARD_UTIL_DIR}/debug_console/fsl_debug_console.c
         ${BOARD_UTIL_DIR}/fsl_sbrk.c
         ${BOARD_UTIL_DIR}/str/fsl_str.c
@@ -449,5 +453,5 @@ add_library(ksdk STATIC ${KSDK_SOURCES})
 add_library(lwipcore STATIC ${lwipnoapps_SRCS})
 
 add_library(PLATFORM_LIBS STATIC ${FreeRTOS_SRCS} ${LWIP_PORT_SRCS} ${BOARD_SOURCES} ${MBEDCRYPTO_SOURCES} ${MBEDTLS_SOURCES} ${MBEDX509_SOURCES} ${KSDK_SOURCES})
-add_dependencies(PLATFORM_LIBS lwipcore kvstore_flash_impl)
-target_link_libraries(PLATFORM_LIBS lwipcore kvstore_flash_impl)
+add_dependencies(PLATFORM_LIBS lwipcore pdmc_port)
+target_link_libraries(PLATFORM_LIBS lwipcore pdmc_port)

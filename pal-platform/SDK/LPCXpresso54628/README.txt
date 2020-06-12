@@ -95,23 +95,38 @@ The earlier revisions of LPCXpresso 546XX have different QSPI chip than the some
 # LPCXpresso546XX eval board revision C or D support FLASH_MT25Q.
 # LPCXpresso546XX eval board revision E or later support FLASH_W25Q.
 
+```
 add_definitions(-DFLASH_W25Q)
 #add_definitions(-DFLASH_MT25Q)
 #add_definitions(-DFLASH_MX25R)
+```
+There is three provided bootloader files, one for each driver:
+
+1. mbed-bootloader_rev_e_w25q.bin
+1. mbed-bootloader_rev_c_d_mt25q.bin
+1. mbed-bootloader_mx25r.bin
 
 Building
 ========
-The internal flash is too small to fit Debug build, please use Release build.
+
+CMAKE_BUILD_TYPE:
+ * Release - optimized for size, no debug symbols.
+ * Debug - Some optimization, debug symbols included.
 
 Build without bootloader & update support
 -----------------------------------------
-python pal-platform/pal-platform.py deploy --target LPC54628_NXP generate
-cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./../pal-platform/SDK/LPCXpresso54628/SDK_LPCXpresso54628/tools/cmake_toolchain_files/armgcc.cmake -DEXTERNAL_DEFINE_FILE=./../define_NXP_LPC54628.txt
-make mbedCloudClientExample.elf
 
-Build with bootloader & update support
------------------------------------------
-python pal-platform/pal-platform.py deploy --target LPC54628_NXP generate
-cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./../pal-platform/SDK/LPCXpresso54628/SDK_LPCXpresso54628/tools/cmake_toolchain_files/armgcc.cmake -DEXTERNAL_DEFINE_FILE=./../define_NXP_LPC54628_update.txt -DUPDATE_LINKING=1
-make mbedCloudClientExample.elf
-python pal-platform/SDK/LPCXpresso54628/tools/combine_bootloader_with_app.py -b pal-platform/SDK/LPCXpresso54628/tools/mbed-bootloader.bin -a __LPC54628_NXP/Release/mbedCloudClientExample.bin -o combined.bin -c 0x8400 -d 0x8000
+> python pal-platform/pal-platform.py deploy --target LPC54628_NXP generate
+> cd __LPC54628_NXP
+> cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./../pal-platform/SDK/LPCXpresso54628/SDK_LPCXpresso54628/tools/cmake_toolchain_files/armgcc.cmake -DEXTERNAL_DEFINE_FILE=./../define_NXP_LPC54628.txt
+> make mbedCloudClientExample.elf -j4
+
+
+Build with bootloader & update support with the default W25Q chip.
+------------------------------------------------------------------
+
+> python pal-platform/pal-platform.py deploy --target LPC54628_NXP generate
+> cd __LPC54628_NXP
+> cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./../pal-platform/SDK/LPCXpresso54628/SDK_LPCXpresso54628/tools/cmake_toolchain_files/armgcc.cmake -DEXTERNAL_DEFINE_FILE=./../define_NXP_LPC54628_update.txt -DUPDATE_LINKING=1
+> make mbedCloudClientExample.elf -j4
+> python ../pal-platform/SDK/LPCXpresso54628/tools/combine_bootloader_with_app.py -b ../pal-platform/SDK/LPCXpresso54628/tools/mbed-bootloader_rev_e_w25q.bin -a Release/mbedCloudClientExample.bin -o Release/combined.bin -c 0x8400 -d 0x8000

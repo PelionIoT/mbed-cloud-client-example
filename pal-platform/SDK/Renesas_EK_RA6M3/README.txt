@@ -39,16 +39,26 @@ Signing and flashing the images with SecureBoot
 
 You will need to get the secure boot example from Renesas.
 
-`imgtool.py` and `flash_layout.h` can be found as part of [Secure boot example.](https://www.renesas.com/us/en/software/D6004181.html).
+`imgtool.py` and `flash_layout.h` can be found as part of [Secure boot example.](https://www.renesas.com/us/en/software/D6004344.html).
 `imgtool.py` has been tested with cryptography==2.8.0.
 
-python imgtool.py sign --layout ../../../../platform/ext/target/ek-ra6m3/flash_layout.h --align 8 --header-size 0x400 /work/signing/mbedCloudClientExample_unsigned.bin /work/signing/mbedCloudClientExample_signed.bin -k /work/mbed-cloud-client-example/pal-platform/SDK/Renesas_EK_RA6M3/tools/root-rsa-2048.pem
+python ../r01an5347eu0110-ra-arm-secure-boot-solution-ra6m3/SecureBoot_Package/scripts/image_creation/imgtool.py sign --layout ../flash_layout/flash_layout.h  --align 8 --header-size 0x400 __Renesas_EK_RA6M3/Release/mbedCloudClientExample.bin mbedCloudClientExample_signed.bin -k ../r01an5347eu0110-ra-arm-secure-boot-solution-ra6m3/SecureBoot_Package/scripts/image_creation/Signing_Key/signingkey.pem
 
-`/work/signing/mbedCloudClientExample_unsigned.bin` is the output image from make.
-`/work/signing/mbedCloudClientExample_signed.bin` is the output created by `imgtool.py`.
-`/work/mbed-cloud-client-example/pal-platform/SDK/Renesas_EK_RA6M3/tools/root-rsa-2048.pem` is delivered as part of the mbed-cloud-client-example repository.
+- `__Renesas_EK_RA6M3/Release/mbedCloudClientExample.bin` is the output image from make.
+- `mbedCloudClientExample_signed.bin` is the output created by `imgtool.py`.
 
+It is recommended to use Segger J-Flash Lite application to perform erase and flashing.
 
+Flashing with J-FLash LITE.
+---------------------------
+
+1. Programming with J-Flash Lite GUI application:
+
+    In the Segger J-Flash Lite:
+    1. Target device should be auto-detected to be `R7FA6M3AH`.
+    1. Use the `Erase Chip` button to erase the flash.
+    1. Program the `Secureboot_EK_RA6M3.bin` first.
+    1. Program the `mbedCloudClientExample_signed.bin` at address `0x10000`.
 
 Flashing with J-Link.
 --------------------
@@ -60,8 +70,9 @@ SecureBoot_pdmc.bin is precompiled as part of the application repository. (./pal
 Open in one terminal:
 JLinkExe -device R7FA6M3AH -AutoConnect 1 -if SWD -speed auto
 
->loadfile SecureBoot_pdmc.bin
->loadfile mbedCloudClientExample_signed.bin 0x10000
+>erase
+>loadfile `Secureboot_EK_RA6M3.bin`
+>loadfile `mbedCloudClientExample_signed.bin 0x10000`
 
 Note the address for the application image.
 

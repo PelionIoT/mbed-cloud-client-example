@@ -201,3 +201,11 @@ int mcc_platform_run_program(main_t mainFunc)
 void mcc_platform_sw_build_info() {
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
 }
+
+void mcc_platform_reboot() {
+    pal_osReboot();
+}
+
+int mcc_platform_rot_generate() {
+    return 0;
+}
