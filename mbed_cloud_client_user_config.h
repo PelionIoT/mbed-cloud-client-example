@@ -20,13 +20,14 @@
 #ifndef MBED_CLOUD_CLIENT_USER_CONFIG_H
 #define MBED_CLOUD_CLIENT_USER_CONFIG_H
 
-#define MBED_CLOUD_CLIENT_ENDPOINT_TYPE             "default"
-#define MBED_CLOUD_CLIENT_LIFETIME                  86400       /* 24 hours */
+#define MBED_CLOUD_CLIENT_ENDPOINT_TYPE             "routernode"
+#define MBED_CLOUD_CLIENT_LIFETIME                  86400
 
 #if defined(__SXOS__)
     #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
 #else
-    #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_TCP
+// Use UDP as it is more suitable for Wi-SUN deployment
+    #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP
 #endif
 
 #ifdef MBED_CONF_MBED_CLIENT_SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
@@ -38,6 +39,7 @@
 /* Sets the flag to enable update support in Pelion Device Management Client */
 #if defined(__linux__) || defined(TARGET_LIKE_MBED) || defined(__SXOS__)
     #define MBED_CLOUD_CLIENT_SUPPORT_UPDATE
+    #define MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
 #endif
 
 /* Sets the download buffer for update client in bytes (min. 2048 bytes).

@@ -49,6 +49,10 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #endif
 
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+#include "multicast.h"
+#endif
+
 // event based LED blinker, controlled via pattern_resource
 #ifndef MCC_MEMORY
 static Blinky blinky;
@@ -298,22 +302,20 @@ void main_application(void)
 
 #endif
 
-// For high-latency networks with limited total bandwidth combined with large number
-// of endpoints, it helps to stabilize the network when Device Management Client has
-// delayed registration to Device Management after the network formation.
-// This is applicable in large Wi-SUN networks.
-#if defined(STARTUP_MAX_RANDOM_DELAY) && (STARTUP_MAX_RANDOM_DELAY > 0)
-    wait_application_startup_delay();
+    // TODO! replace when api available in wisun interface
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+    arm_uc_multicast_interface_configure(1);
 #endif
 
     mbedClient.register_and_connect();
 
+/*
 #ifndef MCC_MEMORY
     blinky.init(mbedClient, button_res);
     blinky.request_next_loop_event();
     blinky.request_automatic_increment_event();
 #endif
-
+*/
 
 #ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
     // Add certificate renewal callback

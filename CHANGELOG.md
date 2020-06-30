@@ -1,6 +1,6 @@
 # Changelog for Pelion Device Management Client example application
 
-## Release 4.5.0 (12.06.2020)
+## Release 4.5.0 (04.06.2020)
 
 * Added support for MIMXRT1060-EVK board for NXP FreeRTOS SDK.
 * Increased the Renesas RA6M3 Ethernet buffers from 1+1 to 4+4 to increase stability.
