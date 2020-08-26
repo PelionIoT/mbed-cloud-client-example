@@ -107,8 +107,6 @@ int mcc_platform_sotp_init(void)
         printf("Using hardcoded Root of Trust, not suitable for production use.\r\n");
         status = FCC_STATUS_SUCCESS;
     }
-#else
-    status = mcc_platform_rot_generate();
 #endif // #if MBED_CONF_APP_DEVELOPER_MODE == 1
     return status;
 }

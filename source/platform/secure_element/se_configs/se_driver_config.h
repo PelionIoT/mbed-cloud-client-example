@@ -20,6 +20,12 @@
 #ifdef MBED_CONF_APP_SECURE_ELEMENT_ATCA_SUPPORT
 #include "atecc608a_se.h"
 #endif
+
+#ifdef MBED_CONF_APP_SECURE_ELEMENT_PARSEC_TPM_SUPPORT
+#include "parsec_se_driver.h"
+#endif
+
+
 #include <stdbool.h>
 #include <inttypes.h>
 
@@ -34,8 +40,15 @@ extern "C" {
 #define PSA_DRIVER_SE_DRIVER_LIFETIME_VALUE        PSA_ATECC608A_LIFETIME
 /*SE driver methods*/
 psa_drv_se_t *g_se_driver_info = &atecc608a_drv_info;
-
 #endif
+
+#ifdef MBED_CONF_APP_SECURE_ELEMENT_PARSEC_TPM_SUPPORT
+/*SE driver lifetime value*/
+#define PSA_DRIVER_SE_DRIVER_LIFETIME_VALUE        PARSEC_SE_DRIVER_LIFETIME
+/*SE driver methods*/
+psa_drv_se_t *g_se_driver_info = &PARSEC_SE_DRIVER;
+#endif
+
 #ifdef __cplusplus
 }
 #endif

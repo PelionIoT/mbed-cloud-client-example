@@ -71,9 +71,6 @@ void mcc_platform_sw_build_info(void);
 //Reboot
 void mcc_platform_reboot(void);
 
-//Generate RoT
-int mcc_platform_rot_generate(void);
-
 /*!
  * @brief mcc_platform_run_program - Start the OS with the main function
  * @param testMain_t mainTestFunc  - main function to run

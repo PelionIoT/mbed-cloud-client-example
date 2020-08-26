@@ -42,18 +42,14 @@
         "version": "1.4.1"
       },
       "mbedtls": {
-        "version": "2.19.1",
+        "version": "2.22.0",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.19.1",
-          "submodules": {
-            "crypto": {}
-          }
+          "tag": "mbedtls-2.22.0"
         },
         "to": "SDK/K64F_FreeRTOS/K64F_FreeRTOS/Middleware/mbedtls",
         "patch_file": "SDK/K64F_FreeRTOS/K64F_FreeRTOS.patch"
-
       },
       "mmcau_2.0.0": {
         "version": "2.0.0"
@@ -78,14 +74,11 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.19.1",
+        "version": "2.22.0",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.19.1",
-          "submodules": {
-            "crypto": {}
-          }
+          "tag": "mbedtls-2.22.0"
         },
         "to": "Middleware/mbedtls/mbedtls"
       },
@@ -97,6 +90,15 @@
           "tag": "ptsl-0.0.1-psa-storage-api-1.0.0"
         },
         "to": "Middleware/trusted_storage/trusted_storage"
+      },
+      "parsec_se_driver": {
+        "version": "0.3.1",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/parallaxsecond/parsec-se-driver.git",
+          "tag": "0.3.1"
+        },
+        "to": "Middleware/parsec_se_driver/parsec_se_driver"
       }
     }
   },
@@ -110,14 +112,11 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.19.1",
+        "version": "2.22.0",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.19.1",
-          "submodules": {
-            "crypto": {}
-          }
+          "tag": "mbedtls-2.22.0"
         },
         "to": "Middleware/mbedtls/mbedtls"
       }
@@ -132,14 +131,11 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.19.1",
+        "version": "2.22.0",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.19.1",
-          "submodules": {
-            "crypto": {}
-          }
+          "tag": "mbedtls-2.22.0"
         },
         "to": "Middleware/mbedtls/mbedtls"
       }
@@ -207,5 +203,63 @@
         "to": "SDK/Renesas_EK_RA6M3/CMSIS_5"
       }
     }
+  },
+  "RaspberryPi_RaspbianLinux_mbedtls":
+  {
+    "device": {
+      "name": "RaspberryPi"
+    },
+    "os": {
+      "name": "Linux_Raspbian"
+    },
+    "middleware": {
+      "mbedtls": {
+        "version": "2.22.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/ARMmbed/mbedtls.git",
+          "tag": "mbedtls-2.22.0"
+        },
+        "to": "Middleware/mbedtls/mbedtls"
+      },
+      "trusted_storage": {
+        "version": "1.0.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/ARMmbed/psa_trusted_storage_linux.git",
+          "tag": "ptsl-0.0.1-psa-storage-api-1.0.0"
+        },
+        "to": "Middleware/trusted_storage/trusted_storage"
+      },
+      "parsec_se_driver": {
+        "version": "0.3.1",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/parallaxsecond/parsec-se-driver.git",
+          "tag": "0.3.1"
+        },
+        "to": "Middleware/parsec_se_driver/parsec_se_driver"
+      }
+    }
+  },
+  "RX65N-CK_FreeRTOS_mbedtls":
+  {
+    "comment": "Renesas RX65N Cloud Kit (R5F565NEDDFP + Silex SX-ULPGN Wi-Fi)",
+    "device": {
+          "name": "RX65N-CK"
+        },
+    "os": {
+          "name": "FreeRTOS_RX65N-CK"
+        },
+    "sdk": {
+          "name": "Renesas_RX65N-CK"
+    },
+    "from": {
+      "protocol": "git",
+      "location": "https://github.com/renesas-rx/rx65n-cloud-kit.git",
+      "tag": "v1.0.0"
+    },
+    "to": "SDK/Renesas_RX65N-CK/rx65n-cloud-kit",
+    "patch_file": "SDK/Renesas_RX65N-CK/rx65n-cloud-kit.patch"
   }
 }

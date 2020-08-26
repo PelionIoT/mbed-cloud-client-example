@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+
+#ifndef MBED_CONF_MBED_CLOUD_CLIENT_NON_PROVISIONED_SECURE_ELEMENT
 /*This file defines the number of Secure Element pre provisioned items and their information like kcm type, name and SE slot number.
   The item's information stored to the device during storage initialization */
 
@@ -38,6 +40,7 @@ sem_preprovisioned_item_data_s g_sem_preprovisioned_data[SE_DATA_NUMBER_OF_PREPR
         .se_slot_num = 0
     }
 };
+#endif
 
 #ifdef __cplusplus
 }

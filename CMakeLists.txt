@@ -25,7 +25,17 @@ FILE(GLOB MBED_CLOUD_CLIENT_EXAMPLE_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/source/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp"
+
+if(PARSEC_TPM_SE_SUPPORT)
+    "${CMAKE_CURRENT_SOURCE_DIR}/source/platform/secure_element/mcc_se_init.c"
+endif()
+
     )
+
+if(PARSEC_TPM_SE_SUPPORT)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/platform/secure_element/se_configs)
+endif()
+
 
 CREATE_TEST_LIBRARY(mbedCloudClientExample "${MBED_CLOUD_CLIENT_EXAMPLE_SRC}" "")
 

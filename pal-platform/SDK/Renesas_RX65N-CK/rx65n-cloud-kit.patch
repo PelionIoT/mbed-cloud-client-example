@@ -1,0 +1,98 @@
+diff --git a/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/FIT/RDP_v1.15_modified/r_bsp/board/rx65n/vecttbl.c b/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/FIT/RDP_v1.15_modified/r_bsp/board/rx65n/vecttbl.c
+index 9e6e899..3c9ebcf 100644
+--- a/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/FIT/RDP_v1.15_modified/r_bsp/board/rx65n/vecttbl.c
++++ b/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/FIT/RDP_v1.15_modified/r_bsp/board/rx65n/vecttbl.c
+@@ -346,16 +346,16 @@ const unsigned long __OFS0reg    __attribute__ ((section(".ofs1"))) = BSP_CFG_OF
+ const unsigned long __OFS1reg    __attribute__ ((section(".ofs1"))) = BSP_CFG_OFS1_REG_VALUE;
+ const unsigned long __TMINFreg   __attribute__ ((section(".ofs2"))) = 0xffffffff;
+ #if defined(BSP_MCU_RX65N_2MB)
+-//const unsigned long __BANKSELreg __attribute__ ((section(".ofs2"))) = START_BANK_VALUE;
++//const unsigned long __BANKSELreg __attribute__ ((section(".ofs3"))) = START_BANK_VALUE;
+ #endif
+-const unsigned long __SPCCreg    __attribute__ ((section(".ofs3"))) = 0xffffffff;
+-const unsigned long __TMEFreg    __attribute__ ((section(".ofs4"))) = BSP_CFG_TRUSTED_MODE_FUNCTION;
+-const unsigned long __OSIS1reg   __attribute__ ((section(".ofs5"))) = BSP_CFG_ID_CODE_LONG_1;
+-const unsigned long __OSIS2reg   __attribute__ ((section(".ofs5"))) = BSP_CFG_ID_CODE_LONG_2;
+-const unsigned long __OSIS3reg   __attribute__ ((section(".ofs5"))) = BSP_CFG_ID_CODE_LONG_3;
+-const unsigned long __OSIS4reg   __attribute__ ((section(".ofs5"))) = BSP_CFG_ID_CODE_LONG_4;
+-const unsigned long __FAWreg     __attribute__ ((section(".ofs6"))) = BSP_CFG_FAW_REG_VALUE;
+-const unsigned long __ROMCODEreg __attribute__ ((section(".ofs7"))) = BSP_CFG_ROMCODE_REG_VALUE;
++const unsigned long __SPCCreg    __attribute__ ((section(".ofs4"))) = 0xffffffff;
++const unsigned long __TMEFreg    __attribute__ ((section(".ofs5"))) = BSP_CFG_TRUSTED_MODE_FUNCTION;
++const unsigned long __OSIS1reg   __attribute__ ((section(".ofs6"))) = BSP_CFG_ID_CODE_LONG_1;
++const unsigned long __OSIS2reg   __attribute__ ((section(".ofs6"))) = BSP_CFG_ID_CODE_LONG_2;
++const unsigned long __OSIS3reg   __attribute__ ((section(".ofs6"))) = BSP_CFG_ID_CODE_LONG_3;
++const unsigned long __OSIS4reg   __attribute__ ((section(".ofs6"))) = BSP_CFG_ID_CODE_LONG_4;
++const unsigned long __FAWreg     __attribute__ ((section(".ofs7"))) = BSP_CFG_FAW_REG_VALUE;
++const unsigned long __ROMCODEreg __attribute__ ((section(".ofs8"))) = BSP_CFG_ROMCODE_REG_VALUE;
+ 
+ #elif defined(__ICCRX__)
+ 
+diff --git a/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/amazon_freertos_common/freertos_start.c b/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/amazon_freertos_common/freertos_start.c
+index c6847d2..95c9a17 100644
+--- a/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/amazon_freertos_common/freertos_start.c
++++ b/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/amazon_freertos_common/freertos_start.c
+@@ -274,12 +274,13 @@ void vApplicationSetupTimerInterrupt(void)
+ ******************************************************************************/
+ #if defined(__CCRX__) || defined(__GNUC__)
+ extern int8_t *sbrk(size_t size);
+-int8_t *sbrk(size_t size)
+-{
+-    R_INTERNAL_NOT_USED(size);
+-    vAssertCalled();
+-    return (int8_t *) - 1;
+-}
++/// \todo Check sbrk multiple definition error
++// int8_t *sbrk(size_t size)
++// {
++//     R_INTERNAL_NOT_USED(size);
++//     vAssertCalled();
++//     return (int8_t *) - 1;
++// }
+ #endif
+ 
+ /******************************************************************************
+@@ -429,6 +430,9 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, signed char *pcTaskName)
+ 
+ } /* End of function vApplicationStackOverflowHook() */
+ 
++/// Main cloud client entrypoint
++extern int mbed_cloud_application_entrypoint(void);
++
+ /******************************************************************************
+ * Function Name : Processing_Before_Start_Kernel
+ * Description   : Create a main task, FreeRTOS's objects (e.g. mailbox, task,
+@@ -438,6 +442,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, signed char *pcTaskName)
+ ******************************************************************************/
+ void Processing_Before_Start_Kernel(void)
+ {
++    #if (0)
+     BaseType_t ret;
+ 
+     /************** task creation ****************************/
+@@ -450,6 +455,11 @@ void Processing_Before_Start_Kernel(void)
+             /* Failed! Task can not be created. */
+         }
+     }
++    #else
++    uart_config();
++
++    mbed_cloud_application_entrypoint();
++    #endif
+ } /* End of function Processing_Before_Start_Kernel() */
+ 
+ 
+diff --git a/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/amazon_freertos_common/network_support/uart_sx_ulpgn/sx_ulpgn_driver.c b/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/amazon_freertos_common/network_support/uart_sx_ulpgn/sx_ulpgn_driver.c
+index 10bed16..c2d7287 100644
+--- a/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/amazon_freertos_common/network_support/uart_sx_ulpgn/sx_ulpgn_driver.c
++++ b/rx65n-cloud-kit/lib/third_party/mcu_vendor/renesas/amazon_freertos_common/network_support/uart_sx_ulpgn/sx_ulpgn_driver.c
+@@ -1367,7 +1367,7 @@ int32_t sx_ulpgn_tcp_recv(uint8_t socket_no, uint8_t *pdata, int32_t length, uin
+             }
+ 			/* socket is not closed, and recieve data size is 0. */
+ 			( void ) xSemaphoreGive( g_sx_ulpgn_rx_semaphore );
+-			return 0;
++			return -3;      // socket would block
+         }
+ 		/* socket is not closed, and recieve data size is 0. */
+ 		( void ) xSemaphoreGive( g_sx_ulpgn_rx_semaphore );
+

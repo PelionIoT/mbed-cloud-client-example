@@ -34,7 +34,6 @@
 
 #include "mbed-client/m2mblockmessage.h"
 #include "mbed-client/m2mdevice.h"
-#include "mbed-client/m2mfirmware.h"
 #include "mbed-client/m2minterfacefactory.h"
 #include "mbed-client/m2mobject.h"
 #include "mbed-client/m2mserver.h"
@@ -126,17 +125,16 @@ void create_m2mobject_test_set(M2MObjectList& object_list)
 void print_m2mobject_stats()
 {
     printf("\n*** M2M object sizes in bytes ***\n");
-    printf("M2MBase: %" PRIu32 "\n", sizeof(M2MBase));
-    printf("M2MObject: %" PRIu32 "\n", sizeof(M2MObject));
-    printf("M2MObjectInstance: %" PRIu32 "\n", sizeof(M2MObjectInstance));
-    printf("M2MResource: %" PRIu32 "\n", sizeof(M2MResource));
-    printf("M2MResourceInstance: %" PRIu32 "\n", sizeof(M2MResourceInstance));
-    printf("M2MDevice: %" PRIu32 "\n", sizeof(M2MDevice));
-    printf("M2MFirmware: %" PRIu32 "\n", sizeof(M2MFirmware));
-    printf("M2MServer: %" PRIu32 "\n", sizeof(M2MServer));
-    printf("M2MSecurity: %" PRIu32 "\n", sizeof(M2MSecurity));
-    printf("M2MBlockMessage: %" PRIu32 "\n", sizeof(M2MBlockMessage));
-    printf("M2MReportHandler: %" PRIu32 "\n", sizeof(M2MReportHandler));
+    printf("M2MBase: %lu\n", (unsigned long)sizeof(M2MBase));
+    printf("M2MObject: %lu\n", (unsigned long)sizeof(M2MObject));
+    printf("M2MObjectInstance: %lu\n", (unsigned long)sizeof(M2MObjectInstance));
+    printf("M2MResource: %lu\n", (unsigned long)sizeof(M2MResource));
+    printf("M2MResourceInstance: %lu\n", (unsigned long)sizeof(M2MResourceInstance));
+    printf("M2MDevice: %lu\n", (unsigned long)sizeof(M2MDevice));
+    printf("M2MServer: %lu\n", (unsigned long)sizeof(M2MServer));
+    printf("M2MSecurity: %lu\n", (unsigned long)sizeof(M2MSecurity));
+    printf("M2MBlockMessage: %lu\n", (unsigned long)sizeof(M2MBlockMessage));
+    printf("M2MReportHandler: %lu\n", (unsigned long)sizeof(M2MReportHandler));
     printf("*************************************\n\n");
 
     mbed_stats_heap_t stats;
@@ -147,67 +145,79 @@ void print_m2mobject_stats()
 
     // M2MDevice
     M2MDevice *device_object = M2MInterfaceFactory::create_device();
-    assert(device_object);
-    mbed_stats_heap_get(&stats);
-    printf("M2MDevice heap size: %" PRIu32 "\n", stats.current_size - initial);
-    M2MDevice::delete_instance();
-    mbed_stats_heap_get(&stats);
-    if (initial != stats.current_size) {
-        printf("M2MDevice leaked: %" PRIu32 "bytes\n", stats.current_size - initial);
+    if (device_object) {
+        mbed_stats_heap_get(&stats);
+        printf("M2MDevice heap size: %" PRIu32 "\n", stats.current_size - initial);
+        M2MDevice::delete_instance();
+        mbed_stats_heap_get(&stats);
+        if (initial != stats.current_size) {
+            printf("M2MDevice leaked: %" PRIu32 "bytes\n", stats.current_size - initial);
+        }
+    } else {
+        printf("Could not get M2MDevice\n");
     }
 
     // M2MServer
     initial = stats.current_size;
     M2MServer *server = M2MInterfaceFactory::create_server();
-    mbed_stats_heap_get(&stats);
-    printf("M2MServer heap size: %" PRIu32 "\n", stats.current_size - initial);
-    delete server;
-    mbed_stats_heap_get(&stats);
-    if (initial != stats.current_size) {
-        printf("M2MServer leaked: %" PRIu32 "bytes\n", stats.current_size - initial);
+    if (server) {
+        mbed_stats_heap_get(&stats);
+        printf("M2MServer heap size: %" PRIu32 "\n", stats.current_size - initial);
+        delete server;
+        mbed_stats_heap_get(&stats);
+        if (initial != stats.current_size) {
+            printf("M2MServer leaked: %" PRIu32 "bytes\n", stats.current_size - initial);
+        }
+    } else {
+        printf("Could not get M2MServer\n");
     }
 
     // M2MSecurity
     initial = stats.current_size;
     M2MSecurity *security = M2MInterfaceFactory::create_security(M2MSecurity::M2MServer);
-    mbed_stats_heap_get(&stats);
-    printf("M2MSecurity heap size: %" PRIu32 "\n", stats.current_size - initial);
+    if (security) {
+        mbed_stats_heap_get(&stats);
+        printf("M2MSecurity heap size: %" PRIu32 "\n", stats.current_size - initial);
 
-    // If the MbedCloudClient is already instantiated, this corrupts heap as it frees the
-    // singleton of M2MSecurity, which is still used by it. Use with care.
-    M2MSecurity::delete_instance();
-    mbed_stats_heap_get(&stats);
-    if (initial != stats.current_size) {
-        printf("M2MSecurity leaked: %" PRIu32 "bytes\n", stats.current_size - initial);
-    }
-
-    // M2MFirmware
-    initial = stats.current_size;
-    M2MFirmware *firmware = M2MInterfaceFactory::create_firmware();
-    assert(firmware);
-    mbed_stats_heap_get(&stats);
-    printf("M2MFirmware heap size: %" PRIu32 "\n", stats.current_size - initial);
-    M2MFirmware::delete_instance();
-    mbed_stats_heap_get(&stats);
-    if (initial != stats.current_size) {
-        printf("M2MFirmware leaked: %" PRIu32 "bytes\n", stats.current_size - initial);
+        // If the MbedCloudClient is already instantiated, this corrupts heap as it frees the
+        // singleton of M2MSecurity, which is still used by it. Use with care.
+        M2MSecurity::delete_instance();
+        mbed_stats_heap_get(&stats);
+        if (initial != stats.current_size) {
+            printf("M2MSecurity leaked: %" PRIu32 "bytes\n", stats.current_size - initial);
+        }
+    } else {
+        printf("Could not get M2MSecurity\n");
     }
 
     // Basic object creation
     initial = stats.current_size;
     uint32_t before_object = initial;
     M2MObject *obj = M2MInterfaceFactory::create_object("1");
+    if (!obj) {
+        printf("Could not create M2MObject\n");
+        return;
+    }
     mbed_stats_heap_get(&stats);
     printf("M2MObject heap size: %" PRIu32 "\n", stats.current_size - initial);
     initial = stats.current_size;
 
     M2MObjectInstance* obj_inst = obj->create_object_instance();
+    if (!obj_inst) {
+        printf("Could not create M2MObjectInstance\n");
+        delete obj;
+        return;
+    }
     mbed_stats_heap_get(&stats);
     printf("M2MObjectInstance heap size: %" PRIu32 "\n", stats.current_size - initial);
 
     initial = stats.current_size;
     M2MResource* res = obj_inst->create_dynamic_resource("1", "1", M2MResourceInstance::STRING, false);
-    assert(res);
+    if (!res) {
+        printf("Could not create M2MResource\n");
+        delete obj;
+        return;
+    }
     mbed_stats_heap_get(&stats);
     printf("M2MResource heap size: %" PRIu32 "\n", stats.current_size - initial);
 

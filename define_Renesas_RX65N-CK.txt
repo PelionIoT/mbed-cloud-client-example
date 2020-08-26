@@ -1,0 +1,60 @@
+if (NOT (${OS_BRAND} MATCHES "Renesas_RX65N-CK"))
+    message(FATAL_ERROR "define_RX65N-CK_FreeRTOS.txt to be used only with Renesas RX65N Cloud Kit builds.")
+endif()
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
+
+add_definitions(-DMBED_CLIENT_USER_CONFIG_FILE="mbed_cloud_client_user_config.h")
+add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE="mbed_cloud_client_user_config.h")
+add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="pal_config_Renesas_RX65N-CK.h")
+
+
+### TLS config 
+set(PAL_TLS_BSP_DIR ${NEW_CMAKE_SOURCE_DIR}/mbed-cloud-client/mbed-client-pal/Configs/${TLS_LIBRARY})
+
+if (${TLS_LIBRARY} MATCHES mbedTLS)
+    add_definitions(-DMBEDTLS_CONFIG_FILE=\"${PAL_TLS_BSP_DIR}/mbedTLSConfig_Renesas_RX65N-CK_SW_TRNG.h\")
+    message("PAL_TLS_BSP_DIR ${PAL_TLS_BSP_DIR}/mbedTLSConfig_Renesas_RX65N-CK_SW_TRNG.h")
+endif()
+
+
+add_definitions(-DMBED_CONF_NS_HAL_PAL_EVENT_LOOP_THREAD_STACK_SIZE=8000)
+
+add_definitions(-DMBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT=1)
+
+# FlashIAP module integrated as external SST(Secure Storage)
+add_definitions(-DMBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT=1)
+
+add_definitions(-DMBED_CONF_STORAGE_STORAGE_TYPE=TDB_INTERNAL)              # use internal flash as storage
+add_definitions(-DMBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS=0xFFEF0000)
+add_definitions(-DMBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE=0x00010000)
+
+add_definitions(-DCOMPONENT_FLASHIAP)
+add_definitions(-DFLASHIAP_APP_ROM_END_ADDR=0xFFEEFFFF)
+
+add_definitions(-DPAL_USE_FILESYSTEM=0)
+
+add_definitions(-DMBED_CLOUD_APPLICATION_NONSTANDARD_ENTRYPOINT)            # Non standart app/tests entrypoint
+
+add_definitions(-DPLATFORM_ENABLE_BUTTON=1)
+add_definitions(-DPLATFORM_ENABLE_LED=1)
+
+add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
+
+# add_definitions(-DDISABLE_ERROR_DESCRIPTION)                                # Disable application features to minimize flash size.
+add_definitions(-DMBED_CONF_MBED_TRACE_ENABLE=0)
+add_definitions(-DPAL_PLAT_SOCKETS_DEBUG=0)
+
+# PAL tests
+add_definitions(-DPAL_UNIT_TESTING_NONSTANDARD_ENTRYPOINT)
+
+# add_definitions(-DPAL_SKIP_TEST_MODULE_SOTP=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_FILESYSTEM=1)
+# add_definitions(-DPAL_SKIP_TEST_MODULE_INTERNALFLASH=1)
+add_definitions(-DPAL_SKIP_TEST_MODULE_UPDATE=1)
+# add_definitions(-DPAL_SKIP_TEST_MODULE_ROT=1)
+# add_definitions(-DPAL_SKIP_TEST_MODULE_DRBG=1)
+# add_definitions(-DPAL_SKIP_TEST_MODULE_TIME=1)
+# add_definitions(-DPAL_SKIP_TEST_MODULE_CRYPTO=1)
+# add_definitions(-DPAL_SKIP_TEST_MODULE_TLS=1)
+# add_definitions(-DPAL_SKIP_TEST_MODULE_SST=1)
