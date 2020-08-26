@@ -194,8 +194,3 @@ void mcc_platform_reboot(void)
     pal_osReboot();
 }
 
-int mcc_platform_rot_generate(void)
-{
-    return 0;
-}
-

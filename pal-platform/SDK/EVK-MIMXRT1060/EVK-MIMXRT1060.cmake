@@ -193,6 +193,7 @@ option(PAL_USE_CMSIS "Include CMSIS in build" OFF)
 option(PAL_USE_NETWORKING "Allow networking" ON)
 option(PAL_BUILD_BOARD_BRINGUP_TESTS "Build Tests" ON)
 option(PAL_ENABLED "Enable PAL" ON)
+option(STORAGE_KVSTORE "Enable KVStore" ON)
 
 #updating the autogen.cmake variables
 #set (MBED_CLOUD_CLIENT_OS  "FreeRTOS")

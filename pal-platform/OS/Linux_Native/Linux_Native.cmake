@@ -28,3 +28,6 @@ add_definitions(-D__LINUX__)
 
 # This flag indicates a simulation mode which will also enable PAL_SIMULATOR_TEST_ENABLE implicitly.
 add_definitions(-DTARGET_X86_X64)
+
+option(STORAGE_ESFS "Enable ESFS" ON)
+

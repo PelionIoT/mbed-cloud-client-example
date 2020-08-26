@@ -148,8 +148,8 @@ int mcc_platform_interface_connect(void) {
     for (int i=1; i <= MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
         err = network_interface->connect();
         if (err == NSAPI_ERROR_OK || err == NSAPI_ERROR_IS_CONNECTED) {
-        	err = network_interface->get_ip_address(&sa);
-        	if (err != NSAPI_ERROR_OK) {
+            err = network_interface->get_ip_address(&sa);
+            if (err != NSAPI_ERROR_OK) {
                 printf("get_ip_address() - failed, status %d\n", err);
                 goto retry;
             }
@@ -326,19 +326,23 @@ int mcc_platform_storage_init(void) {
     int status = kv_init_storage_config();
     if (status != MBED_SUCCESS) {
         printf("kv_init_storage_config() - failed, status %d\n", status);
+        return status;
     }
-    return status;
+// Only used with Mbed OS 6 or later for TRNG boards and production mode for non-TRNG board.
+#if MBED_MAJOR_VERSION > 5
+#if PAL_USE_HW_TRNG && !defined(MBED_CONF_APP_DEVELOPER_MODE)
+    DeviceKey &devkey = DeviceKey::get_instance();
+    status = devkey.generate_root_of_trust();
+    if (status != DEVICEKEY_SUCCESS && status != DEVICEKEY_ALREADY_EXIST) {
+        printf("generate_root_of_trust() - failed, status %d\n", status);
+        return status;
+    }
+#endif // PAL_USE_HW_TRNG
+#endif // MBED_MAJOR_VERSION
+    return 0;
 }
 
 void mcc_platform_reboot(void) {
     NVIC_SystemReset();
 }
 
-int mcc_platform_rot_generate(void) {
-#if MBED_MAJOR_VERSION > 5
-    DeviceKey &devkey = DeviceKey::get_instance();
-    return devkey.generate_root_of_trust();
-#else
-    return 0;
-#endif
-}

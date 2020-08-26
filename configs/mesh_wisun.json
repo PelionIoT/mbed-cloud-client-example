@@ -8,6 +8,7 @@
     "target_overrides": {
         "*": {
             "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "target.macros_add"                         : ["MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP"],
             "platform.stdio-baud-rate"                  : 115200,
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
@@ -26,7 +27,7 @@
             "mbed-mesh-api.wisun-operating-class"       : "2",
             "mbed-mesh-api.wisun-operating-mode"        : "3",
             "mbed-mesh-api.wisun-network-name"          : "\"Wi-SUN Network\"",
-            "mbed-mesh-api.heap-size"                   : 32768,
+            "mbed-mesh-api.heap-size"                   : 65535,
             "mbed-mesh-api.6lowpan-nd-panid-filter"     : "0xFFFF",
             "mbed-mesh-api.6lowpan-nd-security-mode"    : "NONE",
             "mbed-mesh-api.certificate-header"          : "\"configs/wisun_certificates.h\"",

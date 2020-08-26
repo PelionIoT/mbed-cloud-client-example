@@ -43,7 +43,7 @@
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
 #define AUTOMATIC_INCREMENT_INTERVAL_MS 300000 // Update resource periodically every 300 seconds
 #else
-#define AUTOMATIC_INCREMENT_INTERVAL_MS 5000   // Update resource periodically every 5 seconds
+#define AUTOMATIC_INCREMENT_INTERVAL_MS 60000   // Update resource periodically every 60 seconds
 #endif
 
 int8_t Blinky::_tasklet = -1;

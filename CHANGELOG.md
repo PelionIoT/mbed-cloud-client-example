@@ -1,5 +1,12 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.6.0 (26.08.2020)
+
+* Changed the default transport mode of Wi-SUN to UDP.
+* The mesh heap size in the Wi-SUN configuration is increased from 32kB to 64kB.
+* Updated Mbed TLS to 2.22.0 in `pal-platform`.
+* Added support for Parsec. To compile the Device Management Client example application with Parsec, set the `PARSEC_TPM_SE_SUPPORT` CMake flag `ON` and use the `define_linux_psa.txt` configuration. In this configuration, the secure connection with Pelion is established using the device bootstrap private key that was generated on the Trusted Platform Module (TPM).
+
 ## Release 4.5.0 (12.06.2020)
 
 * Added support for MIMXRT1060-EVK board for NXP FreeRTOS SDK.
