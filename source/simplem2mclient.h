@@ -55,12 +55,13 @@ public:
         _register_called(false),
         _error_count(0)
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
-       ,_paused(false)
+        , _paused(false)
 #endif
     {
     }
 
-    bool call_register() {
+    bool call_register()
+    {
 
         _cloud_client.on_registered(this, &SimpleM2MClient::client_registered);
         _cloud_client.on_registration_updated(this, &SimpleM2MClient::client_registration_updated);
@@ -92,22 +93,26 @@ public:
         return true;
     }
 
-    void init() {
+    void init()
+    {
         _cloud_client.init();
     }
-    void close() {
+    void close()
+    {
         _cloud_client.close();
     }
 
-    void register_update() {
+    void register_update()
+    {
         _cloud_client.register_update();
     }
 
-    void client_registered() {
+    void client_registered()
+    {
         _registered = true;
         printf("Client registered\r\n");
         _error_count = 0;
-        static const ConnectorClientEndpointInfo* endpoint = NULL;
+        static const ConnectorClientEndpointInfo *endpoint = NULL;
         if (endpoint == NULL) {
             endpoint = _cloud_client.endpoint_info();
             if (endpoint) {
@@ -127,12 +132,14 @@ public:
 #endif
     }
 
-    void client_registration_updated() {
+    void client_registration_updated()
+    {
         printf("Client registration updated\n");
         _error_count = 0;
     }
 
-    void client_unregistered() {
+    void client_unregistered()
+    {
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
         _paused = false;
 #endif
@@ -147,9 +154,10 @@ public:
 #endif
     }
 
-    void error(int error_code) {
+    void error(int error_code)
+    {
         const char *error;
-        switch(error_code) {
+        switch (error_code) {
             case MbedCloudClient::ConnectErrorNone:
                 error = "MbedCloudClient::ConnectErrorNone";
                 break;
@@ -253,28 +261,31 @@ public:
         }
         printf("\nError occurred : %s\r\n", error);
         printf("Error code : %d\r\n", error_code);
-        printf("Error details : %s\r\n",_cloud_client.error_description());
+        printf("Error details : %s\r\n", _cloud_client.error_description());
 
         if (error_code == MbedCloudClient::ConnectNetworkError ||
-            error_code == MbedCloudClient::ConnectDnsResolvingFailed ||
-            error_code == MbedCloudClient::ConnectSecureConnectionFailed) {
-            if(++_error_count == MAX_ERROR_COUNT) {
+                error_code == MbedCloudClient::ConnectDnsResolvingFailed ||
+                error_code == MbedCloudClient::ConnectSecureConnectionFailed) {
+            if (++_error_count == MAX_ERROR_COUNT) {
                 printf("Max error count %d reached, rebooting.\n\n", MAX_ERROR_COUNT);
-                mcc_platform_do_wait(1*1000);
+                mcc_platform_do_wait(1 * 1000);
                 mcc_platform_reboot();
             }
         }
     }
 
-    bool is_client_registered() {
+    bool is_client_registered()
+    {
         return _registered;
     }
 
-    bool is_register_called() {
+    bool is_register_called()
+    {
         return _register_called;
     }
 
-    void register_and_connect() {
+    void register_and_connect()
+    {
 #if defined (MBED_HEAP_STATS_ENABLED) && !defined(MCC_MINIMAL)
         // Add some test resources to measure memory consumption.
         // This code is activated only if MBED_HEAP_STATS_ENABLED is defined.
@@ -298,23 +309,32 @@ public:
 #endif
     }
 
-    MbedCloudClient& get_cloud_client() {
+    MbedCloudClient &get_cloud_client()
+    {
         return _cloud_client;
     }
 
+    M2MObjectList *get_m2m_obj_list()
+    {
+        return &_obj_list;
+    }
+
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
-    void sleep_callback_function() {
+    void sleep_callback_function()
+    {
         printf("Pelion client is going to sleep - Pausing the client\r\n");
         _paused = true;
         _cloud_client.pause();
         mcc_platform_interface_close();
     }
 
-    bool is_client_paused() {
+    bool is_client_paused()
+    {
         return _paused;
     }
 
-    void client_resumed() {
+    void client_resumed()
+    {
         _paused = false;
         mcc_platform_interface_connect();
         _cloud_client.resume(mcc_platform_get_network_interface());
@@ -322,13 +342,14 @@ public:
 
 #endif
 
-    M2MResource* add_cloud_resource(uint16_t object_id, uint16_t instance_id,
-                              uint16_t resource_id, const char *resource_type,
-                              M2MResourceInstance::ResourceType data_type,
-                              M2MBase::Operation allowed, const char *value,
-                              bool observable, void *cb, void *message_status_cb) {
-         return add_resource(&_obj_list, object_id, instance_id, resource_id, resource_type, data_type,
-                      allowed, value, observable, cb, message_status_cb);
+    M2MResource *add_cloud_resource(uint16_t object_id, uint16_t instance_id,
+                                    uint16_t resource_id, const char *resource_type,
+                                    M2MResourceInstance::ResourceType data_type,
+                                    M2MBase::Operation allowed, const char *value,
+                                    bool observable, void *cb, void *message_status_cb)
+    {
+        return add_resource(&_obj_list, object_id, instance_id, resource_id, resource_type, data_type,
+                            allowed, value, observable, cb, message_status_cb);
 
     }
 
