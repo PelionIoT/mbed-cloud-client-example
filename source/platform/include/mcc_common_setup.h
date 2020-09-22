@@ -61,7 +61,8 @@ int mcc_platform_init_connection(void);
 int mcc_platform_close_connection(void);
 // Get network interface pointer (Deprecated).
 void *mcc_platform_get_network_interface(void);
-
+// Set network interface
+void mcc_platform_set_network_interface(void *);
 // Wait
 void mcc_platform_do_wait(int timeout_ms);
 
