@@ -20,8 +20,11 @@
 #ifndef MBED_CLOUD_CLIENT_USER_CONFIG_H
 #define MBED_CLOUD_CLIENT_USER_CONFIG_H
 
-#define MBED_CLOUD_CLIENT_ENDPOINT_TYPE             "default"
-#define MBED_CLOUD_CLIENT_LIFETIME                  86400       /* 24 hours */
+#ifndef MBED_CLOUD_CLIENT_ENDPOINT_TYPE
+#define MBED_CLOUD_CLIENT_ENDPOINT_TYPE "default"
+#endif
+
+#define MBED_CLOUD_CLIENT_LIFETIME                  86400
 
 #if defined(__SXOS__)
     #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
@@ -52,7 +55,7 @@
 #ifdef __linux__
 #define MBED_CLOUD_CLIENT_UPDATE_BUFFER             (2 * 1024 * 1024)
 #else
-#define MBED_CLOUD_CLIENT_UPDATE_BUFFER             2048
+#define MBED_CLOUD_CLIENT_UPDATE_BUFFER             2560
 #endif
 #endif // #ifdef MBED_CONF_APP_MBED_CLOUD_CLIENT_UPDATE_BUFFER_SIZE
 

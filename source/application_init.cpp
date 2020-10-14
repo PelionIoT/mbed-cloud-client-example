@@ -26,7 +26,7 @@
 #include "app_platform_setup.h"
 #include "mcc_common_setup.h"
 #include "mcc_common_button_and_led.h"
-#if defined (MBED_HEAP_STATS_ENABLED) || (MBED_STACK_STATS_ENABLED)
+#if defined (MEMORY_TESTS_HEAP) || (MEMORY_TESTS_STACK)
 #include "memory_tests.h"
 #endif
 #include "application_init.h"
@@ -227,7 +227,7 @@ static bool application_init_verify_cloud_configuration()
 
 static bool application_init_fcc(void)
 {
-#ifdef MBED_STACK_STATS_ENABLED
+#ifdef MEMORY_TESTS_STACK
     print_stack_statistics();
 #endif
     int status;
@@ -292,11 +292,11 @@ bool application_init(void)
 
     // Print some statistics of current heap memory consumption, useful for finding
     // out where the memory goes.
-#ifdef MBED_HEAP_STATS_ENABLED
+#ifdef MEMORY_TESTS_HEAP
     print_heap_stats();
 #endif
 
-#ifdef MBED_STACK_STATS_ENABLED
+#ifdef MEMORY_TESTS_STACK
     print_stack_statistics();
 #endif
     printf("Start Device Management Client\r\n");
