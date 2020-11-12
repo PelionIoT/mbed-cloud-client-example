@@ -1,6 +1,6 @@
 # Changelog for Pelion Device Management Client example application
 
-## Release 4.6.0 (26.08.2020)
+## Release 4.6.0 (24.08.2020)
 
 * Changed the default transport mode of Wi-SUN to UDP.
 * The mesh heap size in the Wi-SUN configuration is increased from 32kB to 64kB.

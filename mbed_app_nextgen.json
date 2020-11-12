@@ -1,0 +1,66 @@
+{
+    "macros": [
+        "MBED_CLOUD_CLIENT_FOTA_ENABLE=1"
+    ],
+    "target_overrides": {
+        "*": {
+            "target.features_add"                       : ["STORAGE"],
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.stdio-convert-newlines"           : true,
+            "platform.stdio-buffered-serial"            : true,
+            "platform.stdio-flush-at-exit"              : true,
+            "rtos.main-thread-stack-size"               : 5120,
+            "events.shared-stacksize"                   : 2048,
+            "events.shared-eventsize"                   : 2048,
+            "update-client.storage-locations"           : 1,
+            "storage.storage_type"                      : null,
+            "storage_tdb_internal.internal_base_address": null,
+            "storage_tdb_internal.internal_size"        : null,
+            "mbed-trace.enable"                         : null,
+            "nsapi.default-wifi-security"               : "WPA_WPA2",
+            "nsapi.default-wifi-ssid"                   : "\"SSID\"",
+            "nsapi.default-wifi-password"               : "\"Password\""
+        },
+ "DISCO_L475VG_IOT01A": {
+            "target.extra_labels_add": ["BL_INTERNAL_FLASH"],
+            "target.network-default-interface-type"     : "WIFI",
+            "target.restrict_size"                      : "0x77C00",
+            "target.components_add"                     : ["QSPIF", "WIFI_ISM43362"],
+            "ism43362.read-thread-stack-size"           : 1024,
+            "led-pinname"                               : "LED1",
+            "fota.app-default-cb-no-print"              : false,
+            "fota.num-components"                       : 2,
+            "target.macros_add"                         : [
+                "FOTA_DEFAULT_APP_IFS=1"
+            ]
+        }
+    },
+    "config": {
+        "developer-mode": {
+            "help"      : "Enable Developer mode to skip Factory enrollment",
+            "options"   : [null, 1],
+            "value"     : 1
+        },
+        "button-pinname": {
+            "help"      : "PinName for button.",
+            "value"     : "BUTTON1"
+        },
+        "led-pinname"   : {
+            "help"      : "PinName for led, which is attached to led blink resource.",
+            "value"     : "LED_RED"
+        },
+        "bootloader-size": {
+            "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",
+            "value"     : "(32*1024)",
+            "macro_name": "MBED_BOOTLOADER_SIZE"
+        },
+        "mbed-trace-max-level": {
+            "help"      : "Max trace level. Must be one of the following: [TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR, TRACE_LEVEL_CMD]",
+            "macro_name": "MBED_TRACE_MAX_LEVEL",
+            "value"     : "TRACE_LEVEL_INFO"
+        },
+        "mbed-cloud-client-update-buffer-size": {
+            "value"     : null
+        }
+    }
+}

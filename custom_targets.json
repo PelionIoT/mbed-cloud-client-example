@@ -1,0 +1,5 @@
+{
+    "NUCLEO_F429ZI_WISUN": {
+        "inherits": ["NUCLEO_F429ZI"]
+    }
+}

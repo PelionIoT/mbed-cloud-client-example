@@ -39,7 +39,7 @@ endif()
 
 CREATE_TEST_LIBRARY(mbedCloudClientExample "${MBED_CLOUD_CLIENT_EXAMPLE_SRC}" "")
 
-add_dependencies(mbedCloudClientExample mbedCloudClient)
+target_link_libraries(mbedCloudClientExample mbedCloudClient)
 
 
 ADDSUBDIRS()

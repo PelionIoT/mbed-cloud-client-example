@@ -100,7 +100,7 @@
             "target.macros_remove"                      : ["MBEDTLS_CONFIG_HW_SUPPORT"]
         },
         "NUCLEO_F411RE": {
-            "client_app.mbedtls-user-config-file"       : "\"mbedTLSConfig_mbedOS_SW_TRNG_PSA.h\"",
+            "client_app.mbedtls-user-config-file"       : "\"mbedTLSConfig_mbedOS_SW_TRNG.h\"",
             "client_app.pal-user-defined-configuration" : "\"pal_config_non_trng_MbedOS.h\"",
             "target.extra_labels_add"                   : ["PSA"],
             "target.macros_add"                         : ["DISABLE_ERROR_DESCRIPTION", "MBEDTLS_ENTROPY_NV_SEED"],
@@ -156,7 +156,7 @@
             "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)"
         },
         "NUCLEO_F303RE": {
-            "client_app.mbedtls-user-config-file"       : "\"mbedTLSConfig_mbedOS_SW_TRNG_PSA.h\"",
+            "client_app.mbedtls-user-config-file"       : "\"mbedTLSConfig_mbedOS_SW_TRNG.h\"",
             "client_app.pal-user-defined-configuration" : "\"pal_config_non_trng_MbedOS.h\"",
             "client_app.platform-enable-button"         : 0,
             "client_app.platform-enable-led"            : 0,
@@ -170,8 +170,7 @@
             "events.shared-stacksize"                   : 2048,
             "events.shared-highprio-stacksize"          : 768,
             "target.components_add"                     : ["SPIF"],
-            "target.extra_labels_add"                   : ["PSA"],
-            "target.macros_add"                         : ["MBEDTLS_PSA_CRYPTO_C", "MBEDTLS_ENTROPY_NV_SEED",
+            "target.macros_add"                         : ["MBEDTLS_ENTROPY_NV_SEED",
                                                            "MBEDTLS_MEMORY_BUFFER_ALLOC_C", "MBEDTLS_PLATFORM_MEMORY",
                                                            "ARM_UC_FEATURE_DELTA_PAAL=0", "DISABLE_ERROR_DESCRIPTION", "MCC_MEMORY"],
             "target.macros_remove"                      : ["MBEDTLS_CONFIG_HW_SUPPORT"],
@@ -229,6 +228,11 @@
             "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",
             "value"     : "(32*1024)",
             "macro_name": "MBED_BOOTLOADER_SIZE"
+        },
+        "mbed-trace-max-level": {
+            "help"      : "Max trace level. Must be one of the following: [TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR, TRACE_LEVEL_CMD]",
+            "macro_name": "MBED_TRACE_MAX_LEVEL",
+            "value"     : "TRACE_LEVEL_INFO"
         },
         "mbed-cloud-client-update-buffer-size": {
             "value"     : null

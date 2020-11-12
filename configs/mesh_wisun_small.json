@@ -1,6 +1,8 @@
 {
     "macros": [
         "ARM_UC_USE_PAL_BLOCKDEVICE=1",
+        "PAL_DEFAULT_STAGGER_ESTIMATE=1",
+        "MBED_CLOUD_CLIENT_MULTICAST_SMALL_NETWORK",
         "MBEDTLS_PEM_PARSE_C",
         "MBEDTLS_NIST_KW_C",
         "MBEDTLS_SHA1_C",
@@ -21,7 +23,6 @@
             "client_app.pal_dtls_peer_min_timeout"      : "60000",
             "mbed-client.dtls_peer_max_timeout"         : "600000",
             "mbed-client-pal.pal-max-frag-len"          : 2,
-            "mbed-client.disable-resource-type"         : 1,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
             "nanostack-hal.use-kvstore"                 : true,
             "update-client.storage-locations"           : 1,

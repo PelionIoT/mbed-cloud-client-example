@@ -97,6 +97,11 @@ void* mcc_platform_get_network_interface(void) {
     return mcc_platform_interface_get();
 }
 
+void mcc_platform_set_network_interface(void *interface) {
+    network_interface = (NetworkInterface*)interface;
+    interface_connected = true;
+}
+
 int mcc_platform_close_connection(void) {
     return mcc_platform_interface_close();
 }

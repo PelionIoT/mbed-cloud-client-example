@@ -99,6 +99,15 @@
           "tag": "0.3.1"
         },
         "to": "Middleware/parsec_se_driver/parsec_se_driver"
+      },
+      "curl": {
+        "version": "7.72.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/curl/curl.git",
+          "tag": "curl-7_72_0"
+        },
+        "to": "Middleware/curl/curl"
       }
     }
   },
@@ -119,6 +128,15 @@
           "tag": "mbedtls-2.22.0"
         },
         "to": "Middleware/mbedtls/mbedtls"
+      },
+      "curl": {
+        "version": "7.72.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/curl/curl.git",
+          "tag": "curl-7_72_0"
+        },
+        "to": "Middleware/curl/curl"
       }
     }
   },
@@ -138,6 +156,15 @@
           "tag": "mbedtls-2.22.0"
         },
         "to": "Middleware/mbedtls/mbedtls"
+      },
+      "curl": {
+        "version": "7.72.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/curl/curl.git",
+          "tag": "curl-7_72_0"
+        },
+        "to": "Middleware/curl/curl"
       }
     }
   },

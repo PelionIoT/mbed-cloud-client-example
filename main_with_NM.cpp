@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------------------------------------------------------
-
+#if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER && (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
 // Needed for PRIu64 on FreeRTOS
 #include <stdio.h>
 // Note: this macro is needed on armcc to get the the limit macros like UINT16_MAX
@@ -49,33 +49,20 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #endif
 
+#include "mbed-trace/mbed_trace.h"             // Required for mbed_trace_*
+#include "mesh_system.h"
+#include "network_manager_api.h"
+
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
 #include "multicast.h"
 #endif
+
+#define TRACE_GROUP "app"
 
 // event based LED blinker, controlled via pattern_resource
 #ifndef MCC_MEMORY
 static Blinky blinky;
 #endif
-
-static void main_application(void);
-#if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER && (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
-void main_application_with_nm(void);
-#endif
-
-#if defined(MBED_CLOUD_APPLICATION_NONSTANDARD_ENTRYPOINT)
-extern "C"
-int mbed_cloud_application_entrypoint(void)
-#else
-int main(void)
-#endif //MBED_CLOUD_APPLICATION_NONSTANDARD_ENTRYPOINT
-{
-#if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER && (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
-    return mcc_platform_run_program(main_application_with_nm);
-#else
-    return mcc_platform_run_program(main_application);
-#endif
-}
 
 // Pointers to the resources that will be created in main_application().
 static M2MResource *button_res;
@@ -84,25 +71,22 @@ static M2MResource *blink_res;
 static M2MResource *unregister_res;
 static M2MResource *factory_reset_res;
 
-void unregister(void);
-
 // Pointer to mbedClient, used for calling close function.
 static SimpleM2MClient *client;
+void counter_updated(const char *);
+void pattern_updated(const char *);
+void notification_status_callback(const M2MBase &object,
+                                  const M2MBase::MessageDeliveryStatus status,
+                                  const M2MBase::MessageType /*type*/);
+void sent_callback(const M2MBase &base,
+                   const M2MBase::MessageDeliveryStatus status,
+                   const M2MBase::MessageType /*type*/);
+void unregister_triggered(void);
+void factory_reset_triggered(void *);
+// This function is called when a POST request is received for resource 5000/0/1.
+static void app_client_register_and_connect(void);
 
-void counter_updated(const char *)
-{
-    // Converts uint64_t to a string to remove the dependency for int64 printf implementation.
-    char buffer[20 + 1];
-    (void) m2m::itoa_c(button_res->get_value_int(), buffer);
-    printf("Counter resource set to %s\r\n", buffer);
-}
-
-void pattern_updated(const char *)
-{
-    printf("PUT received, new value: %s\r\n", pattern_res->get_value_string().c_str());
-}
-
-void blink_callback(void *)
+static void blink_callback(void *)
 {
     String pattern_string = pattern_res->get_value_string();
     printf("POST executed\r\n");
@@ -118,80 +102,39 @@ void blink_callback(void *)
     blink_res->send_delayed_post_response();
 }
 
-void notification_status_callback(const M2MBase &object,
-                                  const M2MBase::MessageDeliveryStatus status,
-                                  const M2MBase::MessageType /*type*/)
+/* Callback handler from nm interface */
+void app_nm_indication_handler(uint8_t msg_type, void *msg)
 {
-    switch (status) {
-        case M2MBase::MESSAGE_STATUS_BUILD_ERROR:
-            printf("Message status callback: (%s) error when building CoAP message\r\n", object.uri_path());
+    switch (msg_type) {
+        /* This Event is posted from network_manager_api.cpp file when
+         * All interfaces connect confirmation comes to network manager
+         */
+        case NM_CONNECTED:
+            /*Set Mesh Interface is up*/
+            if (msg != NULL) {
+                mcc_platform_set_network_interface(msg);
+            } else {
+                tr_err("%s :: Network Interface could not found ", __func__);
+            }
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+            arm_uc_multicast_interface_configure(1);
+#endif
+            app_client_register_and_connect();
             break;
-        case M2MBase::MESSAGE_STATUS_RESEND_QUEUE_FULL:
-            printf("Message status callback: (%s) CoAP resend queue full\r\n", object.uri_path());
+        /* This Event will be posted from network_manager_api.cpp file when
+         * network manager is in running state.
+         */
+        case NM_INIT_CONF:
+            printf("Network manager started\n");
             break;
-        case M2MBase::MESSAGE_STATUS_SENT:
-            printf("Message status callback: (%s) Message sent to server\r\n", object.uri_path());
-            break;
-        case M2MBase::MESSAGE_STATUS_DELIVERED:
-            printf("Message status callback: (%s) Message delivered\r\n", object.uri_path());
-            break;
-        case M2MBase::MESSAGE_STATUS_SEND_FAILED:
-            printf("Message status callback: (%s) Message sending failed\r\n", object.uri_path());
-            break;
-        case M2MBase::MESSAGE_STATUS_SUBSCRIBED:
-            printf("Message status callback: (%s) subscribed\r\n", object.uri_path());
-            break;
-        case M2MBase::MESSAGE_STATUS_UNSUBSCRIBED:
-            printf("Message status callback: (%s) subscription removed\r\n", object.uri_path());
-            break;
-        case M2MBase::MESSAGE_STATUS_REJECTED:
-            printf("Message status callback: (%s) server has rejected the message\r\n", object.uri_path());
-            break;
-        default:
+        default :
+            /* Unknown event posted */
+            tr_info("Unknown msg_type received");
             break;
     }
 }
 
-void sent_callback(const M2MBase &base,
-                   const M2MBase::MessageDeliveryStatus status,
-                   const M2MBase::MessageType /*type*/)
-{
-    switch (status) {
-        case M2MBase::MESSAGE_STATUS_DELIVERED:
-            unregister();
-            break;
-        default:
-            break;
-    }
-}
-
-void unregister_triggered(void)
-{
-    printf("Unregister resource triggered\r\n");
-    unregister_res->send_delayed_post_response();
-}
-
-void factory_reset_triggered(void *)
-{
-    printf("Factory reset resource triggered\r\n");
-
-    // First send response, so server won't be left waiting.
-    // Factory reset resource is by default expecting explicit
-    // delayed response sending.
-    factory_reset_res->send_delayed_post_response();
-
-    // Then run potentially long-taking factory reset routines.
-    kcm_factory_reset();
-}
-
-// This function is called when a POST request is received for resource 5000/0/1.
-void unregister(void)
-{
-    printf("Unregister resource executed\r\n");
-    client->close();
-}
-
-void main_application(void)
+void main_application_with_nm(void)
 {
 #if defined(__linux__) && (MBED_CONF_MBED_TRACE_ENABLE == 0)
     // make sure the line buffering is on as non-trace builds do
@@ -217,32 +160,14 @@ void main_application(void)
         return;
     }
 
-    // Print some statistics of the object sizes and their heap memory consumption.
-    // NOTE: This *must* be done before creating MbedCloudClient, as the statistic calculation
-    // creates and deletes M2MSecurity and M2MDevice singleton objects, which are also used by
-    // the MbedCloudClient.
-#ifdef MEMORY_TESTS_HEAP
-    print_m2mobject_stats();
-#endif
-
     // SimpleClient is used for registering and unregistering resources to a server.
     SimpleM2MClient mbedClient;
 
     // Save pointer to mbedClient so that other functions can access it.
     client = &mbedClient;
 
-    /*
-     * Pre-initialize network stack and client library.
-     *
-     * Specifically for nanostack mesh networks on Mbed OS platform it is important to initialize
-     * the components in correct order to avoid out-of-memory issues in Device Management Client initialization.
-     * The order for these use cases should be:
-     * 1. Initialize network stack using `nsapi_create_stack()` (Mbed OS only). // Implemented in `mcc_platform_interface_init()`.
-     * 2. Initialize Device Management Client using `init()`.                   // Implemented in `mbedClient.init()`.
-     * 3. Connect to network interface using 'connect()`.                       // Implemented in `mcc_platform_interface_connect()`.
-     * 4. Connect Device Management Client to service using `setup()`.          // Implemented in `mbedClient.register_and_connect)`.
-     */
-    (void) mcc_platform_interface_init();
+    mesh_system_init();
+
     mbedClient.init();
 
     // application_init() runs the following initializations:
@@ -256,21 +181,6 @@ void main_application(void)
 
     // Print platform information
     mcc_platform_sw_build_info();
-
-    // Initialize network
-    if (!mcc_platform_interface_connect()) {
-        printf("Network initialized, registering...\r\n");
-    } else {
-        return;
-    }
-
-#ifdef MEMORY_TESTS_HEAP
-    printf("Client initialized\r\n");
-    print_heap_stats();
-#endif
-#ifdef MEMORY_TESTS_STACK
-    print_stack_statistics();
-#endif
 
 #ifndef MCC_MEMORY
     // Create resource for button count. Path of this resource will be: 3200/0/5501.
@@ -309,37 +219,22 @@ void main_application(void)
 
 #endif
 
-    // TODO! replace when api available in wisun interface
-#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
-    arm_uc_multicast_interface_configure(1);
-#endif
+    /* Register callback to n/m manager to get notification from n/w manager to application */
+    nm_application_cb(app_nm_indication_handler);
 
-    mbedClient.register_and_connect();
+    M2MObjectList *m2m_obj_list = mbedClient.get_m2m_obj_list();
+    /* Network manager initialization */
+    /* It initialize mesh interface */
+    nm_init(m2m_obj_list);
 
-#ifndef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
-#ifndef MCC_MEMORY
-    blinky.init(mbedClient, button_res);
-    blinky.request_next_loop_event();
-    blinky.request_automatic_increment_event();
-#endif
-#endif
+    nm_connect();
 
-#ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
-    // Add certificate renewal callback
-    mbedClient.get_cloud_client().on_certificate_renewal(certificate_renewal_cb);
-#endif // MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
+    while (mbedClient.is_client_registered() == false) {
+        mcc_platform_do_wait(100);
+    }
 
-#if defined(MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS) && \
- (MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS == 1) && \
- defined(MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION) && \
- (MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION == 1)
-    printf("Starting mbed eventloop...\r\n");
-
-    eventOS_scheduler_mutex_wait();
-
-    EventQueue *queue = mbed::mbed_event_queue();
-    queue->dispatch_forever();
-#else
+    tr_info("Notifying Network Manager: PDMC Connected");
+    nm_cloud_client_connect_notification();
 
     // Check if client is registering or registered, if true sleep and repeat.
     while (mbedClient.is_register_called()) {
@@ -348,5 +243,38 @@ void main_application(void)
 
     // Client unregistered, disconnect and exit program.
     mcc_platform_interface_close();
+}
+
+static void app_client_register_and_connect(void)
+{
+    /* Device registration to Device Management after the network formation. */
+    client->register_and_connect();
+
+#ifndef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+#ifndef MCC_MEMORY
+    blinky.init(*client, button_res);
+    blinky.request_next_loop_event();
+    blinky.request_automatic_increment_event();
+#endif
+#endif
+
+
+#ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
+    // Add certificate renewal callback
+    client->get_cloud_client().on_certificate_renewal(certificate_renewal_cb);
+#endif // MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
+
+#if defined(MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS) && \
+     (MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS == 1) && \
+     defined(MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION) && \
+     (MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION == 1)
+    printf("Starting mbed eventloop...\r\n");
+
+    eventOS_scheduler_mutex_wait();
+
+    EventQueue *queue = mbed::mbed_event_queue();
+    queue->dispatch_forever();
 #endif
 }
+#endif    //MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER && (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
+
