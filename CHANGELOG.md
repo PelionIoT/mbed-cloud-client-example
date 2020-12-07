@@ -1,11 +1,43 @@
 # Changelog for Pelion Device Management Client example application
 
-## Release 4.6.0 (26.08.2020)
+## Release 4.7.0 (07.12.2020)
+
+* Updated to Mbed OS 6.5.0.
+* Updated Mbed TLS to 2.22.0 in `pal-platform`.
+* `Nucleo F411RE` and `Nucleo F303RE` targets now use the Mbed TLS non-volatile seed mechanism instead of `mbedtls_psa_inject_entropy`. This reduces the ROM size of these targets by 4KiB.
+  * All targets use standard C libraries instead of the small C libraries. This prevents potential issues with certain drivers that may have dependencies on `c_lib` implementation. Future releases will further optimize the configurations.
+  * `minimal-printf` is enabled by default in Mbed OS 6. This means that `floating-point` support is disabled by default. For information about changing these configurations, see `minimal-printf` in the Mbed OS documentation.
+* Explicitly defined the minimum programming size (`qspif.QSPI_MIN_PROG_SIZE`) for `DISCO_L475VG_IOT01A` to be `1`. In Mbed OS, the default QSPIF value was changed to 256, which breaks backward compatibility with existing bootloaders (see https://github.com/ARMmbed/mbed-os/issues/13795).
+* Fixed bugs that caused firmware updates on `DISCO_L475VG_IOT01A` to fail after the factory provisioning flow.
+* Removed support for targets that Mbed OS 6 no longer supports:
+    * LPC55S69.
+    * Ublox EVK Odin W2.
+    * Nucleo F411RE as a Platform Security Architecture (PSA) target.
+    * Nucleo F303RE. Nucleo F411RE is the reference for non-TRNG usage with Device Management Client.
+* Improved Wi-SUN mesh support.
+  * Added support for multicast full-image and delta firmware updates.
+  * Removed implementation for STARTUP delays put in place earlier for mesh. The client now handles this logic internally.
+  * Added support for the Pelion Network Management feature for mesh to provide mesh statistics.
+  * Added mesh support for the `MIMXRT1050_EVK` target.
+  * All Wi-SUN targets are collected in the `mesh_wisun.json` configuration file in the root folder.
+    * The supported targets are `NUCLEO_F429ZI_WISUN`, `NUCLEO_F429ZI_WISUN_SMALL`, `MIMXRT1050_EVK_WISUN` and `MIMXRT1050_EVK_WISUN_SMALL`.
+    * Optimized `SMALL` variants for tiny networks.
+* Cleaned up memory-printing features.
+  * Changed the name of the `MBED_HEAP_STATS_ENABLED` memory test feature flag to `MEMORY_TESTS_HEAP` to avoid conflict with other components that use HEAP features.
+  * Enabling HEAP printing for Mbed OS requires defining both `-DMBED_HEAP_STATS_ENABLED` and `-DMEMORY_TESTS_HEAP`.
+  * Removed stack-printing functionality.
+* Cleaned up obsolete files.
+  * Removed obsolete compiler profiles in the `profiles` folder.
+  * Removed obsolete Mbed OS configurations for `ESFS/SOTP`.
+* Application automatic reboot feature on frequent network issues is now disabled by default for Mesh and Linux targets. This is controlled by application macro `MAX_ERROR_COUNT`.
+  * This kind of application logic is an example how application may try to recover from potentially unrecoverable stack issues. Usage of such features need to be considered as part of product design.
+
+## Release 4.6.0 (24.08.2020)
 
 * Changed the default transport mode of Wi-SUN to UDP.
-* The mesh heap size in the Wi-SUN configuration is increased from 32kB to 64kB.
-* Updated Mbed TLS to 2.22.0 in `pal-platform`.
-* Added support for Parsec. To compile the Device Management Client example application with Parsec, set the `PARSEC_TPM_SE_SUPPORT` CMake flag `ON` and use the `define_linux_psa.txt` configuration. In this configuration, the secure connection with Pelion is established using the device bootstrap private key that was generated on the Trusted Platform Module (TPM).
+* Increased the mesh heap size in the Wi-SUN configuration from 32kB to 64kB.
+* Added support for Platform AbstRaction for SECurity (Parsec). <br/>To compile the Device Management Client example application with Parsec, set the `PARSEC_TPM_SE_SUPPORT` CMake flag `ON` and use the `define_linux_psa.txt` configuration. In this configuration, the device establishes secure connection with Pelion using the device bootstrap private key generated on the Trusted Platform Module (TPM).
+
 
 ## Release 4.5.0 (12.06.2020)
 
@@ -17,7 +49,7 @@
 whenever application will try to send notification, if the client is `paused` then application will first `resume` client and then send notification. 
 * Added support for Device Sentry feature for Mbed OS and Linux.
   * Mbed OS - the feature is enabled for K66F board.
-  * Linux - the feature is enabled by passing cmake ENABLE_DEVICE_SENTRY flag to cmake.
+  * Linux - the feature is enabled by passing the `ENABLE_DEVICE_SENTRY` CMake flag.
 * **Breaking changes** (Due to update of SE ATECC608A driver , the application is not compatible with previous releases of SE ATECC608A driver).
     * Updated SE ATECC608A driver `COMPONENT_ATECC608A.lib`.
     * Updated mbed-cloud-client-platform-common `platform.lib` - includes adaptation for new SE ATECC608A driver.
@@ -150,7 +182,7 @@ No changes.
 
 * Updated to Mbed OS 5.12.0.
 * [Mbed OS] Use asyncronous DNS by default for all targets.
-* [Mbed OS] Preview support for Platform Security Arhitecture (PSA) enabled boards. 
+* [Mbed OS] Preview support for Platform Security Architecture (PSA) enabled boards. 
    * PSA configuration for PSA-enabled Cypress PSoC6 and NXP LPC55S69 boards. Configuration is in the `configs-psa/` folder.
    * Both PSA-enabled boards use ESP8266 Wi-Fi.
    * PSA configuration for K64F board.

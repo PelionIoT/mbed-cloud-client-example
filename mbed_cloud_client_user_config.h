@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2019 ARM Ltd.
+// Copyright 2016-2020 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,8 +20,11 @@
 #ifndef MBED_CLOUD_CLIENT_USER_CONFIG_H
 #define MBED_CLOUD_CLIENT_USER_CONFIG_H
 
-#define MBED_CLOUD_CLIENT_ENDPOINT_TYPE             "default"
-#define MBED_CLOUD_CLIENT_LIFETIME                  86400       /* 24 hours */
+#ifndef MBED_CLOUD_CLIENT_ENDPOINT_TYPE
+#define MBED_CLOUD_CLIENT_ENDPOINT_TYPE "default"
+#endif
+
+#define MBED_CLOUD_CLIENT_LIFETIME                  86400
 
 #if defined(__SXOS__)
     #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
@@ -39,7 +42,9 @@
 
 /* Sets the flag to enable update support in Pelion Device Management Client */
 #if defined(__linux__) || defined(TARGET_LIKE_MBED) || defined(__SXOS__)
+#ifndef MBED_CLOUD_CLIENT_FOTA_ENABLE
     #define MBED_CLOUD_CLIENT_SUPPORT_UPDATE
+#endif
 #endif
 
 /* Sets the download buffer for update client in bytes (min. 2048 bytes).
@@ -60,6 +65,7 @@
 #if defined(MBED_CONF_APP_DEVELOPER_MODE) &&  (MBED_CONF_APP_DEVELOPER_MODE == 1)
     #define MBED_CLOUD_DEV_UPDATE_CERT
     #define MBED_CLOUD_DEV_UPDATE_ID
+    #define MBED_CLOUD_DEV_UPDATE_RAW_PUBLIC_KEY // TODO: remove - default should be x509
 #endif /* MBED_CONF_APP_DEVELOPER_MODE */
 
 #endif /* MBED_CLOUD_CLIENT_USER_CONFIG_H */

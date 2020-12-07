@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2017 ARM Ltd.
+// Copyright 2016-2020 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,6 +20,8 @@
 #ifndef SIMPLEM2MCLIENT_H
 #define SIMPLEM2MCLIENT_H
 #include <stdio.h>
+#include <inttypes.h>
+
 #include "mbed-cloud-client/MbedCloudClient.h"
 #include "m2mdevice.h"
 #include "mcc_common_setup.h"
@@ -38,13 +40,22 @@
 #include "update_ui_example.h"
 #endif
 
-#if defined (MBED_HEAP_STATS_ENABLED) || (MBED_STACK_STATS_ENABLED)
+#if defined (MEMORY_TESTS_HEAP)
 #include "memory_tests.h"
 #endif
 
+// This defines how many consecutive errors can occur before application will perform reboot as recovery.
+// Set to 0 to disable the feature.
 #ifndef MAX_ERROR_COUNT
 #define MAX_ERROR_COUNT 5
 #endif
+
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+static void external_update(uint32_t start_address, uint32_t size)
+{
+    printf("Application received external update, start address: %" PRIX32 ", size: %" PRIu32 " bytes\n", start_address, size);
+}
+#endif // MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
 
 class SimpleM2MClient {
 
@@ -55,17 +66,22 @@ public:
         _register_called(false),
         _error_count(0)
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
-       ,_paused(false)
+        , _paused(false)
 #endif
     {
     }
 
-    bool call_register() {
+    bool call_register()
+    {
 
         _cloud_client.on_registered(this, &SimpleM2MClient::client_registered);
         _cloud_client.on_registration_updated(this, &SimpleM2MClient::client_registration_updated);
         _cloud_client.on_unregistered(this, &SimpleM2MClient::client_unregistered);
         _cloud_client.on_error(this, &SimpleM2MClient::error);
+
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+        _cloud_client.on_external_update(external_update);
+#endif
 
         bool setup = _cloud_client.setup(mcc_platform_get_network_interface());
         _register_called = true;
@@ -92,22 +108,26 @@ public:
         return true;
     }
 
-    void init() {
+    void init()
+    {
         _cloud_client.init();
     }
-    void close() {
+    void close()
+    {
         _cloud_client.close();
     }
 
-    void register_update() {
+    void register_update()
+    {
         _cloud_client.register_update();
     }
 
-    void client_registered() {
+    void client_registered()
+    {
         _registered = true;
         printf("Client registered\r\n");
         _error_count = 0;
-        static const ConnectorClientEndpointInfo* endpoint = NULL;
+        static const ConnectorClientEndpointInfo *endpoint = NULL;
         if (endpoint == NULL) {
             endpoint = _cloud_client.endpoint_info();
             if (endpoint) {
@@ -119,37 +139,34 @@ public:
                 printf("Device ID: %s\r\n", endpoint->internal_endpoint_name.c_str());
             }
         }
-#ifdef MBED_HEAP_STATS_ENABLED
+#ifdef MEMORY_TESTS_HEAP
         print_heap_stats();
-#endif
-#ifdef MBED_STACK_STATS_ENABLED
-        print_stack_statistics();
 #endif
     }
 
-    void client_registration_updated() {
+    void client_registration_updated()
+    {
         printf("Client registration updated\n");
         _error_count = 0;
     }
 
-    void client_unregistered() {
+    void client_unregistered()
+    {
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
         _paused = false;
 #endif
         _registered = false;
         _register_called = false;
         printf("Client unregistered - Exiting application\n");
-#ifdef MBED_HEAP_STATS_ENABLED
+#ifdef MEMORY_TESTS_HEAP
         print_heap_stats();
-#endif
-#ifdef MBED_STACK_STATS_ENABLED
-        print_stack_statistics();
 #endif
     }
 
-    void error(int error_code) {
+    void error(int error_code)
+    {
         const char *error;
-        switch(error_code) {
+        switch (error_code) {
             case MbedCloudClient::ConnectErrorNone:
                 error = "MbedCloudClient::ConnectErrorNone";
                 break;
@@ -253,82 +270,100 @@ public:
         }
         printf("\nError occurred : %s\r\n", error);
         printf("Error code : %d\r\n", error_code);
-        printf("Error details : %s\r\n",_cloud_client.error_description());
+        printf("Error details : %s\r\n", _cloud_client.error_description());
 
+// Feature is disabled if MAX_ERROR_COUNT is 0.
+#if (MAX_ERROR_COUNT > 0)
         if (error_code == MbedCloudClient::ConnectNetworkError ||
-            error_code == MbedCloudClient::ConnectDnsResolvingFailed ||
-            error_code == MbedCloudClient::ConnectSecureConnectionFailed) {
-            if(++_error_count == MAX_ERROR_COUNT) {
+                error_code == MbedCloudClient::ConnectDnsResolvingFailed ||
+                error_code == MbedCloudClient::ConnectSecureConnectionFailed) {
+            if (++_error_count == MAX_ERROR_COUNT) {
                 printf("Max error count %d reached, rebooting.\n\n", MAX_ERROR_COUNT);
-                mcc_platform_do_wait(1*1000);
+                mcc_platform_do_wait(1 * 1000);
                 mcc_platform_reboot();
             }
         }
+#endif
     }
 
-    bool is_client_registered() {
+    bool is_client_registered()
+    {
         return _registered;
     }
 
-    bool is_register_called() {
+    bool is_register_called()
+    {
         return _register_called;
     }
 
-    void register_and_connect() {
-#if defined (MBED_HEAP_STATS_ENABLED) && !defined(MCC_MINIMAL)
+    void register_and_connect()
+    {
+#if defined (MEMORY_TESTS_HEAP) && !defined(MCC_MINIMAL)
         // Add some test resources to measure memory consumption.
-        // This code is activated only if MBED_HEAP_STATS_ENABLED is defined.
+        // This code is activated only if MEMORY_TESTS_HEAP is defined.
         create_m2mobject_test_set(_obj_list);
-#endif
-#ifdef MBED_STACK_STATS_ENABLED
-        print_stack_statistics();
 #endif
         _cloud_client.add_objects(_obj_list);
 
         // Start registering to the cloud.
         call_register();
 
-        // Print memory statistics if the MBED_HEAP_STATS_ENABLED is defined.
-#ifdef MBED_HEAP_STATS_ENABLED
+        // Print memory statistics if the MEMORY_TESTS_HEAP is defined.
+#ifdef MEMORY_TESTS_HEAP
         printf("Register being called\r\n");
         print_heap_stats();
 #endif
-#ifdef MBED_STACK_STATS_ENABLED
-        print_stack_statistics();
-#endif
     }
 
-    MbedCloudClient& get_cloud_client() {
+    MbedCloudClient &get_cloud_client()
+    {
         return _cloud_client;
     }
 
+    M2MObjectList *get_m2m_obj_list()
+    {
+        return &_obj_list;
+    }
+
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
-    void sleep_callback_function() {
+    void sleep_callback_function()
+    {
         printf("Pelion client is going to sleep - Pausing the client\r\n");
         _paused = true;
         _cloud_client.pause();
         mcc_platform_interface_close();
     }
 
-    bool is_client_paused() {
+    bool is_client_paused()
+    {
         return _paused;
     }
 
-    void client_resumed() {
+    void client_resumed()
+    {
+        int timeout_ms = 1000;
+        while (-1 == mcc_platform_interface_connect()){
+            // Will try to connect using mcc_platform_interface_connect forever. 
+            // wait timeout is always doubled
+            printf("Network did not recover after pause. Try again after %d milliseconds.\n",timeout_ms);
+            mcc_platform_do_wait(timeout_ms);
+            timeout_ms *= 2;
+        }
         _paused = false;
-        mcc_platform_interface_connect();
         _cloud_client.resume(mcc_platform_get_network_interface());
+        
     }
 
 #endif
 
-    M2MResource* add_cloud_resource(uint16_t object_id, uint16_t instance_id,
-                              uint16_t resource_id, const char *resource_type,
-                              M2MResourceInstance::ResourceType data_type,
-                              M2MBase::Operation allowed, const char *value,
-                              bool observable, void *cb, void *message_status_cb) {
-         return add_resource(&_obj_list, object_id, instance_id, resource_id, resource_type, data_type,
-                      allowed, value, observable, cb, message_status_cb);
+    M2MResource *add_cloud_resource(uint16_t object_id, uint16_t instance_id,
+                                    uint16_t resource_id, const char *resource_type,
+                                    M2MResourceInstance::ResourceType data_type,
+                                    M2MBase::Operation allowed, const char *value,
+                                    bool observable, void *cb, void *message_status_cb)
+    {
+        return add_resource(&_obj_list, object_id, instance_id, resource_id, resource_type, data_type,
+                            allowed, value, observable, cb, message_status_cb);
 
     }
 

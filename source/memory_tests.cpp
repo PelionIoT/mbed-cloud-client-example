@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2018 ARM Ltd.
+// Copyright 2016-2020 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,10 +16,9 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
-
 #ifdef TARGET_LIKE_MBED
+#if defined (MEMORY_TESTS_HEAP)
 
-#if defined (MBED_HEAP_STATS_ENABLED) || (MBED_STACK_STATS_ENABLED)
 // used by print_heap_stats only
 #include "mbed_stats.h"
 #define __STDC_FORMAT_MACROS
@@ -46,7 +45,7 @@
 #include <assert.h>
 #endif
 
-#if defined (MBED_HEAP_STATS_ENABLED)
+#if defined (MEMORY_TESTS_HEAP)
 void print_heap_stats()
 {
     mbed_stats_heap_t stats;
@@ -120,7 +119,7 @@ void create_m2mobject_test_set(M2MObjectList& object_list)
     printf("*************************************\n");
 }
 
-// Note: the mbed-os needs to be compiled with MBED_HEAP_STATS_ENABLED to get
+// Note: the mbed-os needs to be compiled with MEMORY_TESTS_HEAP to get
 // functional heap stats, or the mbed_stats_heap_get() will return just zeroes.
 void print_m2mobject_stats()
 {
@@ -229,23 +228,5 @@ void print_m2mobject_stats()
     printf("*************************************\n\n");
 }
 
-#endif // MBED_HEAP_STATS_ENABLED
-#ifdef MBED_STACK_STATS_ENABLED
-void print_stack_statistics()
-{
-    printf("** MBED THREAD STASK STATS **\n");
-    int cnt = osThreadGetCount();
-    mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
-
-    if (stats) {
-        cnt = mbed_stats_stack_get_each(stats, cnt);
-        for (int i = 0; i < cnt; i++) {
-            printf("Thread: 0x%" PRIx32 ", Stack size: %" PRIu32 ", Max stack: %" PRIu32 "\r\n", stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
-        }
-
-        free(stats);
-    }
-    printf("*****************************\n\n");
-}
-#endif // MBED_STACK_STATS_ENABLED
+#endif // MEMORY_TESTS_HEAP
 #endif // TARGET_LIKE_MBED

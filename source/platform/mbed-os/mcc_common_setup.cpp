@@ -34,7 +34,9 @@
 
 #if MBED_MAJOR_VERSION > 5
 #include "DeviceKey.h"
+#include <chrono>
 #endif
+
 
 #define TRACE_GROUP "plat"
 
@@ -299,7 +301,11 @@ int mcc_platform_init(void)
 
 void mcc_platform_do_wait(int timeout_ms)
 {
+#if MBED_MAJOR_VERSION > 5
+    ThisThread::sleep_for(std::chrono::milliseconds(timeout_ms));
+#else
     ThisThread::sleep_for(timeout_ms);
+#endif
 }
 
 int mcc_platform_run_program(main_t mainFunc)
@@ -328,17 +334,6 @@ int mcc_platform_storage_init(void) {
         printf("kv_init_storage_config() - failed, status %d\n", status);
         return status;
     }
-// Only used with Mbed OS 6 or later for TRNG boards and production mode for non-TRNG board.
-#if MBED_MAJOR_VERSION > 5
-#if PAL_USE_HW_TRNG && !defined(MBED_CONF_APP_DEVELOPER_MODE)
-    DeviceKey &devkey = DeviceKey::get_instance();
-    status = devkey.generate_root_of_trust();
-    if (status != DEVICEKEY_SUCCESS && status != DEVICEKEY_ALREADY_EXIST) {
-        printf("generate_root_of_trust() - failed, status %d\n", status);
-        return status;
-    }
-#endif // PAL_USE_HW_TRNG
-#endif // MBED_MAJOR_VERSION
     return 0;
 }
 

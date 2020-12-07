@@ -7,6 +7,7 @@
     "target_overrides": {
         "*": {
             "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "target.c_lib"                              : "std",
             "platform.stdio-baud-rate"                  : 115200,
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
@@ -64,6 +65,11 @@
         "led-pinname"   : {
             "help"      : "PinName for led, which is attached to led blink resource.",
             "value"     : "LED_RED"
+        },
+        "mbed-trace-max-level": {
+            "help"      : "Max trace level. Must be one of the following: [TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR, TRACE_LEVEL_CMD]",
+            "macro_name": "MBED_TRACE_MAX_LEVEL",
+            "value"     : "TRACE_LEVEL_INFO"
         },
         "bootloader-size": {
             "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",

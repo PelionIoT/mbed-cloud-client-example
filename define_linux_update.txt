@@ -1,0 +1,5 @@
+include(${CMAKE_SOURCE_DIR}/define.txt)
+
+add_definitions(-DFOTA_DEFAULT_APP_IFS=1)
+add_definitions(-DTARGET_LIKE_LINUX=1)
+

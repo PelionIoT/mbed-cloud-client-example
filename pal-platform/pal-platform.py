@@ -401,11 +401,6 @@ def generate_plat_cmake(target, native_sdk):
     else:
        _native_sdk = native_sdk
 
-    if target.name == 'K64F_FreeRTOS_mbedtls':
-        _os, _device = (' ', ' ')
-        _mw_list = []
-        _sdk = 'K64F_FreeRTOS'
-
     out_dir_name = '__' + target.name
     parent_dir = os.path.normpath(os.path.join(PAL_PLATFORM_ROOT, os.pardir))
     out_dir = os.path.join(parent_dir, out_dir_name)

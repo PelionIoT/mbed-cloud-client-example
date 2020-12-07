@@ -5,12 +5,14 @@
     ],
     "target_overrides": {
         "*": {
-            "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "target.features_add"                       : ["EXPERIMENTAL_API", "BOOTLOADER", "STORAGE"],
+            "target.c_lib"                              : "std",
             "platform.stdio-baud-rate"                  : 115200,
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
             "rtos.main-thread-stack-size"               : 5120,
+            "mbed-cloud-client.psa-support"             : 1,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null
         },
@@ -28,7 +30,6 @@
             "update-client.storage-address"             : "(1024*1024*64)",
             "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
-            "mbed-cloud-client.psa-support"             : 1,
             "storage_filesystem.internal_base_address"  : "(32*1024)",
             "storage_filesystem.rbp_internal_size"      : "(8*1024)",
             "storage_filesystem.external_base_address"  : "(0x0)",
@@ -50,7 +51,6 @@
             "update-client.storage-page"                : 8,
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
             "mbed-cloud-client.disable-certificate-enrollment": null,
-            "mbed-cloud-client.psa-support"             : 1,
             "storage_tdb_internal.internal_base_address": "(1024*1024)",
             "storage_tdb_internal.internal_size"        : "(96*1024)",
             "storage.storage_type"                      : "TDB_INTERNAL"
@@ -69,6 +69,11 @@
         "led-pinname"   : {
             "help"      : "PinName for led, which is attached to led blink resource.",
             "value"     : "LED_RED"
+        },
+        "mbed-trace-max-level": {
+            "help"      : "Max trace level. Must be one of the following: [TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR, TRACE_LEVEL_CMD]",
+            "macro_name": "MBED_TRACE_MAX_LEVEL",
+            "value"     : "TRACE_LEVEL_INFO"
         },
         "bootloader-size": {
             "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",
