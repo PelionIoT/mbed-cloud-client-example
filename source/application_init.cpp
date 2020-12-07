@@ -26,8 +26,11 @@
 #include "app_platform_setup.h"
 #include "mcc_common_setup.h"
 #include "mcc_common_button_and_led.h"
-#if defined (MBED_HEAP_STATS_ENABLED) || (MBED_STACK_STATS_ENABLED)
+#if defined (MEMORY_TESTS_HEAP)
 #include "memory_tests.h"
+#endif
+#if defined (MBED_CONF_APP_ENABLE_DS_CUSTOM_METRICS_EXAMPLE)
+#include "ds_custom_metrics_app.h"
 #endif
 #include "application_init.h"
 #include "mbed-client-randlib/mbed-client-randlib/randLIB.h"
@@ -227,9 +230,6 @@ static bool application_init_verify_cloud_configuration()
 
 static bool application_init_fcc(void)
 {
-#ifdef MBED_STACK_STATS_ENABLED
-    print_stack_statistics();
-#endif
     int status;
     status = mcc_platform_fcc_init();
     if(status != FCC_STATUS_SUCCESS) {
@@ -292,13 +292,14 @@ bool application_init(void)
 
     // Print some statistics of current heap memory consumption, useful for finding
     // out where the memory goes.
-#ifdef MBED_HEAP_STATS_ENABLED
+#ifdef MEMORY_TESTS_HEAP
     print_heap_stats();
 #endif
 
-#ifdef MBED_STACK_STATS_ENABLED
-    print_stack_statistics();
+#if defined (MBED_CONF_APP_ENABLE_DS_CUSTOM_METRICS_EXAMPLE)
+    mcce_ds_custom_metric_callback_set();
 #endif
+
     printf("Start Device Management Client\r\n");
 
     if (application_init_fcc() != 0) {

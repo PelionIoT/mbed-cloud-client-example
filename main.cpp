@@ -49,6 +49,16 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #endif
 
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+#include "multicast.h"
+#endif
+
+#if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER && \
+ (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
+#include "NetworkInterface.h"
+#include "NetworkManager.h"
+#endif
+
 // event based LED blinker, controlled via pattern_resource
 #ifndef MCC_MEMORY
 static Blinky blinky;
@@ -67,21 +77,28 @@ int main(void)
 }
 
 // Pointers to the resources that will be created in main_application().
-static M2MResource* button_res;
-static M2MResource* pattern_res;
-static M2MResource* blink_res;
-static M2MResource* unregister_res;
-static M2MResource* factory_reset_res;
-
+static M2MResource *button_res;
+static M2MResource *pattern_res;
+static M2MResource *blink_res;
+static M2MResource *unregister_res;
+static M2MResource *factory_reset_res;
+static M2MResource *large_res;
+static uint8_t *large_res_data = NULL;
+const static int16_t large_res_size = 2049;
 void unregister(void);
 
 // Pointer to mbedClient, used for calling close function.
 static SimpleM2MClient *client;
 
-void counter_updated(const char*)
+#if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER && \
+ (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
+static NetworkManager network_manager;
+#endif
+
+void counter_updated(const char *)
 {
     // Converts uint64_t to a string to remove the dependency for int64 printf implementation.
-    char buffer[20+1];
+    char buffer[20 + 1];
     (void) m2m::itoa_c(button_res->get_value_int(), buffer);
     printf("Counter resource set to %s\r\n", buffer);
 }
@@ -100,18 +117,18 @@ void blink_callback(void *)
     // LED blinking is done while parsing.
 #ifndef MCC_MEMORY
     const bool restart_pattern = false;
-    if (blinky.start((char*)pattern_res->value(), pattern_res->value_length(), restart_pattern) == false) {
+    if (blinky.start((char *)pattern_res->value(), pattern_res->value_length(), restart_pattern) == false) {
         printf("out of memory error\r\n");
     }
 #endif
     blink_res->send_delayed_post_response();
 }
 
-void notification_status_callback(const M2MBase& object,
-                            const M2MBase::MessageDeliveryStatus status,
-                            const M2MBase::MessageType /*type*/)
+void notification_status_callback(const M2MBase &object,
+                                  const M2MBase::MessageDeliveryStatus status,
+                                  const M2MBase::MessageType /*type*/)
 {
-    switch(status) {
+    switch (status) {
         case M2MBase::MESSAGE_STATUS_BUILD_ERROR:
             printf("Message status callback: (%s) error when building CoAP message\r\n", object.uri_path());
             break;
@@ -141,13 +158,24 @@ void notification_status_callback(const M2MBase& object,
     }
 }
 
-void sent_callback(const M2MBase& base,
+void sent_callback(const M2MBase &base,
                    const M2MBase::MessageDeliveryStatus status,
                    const M2MBase::MessageType /*type*/)
 {
-    switch(status) {
+    switch (status) {
         case M2MBase::MESSAGE_STATUS_DELIVERED:
-            unregister();
+            if (strcmp("5000/0/2", base.uri_path()) == 0) {
+                free(large_res_data);
+                printf("5000/0/2 data sent to server, memory can be now released\r\n");
+            } else {
+              unregister();
+            }
+            break;
+        case M2MBase::MESSAGE_STATUS_SEND_FAILED:
+            if (strcmp("5000/0/2", base.uri_path()) == 0) {
+                printf("Failed to send 5000/0/2 data!\r\n");
+                free(large_res_data);
+            }
             break;
         default:
             break;
@@ -160,7 +188,7 @@ void unregister_triggered(void)
     unregister_res->send_delayed_post_response();
 }
 
-void factory_reset_triggered(void*)
+void factory_reset_triggered(void *)
 {
     printf("Factory reset resource triggered\r\n");
 
@@ -180,28 +208,59 @@ void unregister(void)
     client->close();
 }
 
+static coap_response_code_e read_requested(const M2MResourceBase& resource,
+                           uint8_t *&buffer,
+                           size_t &buffer_size,
+                           size_t &total_size,
+                           const size_t offset,
+                           void */*client_args*/) {
+    printf("GET request received for resource: %s\r\n", resource.uri_path());
+
+    // Allocate buffer when first request comes in
+    if (offset == 0) {
+        large_res_data = (uint8_t*)malloc(large_res_size);
+        memset(large_res_data, '0', large_res_size);
+    }
+
+    if (!large_res_data) {
+        return COAP_RESPONSE_INTERNAL_SERVER_ERROR;
+    }
+
+    total_size = large_res_size;
+
+    // Adjust last package size
+    if (offset + buffer_size > total_size) {
+        buffer_size = total_size - offset;
+    }
+
+    // Read data from offset
+    buffer = (uint8_t*)large_res_data + offset;
+
+    return COAP_RESPONSE_CONTENT;
+}
+
 void main_application(void)
 {
 #if defined(__linux__) && (MBED_CONF_MBED_TRACE_ENABLE == 0)
-        // make sure the line buffering is on as non-trace builds do
-        // not produce enough output to fill the buffer
-        setlinebuf(stdout);
+    // make sure the line buffering is on as non-trace builds do
+    // not produce enough output to fill the buffer
+    setlinebuf(stdout);
 #endif
 
     // Initialize trace-library first
     if (application_init_mbed_trace() != 0) {
-        printf("Failed initializing mbed trace\r\n" );
+        printf("Failed initializing mbed trace\r\n");
         return;
     }
 
     // Initialize storage
     if (mcc_platform_storage_init() != 0) {
-        printf("Failed to initialize storage\r\n" );
+        printf("Failed to initialize storage\r\n");
         return;
     }
 
     // Initialize platform-specific components
-    if(mcc_platform_init() != 0) {
+    if (mcc_platform_init() != 0) {
         printf("ERROR - platform_init() failed!\r\n");
         return;
     }
@@ -210,7 +269,7 @@ void main_application(void)
     // NOTE: This *must* be done before creating MbedCloudClient, as the statistic calculation
     // creates and deletes M2MSecurity and M2MDevice singleton objects, which are also used by
     // the MbedCloudClient.
-#ifdef MBED_HEAP_STATS_ENABLED
+#ifdef MEMORY_TESTS_HEAP
     print_m2mobject_stats();
 #endif
 
@@ -236,50 +295,65 @@ void main_application(void)
 
     // application_init() runs the following initializations:
     //  1. platform initialization
-    //  2. print memory statistics if MBED_HEAP_STATS_ENABLED is defined
+    //  2. print memory statistics if MEMORY_TESTS_HEAP is defined
     //  3. FCC initialization.
     if (!application_init()) {
         printf("Initialization failed, exiting application!\r\n");
         return;
     }
 
+#if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER &&\
+ (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
+    printf("Configuring Interface\r\n");
+    if (network_manager.reg_and_config_iface(NetworkInterface::get_default_instance()) != NM_ERROR_NONE) {
+        printf("Failed to register and configure Interface\r\n");
+        return;
+    }
+#endif
+
     // Print platform information
     mcc_platform_sw_build_info();
 
     // Initialize network
-    if (!mcc_platform_interface_connect()) {
-        printf("Network initialized, registering...\r\n");
-    } else {
-        return;
+    int timeout_ms = 1000;
+    while (-1 == mcc_platform_interface_connect()){
+        // Will try to connect using mcc_platform_interface_connect forever. 
+        // wait timeout is always doubled
+        printf("Network connect failed. Try again after %d milliseconds.\n",timeout_ms);
+        mcc_platform_do_wait(timeout_ms);
+        timeout_ms *= 2;
     }
+    printf("Network initialized, registering...\r\n");    
 
-#ifdef MBED_HEAP_STATS_ENABLED
+#ifdef MEMORY_TESTS_HEAP
     printf("Client initialized\r\n");
     print_heap_stats();
 #endif
-#ifdef MBED_STACK_STATS_ENABLED
-    print_stack_statistics();
+
+#if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER &&\
+ (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
+    network_manager.create_resource(mbedClient.get_m2m_obj_list());
 #endif
 
 #ifndef MCC_MEMORY
     // Create resource for button count. Path of this resource will be: 3200/0/5501.
     button_res = mbedClient.add_cloud_resource(3200, 0, 5501, "button_resource", M2MResourceInstance::INTEGER,
-                              M2MBase::GET_PUT_ALLOWED, 0, true, (void*)counter_updated, (void*)notification_status_callback);
+                                               M2MBase::GET_PUT_ALLOWED, 0, true, (void *)counter_updated, (void *)notification_status_callback);
     button_res->set_value(0);
 
     // Create resource for led blinking pattern. Path of this resource will be: 3201/0/5853.
     pattern_res = mbedClient.add_cloud_resource(3201, 0, 5853, "pattern_resource", M2MResourceInstance::STRING,
-                               M2MBase::GET_PUT_ALLOWED, "500:500:500:500", true, (void*)pattern_updated, (void*)notification_status_callback);
+                                                M2MBase::GET_PUT_ALLOWED, "500:500:500:500", true, (void *)pattern_updated, (void *)notification_status_callback);
 
     // Create resource for starting the led blinking. Path of this resource will be: 3201/0/5850.
     blink_res = mbedClient.add_cloud_resource(3201, 0, 5850, "blink_resource", M2MResourceInstance::STRING,
-                             M2MBase::POST_ALLOWED, "", false, (void*)blink_callback, (void*)notification_status_callback);
+                                              M2MBase::POST_ALLOWED, "", false, (void *)blink_callback, (void *)notification_status_callback);
     // Use delayed response
     blink_res->set_delayed_response(true);
 
     // Create resource for unregistering the device. Path of this resource will be: 5000/0/1.
     unregister_res = mbedClient.add_cloud_resource(5000, 0, 1, "unregister", M2MResourceInstance::STRING,
-                 M2MBase::POST_ALLOWED, NULL, false, (void*)unregister_triggered, (void*)sent_callback);
+                                                   M2MBase::POST_ALLOWED, NULL, false, (void *)unregister_triggered, (void *)sent_callback);
     unregister_res->set_delayed_response(true);
 
     // Create optional Device resource for running factory reset for the device. Path of this resource will be: 3/0/5.
@@ -287,6 +361,11 @@ void main_application(void)
     if (factory_reset_res) {
         factory_reset_res->set_execute_function(factory_reset_triggered);
     }
+
+    // Create an example resource for handling large resource payloads. Path of this resource will be: 5000/0/2.
+    large_res = mbedClient.add_cloud_resource(5000, 0, 2, "large_resource", M2MResourceInstance::STRING,
+                 M2MBase::GET_ALLOWED, NULL, false, NULL, (void*)sent_callback);
+    large_res->set_read_resource_function(read_requested, NULL);
 
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
     button_res->set_auto_observable(true);
@@ -298,22 +377,20 @@ void main_application(void)
 
 #endif
 
-// For high-latency networks with limited total bandwidth combined with large number
-// of endpoints, it helps to stabilize the network when Device Management Client has
-// delayed registration to Device Management after the network formation.
-// This is applicable in large Wi-SUN networks.
-#if defined(STARTUP_MAX_RANDOM_DELAY) && (STARTUP_MAX_RANDOM_DELAY > 0)
-    wait_application_startup_delay();
+    // TODO! replace when api available in wisun interface
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+    arm_uc_multicast_interface_configure(1);
 #endif
 
     mbedClient.register_and_connect();
 
+#ifndef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
 #ifndef MCC_MEMORY
     blinky.init(mbedClient, button_res);
     blinky.request_next_loop_event();
     blinky.request_automatic_increment_event();
 #endif
-
+#endif
 
 #ifndef MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT
     // Add certificate renewal callback
@@ -331,6 +408,15 @@ void main_application(void)
     EventQueue *queue = mbed::mbed_event_queue();
     queue->dispatch_forever();
 #else
+
+#if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER &&\
+ (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
+    // Wait untill client is registered.
+    while (mbedClient.is_client_registered() == false) {
+        mcc_platform_do_wait(100);
+    }
+    network_manager.nm_cloud_client_connect_indication();
+#endif
 
     // Check if client is registering or registered, if true sleep and repeat.
     while (mbedClient.is_register_called()) {

@@ -15,10 +15,8 @@ add_definitions(-DMBED_CONF_MBED_CLIENT_EVENT_LOOP_SIZE=8192)
 # mbed-cloud-client-example
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/platform)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/include)
-
-# This is needed for compiling and linking SW.
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/source/platform")
 
 FILE(GLOB MBED_CLOUD_CLIENT_EXAMPLE_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
@@ -36,10 +34,26 @@ if(PARSEC_TPM_SE_SUPPORT)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/platform/secure_element/se_configs)
 endif()
 
+if(ENABLE_DEVICE_SENTRY)
+# MCCE device sentry example enabled, so add appropriate include files directory
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/mbed-cloud-client/device-sentry-client/source/include)
+endif()
+
+# Contain developer credential information
+set(MBED_CLIENT_COMMON_CONFIG_SOURCE
+  "${CMAKE_CURRENT_SOURCE_DIR}/update_default_resources.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mbed_cloud_dev_credentials.c"
+)
+
+add_subdirectory(source/platform ${CMAKE_CURRENT_BINARY_DIR}/source/platform)
+add_subdirectory(mbed-cloud-client ${CMAKE_CURRENT_BINARY_DIR}/mbed-cloud-client)
+
+add_library(mbedClientSharedObjects STATIC ${MBED_CLIENT_COMMON_CONFIG_SOURCE})
+
+# Needed to link sources if there is cross-dependencies between application<->library.
+set (SRC_LIBS ${SRC_LIBS} PARENT_SCOPE)
 
 CREATE_TEST_LIBRARY(mbedCloudClientExample "${MBED_CLOUD_CLIENT_EXAMPLE_SRC}" "")
 
-add_dependencies(mbedCloudClientExample mbedCloudClient)
+target_link_libraries(mbedCloudClientExample mbedCloudClient platformCommon mbedClientSharedObjects)
 
-
-ADDSUBDIRS()

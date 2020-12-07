@@ -37,7 +37,7 @@ bool application_init_mbed_trace(void);
 /*
  * application_init() runs the following initializations:
  *  1. platform initialization
- *  2. print memory statistics if MBED_HEAP_STATS_ENABLED is defined
+ *  2. print memory statistics if MEMORY_TESTS_HEAP is defined
  *  3. FCC initialization.
  */
 

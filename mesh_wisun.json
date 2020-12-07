@@ -1,0 +1,158 @@
+{
+    "macros": [
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
+        "MBEDTLS_PEM_PARSE_C",
+        "MBEDTLS_NIST_KW_C",
+        "MBEDTLS_SHA1_C",
+        "MAX_ERROR_COUNT=0",
+        "MBED_CLOUD_CLIENT_ENDPOINT_TYPE=\"routernode\""
+    ],
+    "target_overrides": {
+        "*": {
+            "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "target.c_lib"                              : "std",
+            "target.macros_add"                         : ["MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP", "MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE", "ENABLE_ASYNC_REST_RESPONSE"],
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.stdio-convert-newlines"           : true,
+            "platform.stdio-buffered-serial"            : true,
+            "platform.stdio-flush-at-exit"              : true,
+            "rtos.main-thread-stack-size"               : 5120,
+            "mbed-client.reconnection-count"            : 6,
+            "mbed-client.sn-coap-blockwise-max-time-data-stored": 300,
+            "client_app.pal_dtls_peer_min_timeout"      : "60000",
+            "mbed-client.dtls_peer_max_timeout"         : "600000",
+            "mbed-client-pal.pal-max-frag-len"          : 2,
+            "mbed-client.disable-resource-type"         : 1,
+            "nanostack-hal.event_loop_thread_stack_size": 8192,
+            "nanostack-hal.use-kvstore"                 : true,
+            "update-client.storage-locations"           : 1,
+            "mbed-trace.enable"                         : null,
+            "mbed-mesh-api.wisun-regulatory-domain"     : "3",
+            "mbed-mesh-api.wisun-operating-class"       : "2",
+            "mbed-mesh-api.wisun-operating-mode"        : "3",
+            "mbed-mesh-api.wisun-network-name"          : "\"Wi-SUN Network\"",
+            "mbed-mesh-api.wisun-device-type"           : "MESH_DEVICE_TYPE_WISUN_ROUTER",
+            "mbed-mesh-api.wisun-network-size"          : "NETWORK_SIZE_SMALL",
+            "mbed-mesh-api.6lowpan-nd-panid-filter"     : "0xFFFF",
+            "mbed-mesh-api.6lowpan-nd-security-mode"    : "NONE",
+            "mbed-mesh-api.certificate-header"          : "\"configs/wisun_certificates.h\"",
+            "mbed-mesh-api.root-certificate"            : "WISUN_ROOT_CERTIFICATE",
+            "mbed-mesh-api.own-certificate"             : "WISUN_CLIENT_CERTIFICATE",
+            "mbed-mesh-api.own-certificate-key"         : "WISUN_CLIENT_KEY",
+            "mbed-mesh-api.heap-size"                   : 65535,
+            "mbed-mesh-api.mac-neigh-table-size"        : 64,
+            "mbed-mesh-api.heap-stat-info-definition"   : "mem_stat_t app_ns_dyn_mem_stats;",
+            "mbed-mesh-api.heap-stat-info"              : "&app_ns_dyn_mem_stats",
+            "nsapi.default-mesh-type"                   : "WISUN",
+            "nsapi.dns-response-wait-time"              : 100000,
+            "nsapi.dns-total-attempts"                  : 6,
+            "nsapi.dns-retries"                         : 3,
+            "nanostack.configuration"                   : "ws_router",
+            "target.device_has_add"                     : ["802_15_4_PHY"],
+            "events.shared-highprio-stacksize"          : 3072,
+            "events.shared-highprio-eventsize"          : 512
+        },
+        "NUCLEO_F429ZI_WISUN": {
+            "client_app.mbedtls-user-config-file"       : "\"configs/wisun_mbedTLSConfig_mbedOS.h\"",
+            "target.network-default-interface-type"     : "MESH",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f429zi-internal_flash-no_rot-v4.1.0.bin",
+            "target.header_offset"                      : "0x8000",
+            "target.app_offset"                         : "0x8400",
+            "target.restrict_size"                      : "0xD7C00",
+            "update-client.bootloader-details"          : "0x080078CC",
+            "update-client.application-details"         : "(MBED_ROM_START + MBED_BOOTLOADER_SIZE)",
+            "update-client.storage-address"             : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS+MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
+            "update-client.storage-size"                : "(1024*1024-MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
+            "update-client.storage-page"                : 1,
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
+            "mbed-cloud-client.network-manager"         : 1,
+            "storage_tdb_internal.internal_base_address": "(MBED_ROM_START+1024*1024)",
+            "storage_tdb_internal.internal_size"        : "(128*1024)",
+            "storage.storage_type"                      : "TDB_INTERNAL",
+            "s2lp.provide-default"                      : true,
+            "update-client.delta-storage-address"       : "(MBED_ROM_START + 896*1024)",
+            "update-client.delta-storage-size"          : "(1*128*1024)"
+        },
+        "NUCLEO_F429ZI_WISUN_SMALL": {
+            "target.macros_add"                         : ["PAL_DEFAULT_STAGGER_ESTIMATE=1", "MBED_CLOUD_CLIENT_MULTICAST_SMALL_NETWORK"]
+        },
+        "MIMXRT1050_EVK_WISUN": {
+            "client_app.mbedtls-user-config-file"       : "\"configs/wisun_mbedTLSConfig_mbedOS.h\"",
+            "target.network-default-interface-type"     : "MESH",
+            "target.macros_remove"                      : ["HYPERFLASH_BOOT"],
+            "target.tickless-from-us-ticker"            : true,
+            "target.macros_add"                         : ["MBED_APP_COMPILE","SE2435L_PA","DISABLE_AT24MAC","HAVE_AT86RF215M", "ARM_UC_DELTAPAAL_WRITE_BUF_SIZE=256"],
+            "target.mbed_rom_start"                     : "0x60000000",
+            "target.mbed_rom_size"                      : "0x800000",
+            "target.sectors"                            : [[1610612736,4096]],
+            "target.bootloader_img"                     : "tools/mbed-bootloader-rt1050-qspi-internal_flash-no_rot-94579e9.bin",
+            "target.header_offset"                      : "0x10000",
+            "target.app_offset"                         : "0x10400",
+            "target.restrict_size"                      : "0x1EFC00",
+            "bootloader-size"                           : "(64*1024)",
+            "led-pinname"                               : "NC",
+            "button-pinname"                            : "NC",
+            "update-client.bootloader-details"          : "0x6000F000",
+            "update-client.application-details"         : "0x60010000",
+            "update-client.storage-address"             : "(MBED_ROM_START + 64*1024 + 1984*1024)",
+            "update-client.storage-size"                : "(1984*1024)",
+            "update-client.storage-locations"           : 1,
+            "update-client.storage-page"                : 256,
+            "update-client.delta-storage-address"       : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS + MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
+            "update-client.delta-storage-size"          : "(1024*1024)",
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
+            "mbed-cloud-client.network-manager"         : 1,
+            "storage_tdb_internal.internal_base_address": "(MBED_ROM_START + 64*1024 + 1984*2*1024 + 64*1024)",
+            "storage_tdb_internal.internal_size"        : "(2*128*1024)",
+            "storage.storage_type"                      : "TDB_INTERNAL",
+            "atmel-rf.provide-default"                  : true,
+            "atmel-rf.SPI_MOSI"                         : "GPIO_B0_02",
+            "atmel-rf.SPI_MISO"                         : "GPIO_B0_01",
+            "atmel-rf.SPI_SCLK"                         : "GPIO_B0_03",
+            "atmel-rf.SPI_CS"                           : "GPIO_B0_00",
+            "atmel-rf.SPI_RST"                          : "GPIO_AD_B1_09",
+            "atmel-rf.SPI_IRQ"                          : "GPIO_AD_B1_08",
+            "atmel-rf.SE2435L_CSD"                      : "GPIO_B1_02",
+            "atmel-rf.SE2435L_ANT_SEL"                  : "GPIO_B1_03",
+            "atmel-rf.SPI_SLP"                          : "A4"
+        },
+        "MIMXRT1050_EVK_WISUN_SMALL": {
+            "target.macros_add"                         : ["PAL_DEFAULT_STAGGER_ESTIMATE=1", "MBED_CLOUD_CLIENT_MULTICAST_SMALL_NETWORK"]
+        }
+    },
+    "config": {
+        "developer-mode": {
+            "help"      : "Enable Developer mode to skip Factory enrollment",
+            "options"   : [null, 1],
+            "value"     : 1
+        },
+        "mbed-trace-max-level": {
+            "help"      : "Max trace level. Must be one of the following: [TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR]",
+            "macro_name": "MBED_TRACE_MAX_LEVEL",
+            "value"     : "TRACE_LEVEL_INFO"
+        },
+        "button-pinname": {
+            "help"      : "PinName for button.",
+            "value"     : "BUTTON1"
+        },
+        "led-pinname"   : {
+            "help"      : "PinName for led, which is attached to led blink resource.",
+            "value"     : "LED_RED"
+        },
+        "bootloader-size": {
+            "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",
+            "value"     : "(32*1024)",
+            "macro_name": "MBED_BOOTLOADER_SIZE"
+        },
+        "cpu-stats-enabled": {
+            "macro_name": "MBED_CPU_STATS_ENABLED",
+            "help": "Set to 1 to enable cpu stats. When enabled the function mbed_stats_cpu_get returns non-zero data. See mbed_stats.h for more information",
+            "value": 1
+        },
+        "heap-stats-enabled": {
+            "macro_name": "MBED_HEAP_STATS_ENABLED",
+            "help": "Set to 1 to enable heap stats. When enabled the function mbed_stats_heap_get returns non-zero data. See mbed_stats.h for more information",
+            "value": 1
+        }
+    }
+}

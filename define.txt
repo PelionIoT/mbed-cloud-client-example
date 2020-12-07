@@ -38,7 +38,13 @@ add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
 add_definitions(-DPLATFORM_ENABLE_BUTTON=1)
 add_definitions(-DPLATFORM_ENABLE_LED=1)
 
+# This definition controls application automatic reboot if network errors exceed certain limit.
+# Disabled when set to 0.
+add_definitions(-DMAX_ERROR_COUNT=0)
+
 if(ENABLE_DEVICE_SENTRY)
     add_definitions(-DMBED_CONF_MBED_CLOUD_CLIENT_ENABLE_DEVICE_SENTRY)
     message("Enable Device Sentry feature")
+    add_definitions(-DMBED_CONF_APP_ENABLE_DS_CUSTOM_METRICS_EXAMPLE)
+    message("Enable Device Sentry example application")
 endif(ENABLE_DEVICE_SENTRY)

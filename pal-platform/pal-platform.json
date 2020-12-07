@@ -25,46 +25,6 @@
       "version": "2.7.0"
     }
   },
-  "K64F_FreeRTOS_mbedtls": {
-    "comment": "Extra comments\nfor the instructions",
-    "device": {
-      "name": "K64F"
-    },
-    "os": {
-      "name": "FreeRTOS",
-      "version": "8.2.3"
-    },
-    "middleware": {
-      "fatfs": {
-        "version": "0.11"
-      },
-      "lwip": {
-        "version": "1.4.1"
-      },
-      "mbedtls": {
-        "version": "2.22.0",
-        "from": {
-          "protocol": "git",
-          "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.22.0"
-        },
-        "to": "SDK/K64F_FreeRTOS/K64F_FreeRTOS/Middleware/mbedtls",
-        "patch_file": "SDK/K64F_FreeRTOS/K64F_FreeRTOS.patch"
-      },
-      "mmcau_2.0.0": {
-        "version": "2.0.0"
-      },
-      "sdmmc_2.0.0": {
-        "version": "2.0.0"
-      }
-    },
-    "from": {
-      "protocol": "git",
-      "location": "git@github.com:ARMmbed/Example-PAL-Port-using-FreeRTOS.git",
-      "tag": "4.4.1"
-    },
-    "to": "SDK/K64F_FreeRTOS/K64F_FreeRTOS"
-  },
   "x86_x64_NativeLinux_mbedtls": {
     "device": {
       "name": "x86_x64"
@@ -99,6 +59,15 @@
           "tag": "0.3.1"
         },
         "to": "Middleware/parsec_se_driver/parsec_se_driver"
+      },
+      "curl": {
+        "version": "7.72.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/curl/curl.git",
+          "tag": "curl-7_72_0"
+        },
+        "to": "Middleware/curl/curl"
       }
     }
   },
@@ -119,6 +88,15 @@
           "tag": "mbedtls-2.22.0"
         },
         "to": "Middleware/mbedtls/mbedtls"
+      },
+      "curl": {
+        "version": "7.72.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/curl/curl.git",
+          "tag": "curl-7_72_0"
+        },
+        "to": "Middleware/curl/curl"
       }
     }
   },
@@ -138,6 +116,15 @@
           "tag": "mbedtls-2.22.0"
         },
         "to": "Middleware/mbedtls/mbedtls"
+      },
+      "curl": {
+        "version": "7.72.0",
+        "from": {
+          "protocol": "git",
+          "location": "https://github.com/curl/curl.git",
+          "tag": "curl-7_72_0"
+        },
+        "to": "Middleware/curl/curl"
       }
     }
   },

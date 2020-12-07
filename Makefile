@@ -64,9 +64,12 @@ LOCAL_ADD_INCLUDE += . \
                          ${LOCAL_NAME}/mbed-cloud-client/mbed-client-randlib \
                          ${LOCAL_NAME}/mbed-cloud-client/nanostack-libservice \
                          ${LOCAL_NAME}/mbed-cloud-client/sal-stack-nanostack-eventloop \
+                         ${LOCAL_NAME}/mbed-cloud-client/sal-stack-nanostack-eventloop/nanostack-event-loop \
                          ${LOCAL_NAME}/mbed-cloud-client/certificate-enrollment-client/certificate-enrollment-client \
                          ${LOCAL_NAME}/mbed-cloud-client/update-client-hub \
                          ${LOCAL_NAME}/mbed-cloud-client/update-client-hub/modules/common \
+                         ${LOCAL_NAME}/mbed-cloud-client/mbed-cloud-client \
+                         ${LOCAL_NAME}/mbed-cloud-client/fota \
 
 LOCAL_EXPORT_FLAG += __SXOS__
 

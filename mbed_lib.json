@@ -15,16 +15,6 @@
             "macro_name": "PLATFORM_ENABLE_LED",
             "value": 1
         },
-        "startup_max_random_delay": {
-            "help": "Delay client registration after network formation by random delay in seconds with a maximum defined by the startup_max_delay. Disabled with null or 0.",
-            "macro_name": "STARTUP_MAX_RANDOM_DELAY",
-            "value": null
-        },
-        "startup_min_random_delay": {
-            "help": "Delay client registration after network formation by random delay in seconds with a minimum defined by the startup_min_delay. Feature is enabled if STARTUP_MAX_RANDOM_DELAY is defined.",
-            "macro_name": "STARTUP_MIN_RANDOM_DELAY",
-            "value": null
-        },
         "pal_dtls_peer_min_timeout": {
              "help": "pal_dtls_peer_min_timeout",
              "macro_name": "PAL_DTLS_PEER_MIN_TIMEOUT",
