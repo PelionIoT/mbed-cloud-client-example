@@ -50,6 +50,10 @@
 #define MAX_ERROR_COUNT 5
 #endif
 
+// starting with 5s, after every iteration waiting time is multiplied by 2 -> max waiting time is with 9 is 1280s (~21min)
+// it is this long as with bad cellular rssi register and plmn selection might take 5mins so we wan't to give it a few tries.
+#define MAX_PDMC_CLIENT_CONNECTION_ERROR_COUNT 9
+
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
 static void external_update(uint32_t start_address, uint32_t size)
 {
@@ -69,6 +73,14 @@ public:
         , _paused(false)
 #endif
     {
+    }
+
+    void reboot_if_threshold_value(int threshold) {
+        if (++_error_count == threshold) {
+            printf("Max error count %d reached, rebooting.\n\n", threshold);
+            mcc_platform_do_wait(1 * 1000);
+            mcc_platform_reboot();
+        }
     }
 
     bool call_register()
@@ -274,14 +286,11 @@ public:
 
 // Feature is disabled if MAX_ERROR_COUNT is 0.
 #if (MAX_ERROR_COUNT > 0)
-        if (error_code == MbedCloudClient::ConnectNetworkError ||
-                error_code == MbedCloudClient::ConnectDnsResolvingFailed ||
-                error_code == MbedCloudClient::ConnectSecureConnectionFailed) {
-            if (++_error_count == MAX_ERROR_COUNT) {
-                printf("Max error count %d reached, rebooting.\n\n", MAX_ERROR_COUNT);
-                mcc_platform_do_wait(1 * 1000);
-                mcc_platform_reboot();
-            }
+        if ( error_code == MbedCloudClient::ConnectNetworkError ||
+             error_code == MbedCloudClient::ConnectDnsResolvingFailed ||
+             error_code == MbedCloudClient::ConnectSecureConnectionFailed ||
+             error_code == MbedCloudClient::ConnectTimeout) {
+            reboot_if_threshold_value(MAX_ERROR_COUNT);
         }
 #endif
     }
@@ -329,9 +338,9 @@ public:
     void sleep_callback_function()
     {
         printf("Pelion client is going to sleep - Pausing the client\r\n");
-        _paused = true;
         _cloud_client.pause();
         mcc_platform_interface_close();
+        _paused = true;
     }
 
     bool is_client_paused()
@@ -341,17 +350,18 @@ public:
 
     void client_resumed()
     {
-        int timeout_ms = 1000;
+        _paused = false;
+        int timeout_ms = 5000;
         while (-1 == mcc_platform_interface_connect()){
-            // Will try to connect using mcc_platform_interface_connect forever. 
-            // wait timeout is always doubled
-            printf("Network did not recover after pause. Try again after %d milliseconds.\n",timeout_ms);
+            // Will try to connect using mcc_platform_interface_connect until error count and then does reboot if
+            // not successful. Wait timeout is always doubled
+            printf("Network did not recover after pause. Try again after %d milliseconds.\n", timeout_ms);
             mcc_platform_do_wait(timeout_ms);
             timeout_ms *= 2;
+            reboot_if_threshold_value(MAX_PDMC_CLIENT_CONNECTION_ERROR_COUNT);
         }
-        _paused = false;
         _cloud_client.resume(mcc_platform_get_network_interface());
-        
+
     }
 
 #endif

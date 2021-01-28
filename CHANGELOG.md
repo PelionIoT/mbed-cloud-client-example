@@ -1,5 +1,12 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.7.1 (28.01.2021)
+
+- [Mbed OS] Updated ISM43362 Wi-Fi driver to #3813a4b with fixes for logging and UDP socket handling.
+- Updated to Pelion end-to-end test library v0.2.8.
+- Added a `requirements.txt` file for the application.
+- The application and tooling now supports [manifest-tool v2.1.0](https://github.com/PelionIoT/manifest-tool/releases/tag/v2.1.0) or later with manifest version 1.
+
 ## Release 4.7.0 (07.12.2020)
 
 * Updated to Mbed OS 6.5.0.
@@ -46,7 +53,7 @@
 * Updated to Pelion E2E test library v0.2.6.
 * Added a network error counter that resets the device if too many errors have occurred
 * Added sleeping device example that is enabled with `MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE` option. The sleepy device will `pause` the client when client goes to sleep,
-whenever application will try to send notification, if the client is `paused` then application will first `resume` client and then send notification. 
+whenever application will try to send notification, if the client is `paused` then application will first `resume` client and then send notification.
 * Added support for Device Sentry feature for Mbed OS and Linux.
   * Mbed OS - the feature is enabled for K66F board.
   * Linux - the feature is enabled by passing the `ENABLE_DEVICE_SENTRY` CMake flag.
@@ -127,7 +134,7 @@ No changes.
 
 * Added PSA configuration for K66F (`configs-psa/eth_v4.json`).
 * Updated usage of new Update Authorization API, which takes in priority as well, `set_update_authorize_priority_handler` instead of `set_update_authorize_handler`.
-* Use `set_message_delivery_status_cb` as part of unregister resource triggering to make sure device does not close the network connection before client is able to send the final ACK to server. 
+* Use `set_message_delivery_status_cb` as part of unregister resource triggering to make sure device does not close the network connection before client is able to send the final ACK to server.
 * [Linux] Updated Mbed TLS to 2.18.1.
 * [Mbed OS] Removed the legacy ESFS-SOTP configurations from the applications. Only KVstore is supported for client storage.
 
@@ -182,7 +189,7 @@ No changes.
 
 * Updated to Mbed OS 5.12.0.
 * [Mbed OS] Use asyncronous DNS by default for all targets.
-* [Mbed OS] Preview support for Platform Security Architecture (PSA) enabled boards. 
+* [Mbed OS] Preview support for Platform Security Architecture (PSA) enabled boards.
    * PSA configuration for PSA-enabled Cypress PSoC6 and NXP LPC55S69 boards. Configuration is in the `configs-psa/` folder.
    * Both PSA-enabled boards use ESP8266 Wi-Fi.
    * PSA configuration for K64F board.
@@ -296,7 +303,7 @@ No changes.
 
 * Linux: Converted all timers to use signal-based timer (`SIGEV_SIGNAL`) instead of (`SIGEV_THREAD`).
   * This fixes the Valgrind warnings for possible memory leaks caused by LIBC's internal timer helper thread.
-  
+
       <span class="notes">**Note**: If the client application is creating a pthread before instantiating MbedCloudClient,
     it needs to block the `PAL_TIMER_SIGNAL` from it. Otherwise, the thread may get an exception caused
     by the default signal handler with a message such as "Process terminating with default action

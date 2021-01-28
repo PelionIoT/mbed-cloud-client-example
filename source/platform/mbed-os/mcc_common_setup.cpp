@@ -75,6 +75,10 @@ static void network_status_callback(nsapi_event_t status, intptr_t param);
  */
 static bool interface_connected = false;
 
+#ifdef MCC_USE_MBED_EVENTS
+static bool volatile async_connect = false;
+#endif
+
 ////////////////////////////////
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
@@ -116,7 +120,7 @@ int mcc_platform_interface_connect(void) {
 
     printf("mcc_platform_interface_connect()\n");
     network_interface = NetworkInterface::get_default_instance();
-    if(network_interface == NULL) {
+    if (network_interface == NULL) {
         printf("ERROR: No NetworkInterface found!\n");
         return -1;
     }
@@ -125,47 +129,87 @@ int mcc_platform_interface_connect(void) {
     network_interface->add_event_listener(mbed::callback(&network_status_callback));
     printf("Connecting with interface: %s\n", network_type(network_interface));
     interface_connected = false;
-#ifdef MCC_USE_MBED_EVENTS
-    network_interface->set_blocking(false);
 
-    if (network_interface->connect() != NSAPI_ERROR_OK) {
-        return -1;
+#ifdef MCC_USE_MBED_EVENTS
+    bool blocking_interface = false;
+
+    if (network_interface->set_blocking(false) != NSAPI_ERROR_OK) {
+        printf("WARN: Could not set non-blocking interface\n");
+        blocking_interface = true;
     }
 
-    // Stay here until we get a connection
-    EventQueue *queue = mbed::mbed_event_queue();
-    queue->dispatch_forever();
-    if (interface_connected) {
-        err = network_interface->get_ip_address(&sa);
-        if (err != NSAPI_ERROR_OK) {
-            printf("get_ip_address() - failed, status %d\n", err);
-            return -1;
+    if (!blocking_interface) {
+        for (int i = 1; i <= MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
+            err = network_interface->connect();
+            printf("network_interface->connect(): %d\n", err);
+            if (err == NSAPI_ERROR_IS_CONNECTED) {
+                interface_connected = true;
+            } else if (err != NSAPI_ERROR_OK) {
+                return -1;
+            } else {
+                async_connect = true;
+                mbed_event_queue()->dispatch_forever();
+                async_connect = false;
+            }
+
+            if (interface_connected) {
+                err = network_interface->get_ip_address(&sa);
+                if (err != NSAPI_ERROR_OK) {
+                    printf("get_ip_address() - failed, status %d\n", err);
+                    interface_connected = false;
+                } else {
+                    printf("IP: %s\n", (sa.get_ip_address() ? sa.get_ip_address() : "None"));
+                    printf("MAC address: %s\n", (network_interface->get_mac_address() ? network_interface->get_mac_address() : "None"));
+                    return 0;
+                }
+            }
+            printf("Failed to connect! Retry %d/%d\n", i, MCC_PLATFORM_CONNECTION_RETRY_COUNT);
+            err = network_interface->disconnect();
+            printf("network_interface->disconnect(): %d\n", err);
+            mcc_platform_do_wait(MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT * i);
         }
-        printf("IP: %s\n", sa.get_ip_address() ? sa.get_ip_address() : "None");
-        return 0;
     } else {
-        return -1;
+        for (int i = 1; i <= MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
+            err = network_interface->connect();
+            if (err == NSAPI_ERROR_OK || err == NSAPI_ERROR_IS_CONNECTED) {
+                err = network_interface->get_ip_address(&sa);
+                if (err != NSAPI_ERROR_OK) {
+                    printf("get_ip_address() - failed, status %d\n", err);
+                } else {
+                    printf("IP: %s\n", (sa.get_ip_address() ? sa.get_ip_address() : "None"));
+                    printf("MAC address: %s\n", (network_interface->get_mac_address() ? network_interface->get_mac_address() : "None"));
+                    interface_connected = true;
+                    return 0;
+                }
+            }
+            printf("Failed to connect! error=%d. Retry %d/%d\n", err, i, MCC_PLATFORM_CONNECTION_RETRY_COUNT);
+            err = network_interface->disconnect();
+            printf("network_interface->disconnect(): %d\n", err);
+            mcc_platform_do_wait(MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT * i);
+        }
     }
 #else
-    for (int i=1; i <= MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
+    for (int i = 1; i <= MCC_PLATFORM_CONNECTION_RETRY_COUNT; i++) {
         err = network_interface->connect();
         if (err == NSAPI_ERROR_OK || err == NSAPI_ERROR_IS_CONNECTED) {
             err = network_interface->get_ip_address(&sa);
             if (err != NSAPI_ERROR_OK) {
                 printf("get_ip_address() - failed, status %d\n", err);
-                goto retry;
+            } else {
+                printf("IP: %s\n", (sa.get_ip_address() ? sa.get_ip_address() : "None"));
+                printf("MAC address: %s\n", (network_interface->get_mac_address() ? network_interface->get_mac_address() : "None"));
+                interface_connected = true;
+                return 0;
             }
-            printf("IP: %s\n", sa.get_ip_address() ? sa.get_ip_address() : "None");
-            interface_connected = true;
-            return 0;
         }
         printf("Failed to connect! error=%d. Retry %d/%d\n", err, i, MCC_PLATFORM_CONNECTION_RETRY_COUNT);
-retry:
-        (void) network_interface->disconnect();
+        err = network_interface->disconnect();
+        printf("network_interface->disconnect(): %d\n", err);
         mcc_platform_do_wait(MCC_PLATFORM_CONNECTION_RETRY_TIMEOUT * i);
     }
-    return -1;
 #endif
+
+    return -1;
 }
 
 int mcc_platform_interface_close(void) {
@@ -191,19 +235,15 @@ void* mcc_platform_interface_get(void) {
 
 void network_status_callback(nsapi_event_t status, intptr_t param)
 {
-#ifdef MCC_USE_MBED_EVENTS
-    EventQueue *queue = mbed::mbed_event_queue();
-#endif
     if (status == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
         switch(param) {
             case NSAPI_STATUS_GLOBAL_UP:
 #ifdef MCC_USE_MBED_EVENTS
-                if (!interface_connected) {
-                    queue->break_dispatch();
+                if (!interface_connected && async_connect) {
+                    mbed_event_queue()->break_dispatch();
                 }
-#endif
                 interface_connected = true;
-
+#endif
 #if MBED_CONF_MBED_TRACE_ENABLE
                 tr_info("NSAPI_STATUS_GLOBAL_UP");
 #else
@@ -223,7 +263,12 @@ void network_status_callback(nsapi_event_t status, intptr_t param)
 #else
                 printf("NSAPI_STATUS_DISCONNECTED\n");
 #endif
+#ifdef MCC_USE_MBED_EVENTS
+                if (network_interface && !async_connect) {
+                    mbed_event_queue()->break_dispatch();
+                }
                 interface_connected = false;
+#endif
                 break;
             case NSAPI_STATUS_CONNECTING:
 #if MBED_CONF_MBED_TRACE_ENABLE

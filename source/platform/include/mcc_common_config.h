@@ -1,4 +1,4 @@
- // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Copyright 2018-2019 ARM Ltd.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -22,12 +22,11 @@
 /* #define PLATFORM_ENABLE_BUTTON 1 for enabling button.*/
 #ifndef PLATFORM_ENABLE_BUTTON
 #define PLATFORM_ENABLE_BUTTON 0
-#endif 
+#endif
 
 /* #define PLATFORM_ENABLE_LED 1 for enabling led.*/
 #ifndef PLATFORM_ENABLE_LED
-#define PLATFORM_ENABLE_LED 0 
+#define PLATFORM_ENABLE_LED 0
 #endif
 
 #endif /* MCC_COMMON_CONFIG_H */
-
