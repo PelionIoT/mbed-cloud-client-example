@@ -315,15 +315,22 @@ void main_application(void)
     mcc_platform_sw_build_info();
 
     // Initialize network
-    int timeout_ms = 1000;
+    int timeout_ms = 5000;
+    int retry_counter = 0;
     while (-1 == mcc_platform_interface_connect()){
-        // Will try to connect using mcc_platform_interface_connect forever. 
+        // Will try to connect using mcc_platform_interface_connect forever.
         // wait timeout is always doubled
         printf("Network connect failed. Try again after %d milliseconds.\n",timeout_ms);
         mcc_platform_do_wait(timeout_ms);
         timeout_ms *= 2;
+
+        if (++retry_counter == MAX_PDMC_CLIENT_CONNECTION_ERROR_COUNT) {
+            printf("Max error count %d reached, rebooting.\n\n", MAX_PDMC_CLIENT_CONNECTION_ERROR_COUNT);
+            mcc_platform_do_wait(1000);
+            mcc_platform_reboot();
+        }
     }
-    printf("Network initialized, registering...\r\n");    
+    printf("Network initialized, registering...\r\n");
 
 #ifdef MEMORY_TESTS_HEAP
     printf("Client initialized\r\n");

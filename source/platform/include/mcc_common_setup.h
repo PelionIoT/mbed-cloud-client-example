@@ -38,7 +38,11 @@ int mcc_platform_init(void);
 int mcc_platform_interface_connect(void);
 
 // Initialize network interface pointer.
+#ifdef __NANOSIMULATOR__
+int mcc_platform_interface_init(int8_t rf_driver, int8_t app_tasklet_id);
+#else
 void mcc_platform_interface_init(void);
+#endif // __NANOSIMULATOR__
 
 // Close network interface.
 int mcc_platform_interface_close(void);

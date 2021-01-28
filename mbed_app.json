@@ -121,7 +121,7 @@
             "target.app_offset"                         : "0x11400",
             "target.components_add"                     : ["QSPIF", "WIFI_ISM43362"],
             "bootloader-size"                           : "(36*1024)",
-            "ism43362.read-thread-stack-size"           : 1024,
+            "ism43362.read-thread-stack-size"           : 2048,
             "led-pinname"                               : "LED1",
             "mbed-client.sn-coap-max-blockwise-payload-size" : 256,
             "mbed-client-pal.pal-max-frag-len"          : 1,
