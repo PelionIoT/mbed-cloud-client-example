@@ -38,7 +38,7 @@ int fota_app_on_install_candidate(const char *candidate_fs_name, const manifest_
     int ret = FOTA_STATUS_SUCCESS;
     if (0 == strncmp(FOTA_COMPONENT_MAIN_COMPONENT_NAME, firmware_info->component_name, FOTA_COMPONENT_MAX_NAME_SIZE)) {
         // installing MAIN component
-        ret = fota_component_install_main(candidate_fs_name);
+        ret = fota_app_install_main_app(candidate_fs_name);
         if (FOTA_STATUS_SUCCESS == ret) {
             FOTA_APP_PRINT("Successfully installed MAIN component\n");
             // FOTA does support a case where installer method reboots the system.
