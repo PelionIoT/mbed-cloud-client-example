@@ -149,7 +149,6 @@ int mcc_platform_interface_connect(void) {
             } else {
                 async_connect = true;
                 mbed_event_queue()->dispatch_forever();
-                async_connect = false;
             }
 
             if (interface_connected) {
@@ -238,11 +237,12 @@ void network_status_callback(nsapi_event_t status, intptr_t param)
     if (status == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
         switch(param) {
             case NSAPI_STATUS_GLOBAL_UP:
+                interface_connected = true;
 #ifdef MCC_USE_MBED_EVENTS
-                if (!interface_connected && async_connect) {
+                if (async_connect) {
+                    async_connect = false;
                     mbed_event_queue()->break_dispatch();
                 }
-                interface_connected = true;
 #endif
 #if MBED_CONF_MBED_TRACE_ENABLE
                 tr_info("NSAPI_STATUS_GLOBAL_UP");
@@ -258,16 +258,17 @@ void network_status_callback(nsapi_event_t status, intptr_t param)
 #endif
                 break;
             case NSAPI_STATUS_DISCONNECTED:
+                interface_connected = false;
 #if MBED_CONF_MBED_TRACE_ENABLE
                 tr_info("NSAPI_STATUS_DISCONNECTED");
 #else
                 printf("NSAPI_STATUS_DISCONNECTED\n");
 #endif
 #ifdef MCC_USE_MBED_EVENTS
-                if (network_interface && !async_connect) {
+                if (async_connect) {
+                    async_connect = false;
                     mbed_event_queue()->break_dispatch();
                 }
-                interface_connected = false;
 #endif
                 break;
             case NSAPI_STATUS_CONNECTING:

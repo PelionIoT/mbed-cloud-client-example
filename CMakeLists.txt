@@ -1,3 +1,9 @@
+if(DEFINED WEST_PYTHON)
+    message(STATUS "Zephyr build detected. Using CMakeLists.txt from pal-platform/SDK/ZephyrOS instead.")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/pal-platform/SDK/ZephyrOS/CMakeLists.txt)
+    return()
+endif()
+
 INCLUDE(CMakeForceCompiler)
 # CROSS COMPILER SETTING
 cmake_minimum_required (VERSION 3.5)

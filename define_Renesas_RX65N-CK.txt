@@ -4,7 +4,6 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 
-add_definitions(-DMBED_CLIENT_USER_CONFIG_FILE="mbed_cloud_client_user_config.h")
 add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE="mbed_cloud_client_user_config.h")
 add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="pal_config_Renesas_RX65N-CK.h")
 

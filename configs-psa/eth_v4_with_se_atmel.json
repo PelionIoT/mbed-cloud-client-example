@@ -1,13 +1,12 @@
 {
     "macros": [
-        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
         "MBEDTLS_USE_PSA_CRYPTO",
         "MBED_CONF_APP_SECURE_ELEMENT_ATCA_SUPPORT",
         "MBEDTLS_PSA_CRYPTO_SE_C"
     ],
     "target_overrides": {
         "*": {
-            "target.features_add"                       : ["EXPERIMENTAL_API", "BOOTLOADER", "STORAGE"],
+            "target.features_add"                       : ["EXPERIMENTAL_API", "STORAGE"],
             "target.c_lib"                              : "std",
             "platform.stdio-baud-rate"                  : 115200,
             "platform.stdio-convert-newlines"           : true,
@@ -16,6 +15,15 @@
             "rtos.main-thread-stack-size"               : 5120,
             "events.shared-stacksize"                   : 2048,
             "events.shared-eventsize"                   : 1536,
+            "storage.storage_type"                      : null,
+            "storage_filesystem.filesystem"             : null,
+            "storage_filesystem.blockdevice"            : null,
+            "storage_filesystem.internal_base_address"  : null,
+            "storage_filesystem.rbp_internal_size"      : null,
+            "storage_filesystem.external_base_address"  : null,
+            "storage_filesystem.external_size"          : null,
+            "fota.enable"                               : true,
+            "fota.default-app-ifs"                      : 1,
             "mbed-cloud-client.psa-support"             : 1,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null,
@@ -25,24 +33,14 @@
         },
         "K64F": {
             "target.network-default-interface-type"     : "ETHERNET",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.1.0.bin",
+            "target.extra_labels_add"                   : ["BL_SD"],
             "target.header_offset"                      : "0xa000",
-            "target.app_offset"                         : "0xa400",
+            "target.app_offset"                         : "0xa200",
             "target.components_add"                     : ["SD", "ATECC608A"],
-            "update-client.bootloader-details"          : "0x00007188",
-            "update-client.application-details"         : "(40*1024)",
-            "update-client.storage-address"             : "(1024*1024*64)",
-            "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
-            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
-            "mbed-cloud-client.secure-element-support"  : 1,
-            "storage_filesystem.internal_base_address"  : "(32*1024)",
-            "storage_filesystem.rbp_internal_size"      : "(8*1024)",
-            "storage_filesystem.external_base_address"  : "(0x0)",
-            "storage_filesystem.external_size"          : "(1024*1024*64)",
-            "storage.storage_type"                      : "FILESYSTEM",
-            "storage_filesystem.filesystem"             : "LITTLE",
-            "storage_filesystem.blockdevice"            : "SD"
-         }
+            "fota.num-components"                       : 2,
+            "fota.app-default-cb-no-print"              : false,
+            "fota.encryption-support"                   : true
+        }
     },
     "config": {
         "developer-mode": {

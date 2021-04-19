@@ -1,12 +1,10 @@
 {
     "macros": [
-        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
         "MBEDTLS_USE_PSA_CRYPTO"
     ],
     "target_overrides": {
         "*": {
-            "target.features_add"                       : ["EXPERIMENTAL_API", "BOOTLOADER", "STORAGE"],
-            "target.c_lib"                              : "std",
+            "target.features_add"                       : ["EXPERIMENTAL_API", "STORAGE"],
             "platform.stdio-baud-rate"                  : 115200,
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
@@ -14,46 +12,26 @@
             "rtos.main-thread-stack-size"               : 5120,
             "mbed-cloud-client.psa-support"             : 1,
             "update-client.storage-locations"           : 1,
-            "mbed-trace.enable"                         : null
-        },
-        "Freescale": {
-            "lwip.mem-size"                             : 12500
+            "mbed-trace.enable"                         : null,
+            "storage.storage_type"                      : null,
+            "storage_filesystem.filesystem"             : null,
+            "storage_filesystem.blockdevice"            : null,
+            "storage_filesystem.internal_base_address"  : null,
+            "storage_filesystem.rbp_internal_size"      : null,
+            "storage_filesystem.external_base_address"  : null,
+            "storage_filesystem.external_size"          : null,
+            "fota.enable"                               : true,
+            "fota.default-app-ifs"                      : 1
         },
         "K64F": {
             "target.network-default-interface-type"     : "ETHERNET",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.1.0.bin",
+            "target.extra_labels_add"                   : ["BL_SD"],
             "target.header_offset"                      : "0xa000",
-            "target.app_offset"                         : "0xa400",
+            "target.app_offset"                         : "0xa200",
             "target.components_add"                     : ["SD"],
-            "update-client.bootloader-details"          : "0x00007188",
-            "update-client.application-details"         : "(40*1024)",
-            "update-client.storage-address"             : "(1024*1024*64)",
-            "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
-            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
-            "storage_filesystem.internal_base_address"  : "(32*1024)",
-            "storage_filesystem.rbp_internal_size"      : "(8*1024)",
-            "storage_filesystem.external_base_address"  : "(0x0)",
-            "storage_filesystem.external_size"          : "(1024*1024*64)",
-            "storage.storage_type"                      : "FILESYSTEM",
-            "storage_filesystem.filesystem"             : "LITTLE",
-            "storage_filesystem.blockdevice"            : "SD"
-         },
-         "K66F": {
-            "target.network-default-interface-type"     : "ETHERNET",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-k66f-internal_flash-no_rot-v4.1.0.bin",
-            "target.header_offset"                      : "0x8000",
-            "target.app_offset"                         : "0x8400",
-            "rtos.main-thread-stack-size"               : 8192,
-            "update-client.bootloader-details"          : "0x4D58",
-            "update-client.application-details"         : "(32*1024)",
-            "update-client.storage-address"             : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS+MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
-            "update-client.storage-size"                : "(1024*1024-MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
-            "update-client.storage-page"                : 8,
-            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
-            "mbed-cloud-client.disable-certificate-enrollment": null,
-            "storage_tdb_internal.internal_base_address": "(1024*1024)",
-            "storage_tdb_internal.internal_size"        : "(96*1024)",
-            "storage.storage_type"                      : "TDB_INTERNAL"
+            "fota.num-components"                       : 2,
+            "fota.app-default-cb-no-print"              : false,
+            "fota.encryption-support"                   : true
         }
     },
     "config": {

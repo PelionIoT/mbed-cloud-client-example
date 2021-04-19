@@ -1,5 +1,33 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.8.0 (19.04.2021)
+
+* Updated to Mbed OS 6.8.0.
+* Updated cURL to 7.75.0 in `pal-platform`.
+* Updated parsec-se-driver to 0.4.0.
+* Updated to Pelion end-to-end test library v0.2.10.
+* Removed support for SXOS platform in the application.
+* Consolidated the K64F ESP8266 configuration to `wifi_esp8266_minimal.json`.
+* Removed K66F PSA.
+* `DISCO_L475VG_IOT01A` target bootloader increased from 36kB to 38kB.
+* Introduction of upgraded Update client:
+  * The new features of the upgraded Update client:
+    * Component update.
+    * Resume after power failure.
+    * Defer firmware update installation.
+    * Candidate encryption on external storage.
+  * Configured Mbed OS non-mesh and Linux targets to use the new upgraded Update client.
+
+    <span class="notes">**Note:** To use legacy Update client in your Mbed OS non mesh target, please refer to the configurations in PDMC example 4.7.1.</span>
+
+  * Legacy Update client is still used in Mbed OS mesh targets and SDK's targets (NXP, Renesas).
+  * Upgraded update client bootloaders are located in prebuild-bl folder. Legacy bootloaders are located in tools folder.
+  * On `K64F`, `NUCLEO_F411RE` and `DISCO_L475VG_IOT01A` targets, the update candidate is stored encrypted on the external storage encrypted.
+
+  * Created migration documentation guide for existing customers who wish to migrate legacy Update client to the new Update client.
+
+    <span class="notes">**Note:** After you migrate to the new Update client, only the "Component update" feature is available. To use other features of the new Update client, reflash the device with the new configuration and new bootloader.</span>
+
 ## Release 4.7.1 (28.01.2021)
 
 - [Mbed OS] Updated ISM43362 Wi-Fi driver to #3813a4b with fixes for logging and UDP socket handling.
