@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2018-2019 ARM Ltd.
+// Copyright (c) 2021 Pelion. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,46 +16,38 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
-#include "cos.h"
+///////////
+// INCLUDES
+///////////
 
-#include <assert.h>
+#include "mcc_common_config.h"
+#include "mcc_common_button_and_led.h"
+#include <stdio.h>
+#include <stdint.h>
 
-void* operator new(size_t count)
+uint8_t mcc_platform_button_clicked(void)
 {
-    return COS_Malloc((UINT32)count, COS_MMI_HEAP);
-}
-
-void* operator new[](size_t count)
-{
-    return COS_Malloc((UINT32)count, COS_MMI_HEAP);
-}
-
-void operator delete(void* ptr)
-{
-    // unlike other free() implementations, the COS version does not
-    // handle NULL
-    if (ptr) {
-        COS_Free(ptr);
+#if PLATFORM_ENABLE_BUTTON
+    static uint8_t count = 0;
+    if (count++ == 200) {
+        count = 0;
+        printf("Virtual button clicked\n\r");
+        return 1;
     }
+#endif
+    return 0;
 }
 
-// XXX: m2mfirmware needs this for some reason
-void operator delete(void *ptr, size_t sz)
+uint8_t mcc_platform_init_button_and_led(void)
 {
-    if (ptr) {
-        COS_Free(ptr);
-    }
+   return 0;
 }
 
-void operator delete[](void* ptr)
+void mcc_platform_toggle_led(void)
 {
-    if (ptr) {
-        COS_Free(ptr);
-    }
+#if PLATFORM_ENABLE_LED
+    printf("Virtual LED toggled\n\r");
+#endif
 }
 
-extern "C"
-void __cxa_pure_virtual()
-{
-    assert(false);
-}
+void mcc_platform_led_off(void) {}

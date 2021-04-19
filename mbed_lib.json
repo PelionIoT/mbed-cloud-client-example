@@ -1,9 +1,5 @@
 {
     "name": "client_app",
-    "macros": [
-        "MBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
-        "MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\""
-    ],
      "config": {
         "platform-enable-button": {
             "help": "Enable button usage on the board.",
@@ -19,6 +15,11 @@
              "help": "pal_dtls_peer_min_timeout",
              "macro_name": "PAL_DTLS_PEER_MIN_TIMEOUT",
              "value": 5000
+        },
+        "user-config": {
+            "help": "Defines which user configuration to use.",
+            "macro_name": "MBED_CLOUD_CLIENT_USER_CONFIG_FILE",
+            "value": "\"mbed_cloud_client_user_config.h\""
         },
         "mbedtls-user-config-file": {
             "help": "Defines which TLS configuration the board should use.",

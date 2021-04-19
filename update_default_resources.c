@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2020 ARM Limited or its affiliates
+// Copyright 2020-2021 Pelion
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,20 +16,26 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
+#ifdef MBED_CLOUD_CLIENT_USER_CONFIG_FILE
+
+#include MBED_CLOUD_CLIENT_USER_CONFIG_FILE
+#endif
+
 #include <inttypes.h>
 
-#ifdef MBED_CLOUD_CLIENT_FOTA_ENABLE
-#if MBED_CONF_APP_DEVELOPER_MODE == 1
-#error "Please run manifest-dev-tool init to create your own update resources"
-#endif
-#endif
+#if defined(MBED_CLOUD_CLIENT_FOTA_ENABLE) || defined(MBED_CLOUD_CLIENT_SUPPORT_UPDATE)
 
-const uint8_t arm_uc_vendor_id[] = { "dev_manufacturer" };
+#warning "Please run manifest-tool init ... to generate proper update certificates"
+
+#ifdef MBED_CLOUD_DEV_UPDATE_ID
+const uint8_t arm_uc_vendor_id[16] = { 0 };
 const uint16_t arm_uc_vendor_id_size = sizeof(arm_uc_vendor_id);
 
-const uint8_t arm_uc_class_id[]  = { "dev_model_number" };
+const uint8_t arm_uc_class_id[16]  = { 0 };
 const uint16_t arm_uc_class_id_size = sizeof(arm_uc_class_id);
+#endif
 
+#ifdef MBED_CLOUD_DEV_UPDATE_CERT
 const uint8_t arm_uc_default_fingerprint[32] = { 0 };
 const uint16_t arm_uc_default_fingerprint_size =
     sizeof(arm_uc_default_fingerprint);
@@ -37,5 +43,19 @@ const uint16_t arm_uc_default_fingerprint_size =
 const uint8_t arm_uc_default_certificate[1] = { 0 };
 const uint16_t arm_uc_default_certificate_size =
     sizeof(arm_uc_default_certificate);
+#endif
 
-const uint8_t arm_uc_update_public_key[65] = { 0 };
+#ifdef MBED_CLOUD_DEV_UPDATE_RAW_PUBLIC_KEY
+const uint8_t arm_uc_update_public_key[] = { "public_key" };
+#endif
+
+#ifdef MBED_CLOUD_DEV_UPDATE_PSK
+const uint8_t arm_uc_default_psk[1] = { 0 };
+const uint8_t arm_uc_default_psk_size = sizeof(arm_uc_default_psk);
+const uint16_t arm_uc_default_psk_bits = sizeof(arm_uc_default_psk) * 8;
+
+const uint8_t arm_uc_default_psk_id[1] = { 0 };
+const uint8_t arm_uc_default_psk_id_size = sizeof(arm_uc_default_psk_id);
+#endif
+
+#endif // MBED_CLOUD_CLIENT_FOTA_ENABLE or MBED_CLOUD_CLIENT_SUPPORT_UPDATE

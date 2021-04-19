@@ -1,0 +1,26 @@
+{
+    "name": "mbed-bootloader-DISCO_L475VG_IOT01A-TARGET_BL_QSPIF",
+    "target_overrides": {
+        "*": {
+            "target.macros_add": [
+                "MBED_CONF_STORAGE_STORAGE_TYPE=TDB_INTERNAL",
+                "MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS=(MBED_ROM_START + 38*1024)",
+                "MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE=(2*16*1024)",
+                "MBED_CLOUD_CLIENT_FOTA_BLOCK_DEVICE_TYPE=FOTA_DEFAULT_MBED_OS_BD",
+                "MBED_CLOUD_CLIENT_FOTA_STORAGE_START_ADDR=(0)",
+                "MBED_CLOUD_CLIENT_FOTA_STORAGE_SIZE=(((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR)/0x1000)*0x1000)"
+
+            ],
+            "target.bootloader_img": "mbed-bootloader-6121dde.bin",
+            "target.header_offset" : "0x11800",
+            "target.app_offset"    : "0x11A00",
+            "target.header_format": [
+                ["magic", "const", "32le", "0x5c0253a3"],
+                ["firmwareSize", "size", "32le", ["application"]],
+                ["firmwareVersion", "const", "64le", "0x0"],
+                ["firmwareDigest", "digest", "SHA256", "application"],
+                ["precursorDigest", "digest", "SHA256", "application"]
+            ]
+        }
+    }
+}

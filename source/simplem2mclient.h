@@ -218,6 +218,9 @@ public:
             case MbedCloudClient::ConnectDnsResolvingFailed:
                 error = "MbedCloudClient::ConnectDnsResolvingFailed";
                 break;
+            case MbedCloudClient::ConnectorFailedToStoreCredentials:
+                error = "MbedCloudClient::ConnectorFailedToStoreCredentials";
+                break;
             case MbedCloudClient::ConnectorFailedToReadCredentials:
                 error = "MbedCloudClient::ConnectorFailedToReadCredentials";
                 break;

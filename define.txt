@@ -7,7 +7,6 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 
-add_definitions(-DMBED_CLIENT_USER_CONFIG_FILE="\\"mbed_cloud_client_user_config.h"\\")
 add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE="\\"mbed_cloud_client_user_config.h"\\")
 add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="\\"sotp_fs_config_linux.h"\\")
 add_definitions(-DTARGET_LIKE_POSIX)
@@ -30,6 +29,10 @@ endif(PAL_SIMULATOR_FILE_SYSTEM_OVER_RAM)
 
 add_definitions(-DPAL_DTLS_PEER_MIN_TIMEOUT=5000)
 
+# enable fota
+add_definitions(-DMBED_CLOUD_CLIENT_FOTA_ENABLE=1)
+add_definitions(-DMBED_CLOUD_CLIENT_FOTA_LINUX_SINGLE_MAIN_FILE=1)
+
 # Set to 1 to enable tracing
 add_definitions(-DMBED_CONF_MBED_TRACE_ENABLE=0)
 
@@ -48,3 +51,10 @@ if(ENABLE_DEVICE_SENTRY)
     add_definitions(-DMBED_CONF_APP_ENABLE_DS_CUSTOM_METRICS_EXAMPLE)
     message("Enable Device Sentry example application")
 endif(ENABLE_DEVICE_SENTRY)
+
+# Enable FOTA Update
+option(FOTA_ENABLE "Enable FOTA client module" ON)
+
+add_definitions(-DFOTA_DEFAULT_APP_IFS=1)
+add_definitions(-DTARGET_LIKE_LINUX=1)
+
