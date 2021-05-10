@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2019 ARM Ltd.
+// Copyright 2016-2021 Pelion.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -24,6 +24,8 @@
 
 // Enable new define to allow usage of Wi-SUN network security.
 #define MBEDTLS_PEM_PARSE_C
+#define MBEDTLS_NIST_KW_C
+#define MBEDTLS_SHA1_C
 
 #include "mbedtls/check_config.h"
 

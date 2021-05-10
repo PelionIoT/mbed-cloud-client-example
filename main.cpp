@@ -49,10 +49,6 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #endif
 
-#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
-#include "multicast.h"
-#endif
-
 #if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER && \
  (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
 #include "NetworkInterface.h"
@@ -291,7 +287,6 @@ void main_application(void)
      * 4. Connect Device Management Client to service using `setup()`.          // Implemented in `mbedClient.register_and_connect)`.
      */
     (void) mcc_platform_interface_init();
-    mbedClient.init();
 
     // application_init() runs the following initializations:
     //  1. platform initialization
@@ -301,6 +296,8 @@ void main_application(void)
         printf("Initialization failed, exiting application!\r\n");
         return;
     }
+
+    mbedClient.init();
 
 #if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER &&\
  (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
@@ -382,11 +379,6 @@ void main_application(void)
     factory_reset_res->set_auto_observable(true);
 #endif
 
-#endif
-
-    // TODO! replace when api available in wisun interface
-#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
-    arm_uc_multicast_interface_configure(1);
 #endif
 
     mbedClient.register_and_connect();
