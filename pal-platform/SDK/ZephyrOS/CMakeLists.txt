@@ -47,5 +47,5 @@ if(CONFIG_PELION_SOURCES)
   target_include_directories(app PRIVATE ${ZEPHYR_BASE}/subsys/storage/flash_map)
   # Copy configuration file to include directory visible for all libraries.
   # Needed for the file to be visible by Zephyr's mbedtls library.
-  configure_file("${CMAKE_SOURCE_DIR}/pal-platform/SDK/ZephyrOS/config-tls-pelion.h" "${CMAKE_BINARY_DIR}/zephyr/include/generated" COPYONLY)
+  configure_file("${CMAKE_SOURCE_DIR}/pal-platform/SDK/ZephyrOS/config-tls-generic.h" "${CMAKE_BINARY_DIR}/zephyr/include/generated" COPYONLY)
 endif()

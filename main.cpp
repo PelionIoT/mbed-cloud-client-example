@@ -49,10 +49,6 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #endif
 
-#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
-#include "multicast.h"
-#endif
-
 #if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER && \
  (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
 #include "NetworkInterface.h"
@@ -80,7 +76,6 @@ int main(void)
 static M2MResource *button_res;
 static M2MResource *pattern_res;
 static M2MResource *blink_res;
-static M2MResource *unregister_res;
 static M2MResource *factory_reset_res;
 static M2MResource *large_res;
 static uint8_t *large_res_data = NULL;
@@ -180,12 +175,6 @@ void sent_callback(const M2MBase &base,
         default:
             break;
     }
-}
-
-void unregister_triggered(void)
-{
-    printf("Unregister resource triggered\r\n");
-    unregister_res->send_delayed_post_response();
 }
 
 void factory_reset_triggered(void *)
@@ -291,7 +280,6 @@ void main_application(void)
      * 4. Connect Device Management Client to service using `setup()`.          // Implemented in `mbedClient.register_and_connect)`.
      */
     (void) mcc_platform_interface_init();
-    mbedClient.init();
 
     // application_init() runs the following initializations:
     //  1. platform initialization
@@ -301,6 +289,8 @@ void main_application(void)
         printf("Initialization failed, exiting application!\r\n");
         return;
     }
+
+    mbedClient.init();
 
 #if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER &&\
  (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
@@ -358,11 +348,6 @@ void main_application(void)
     // Use delayed response
     blink_res->set_delayed_response(true);
 
-    // Create resource for unregistering the device. Path of this resource will be: 5000/0/1.
-    unregister_res = mbedClient.add_cloud_resource(5000, 0, 1, "unregister", M2MResourceInstance::STRING,
-                                                   M2MBase::POST_ALLOWED, NULL, false, (void *)unregister_triggered, (void *)sent_callback);
-    unregister_res->set_delayed_response(true);
-
     // Create optional Device resource for running factory reset for the device. Path of this resource will be: 3/0/5.
     factory_reset_res = M2MInterfaceFactory::create_device()->create_resource(M2MDevice::FactoryReset);
     if (factory_reset_res) {
@@ -378,15 +363,9 @@ void main_application(void)
     button_res->set_auto_observable(true);
     pattern_res->set_auto_observable(true);
     blink_res->set_auto_observable(true);
-    unregister_res->set_auto_observable(true);
     factory_reset_res->set_auto_observable(true);
 #endif
 
-#endif
-
-    // TODO! replace when api available in wisun interface
-#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
-    arm_uc_multicast_interface_configure(1);
 #endif
 
     mbedClient.register_and_connect();

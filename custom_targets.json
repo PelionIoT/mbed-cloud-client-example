@@ -1,14 +1,8 @@
 {
-    "NUCLEO_F429ZI_WISUN": {
+    "NUCLEO_F429ZI_AGGRESSIVE": {
         "inherits": ["NUCLEO_F429ZI"]
     },
-    "NUCLEO_F429ZI_WISUN_SMALL": {
-        "inherits": ["NUCLEO_F429ZI_WISUN"]
-    },
-    "MIMXRT1050_EVK_WISUN": {
+    "MIMXRT1050_EVK_AGGRESSIVE": {
         "inherits": ["MIMXRT1050_EVK"]
-    },
-    "MIMXRT1050_EVK_WISUN_SMALL": {
-        "inherits": ["MIMXRT1050_EVK_WISUN"]
     }
 }
