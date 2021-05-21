@@ -37,6 +37,9 @@
 #include <chrono>
 #endif
 
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+#include "multicast.h"
+#endif
 
 #define TRACE_GROUP "plat"
 
@@ -177,6 +180,10 @@ int mcc_platform_interface_connect(void) {
                 } else {
                     printf("IP: %s\n", (sa.get_ip_address() ? sa.get_ip_address() : "None"));
                     printf("MAC address: %s\n", (network_interface->get_mac_address() ? network_interface->get_mac_address() : "None"));
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+                    // TODO! replace hardcoding when api available in wisun interface. This is only for router node.
+                    arm_uc_multicast_interface_configure(1);
+#endif
                     interface_connected = true;
                     return 0;
                 }
@@ -197,6 +204,10 @@ int mcc_platform_interface_connect(void) {
             } else {
                 printf("IP: %s\n", (sa.get_ip_address() ? sa.get_ip_address() : "None"));
                 printf("MAC address: %s\n", (network_interface->get_mac_address() ? network_interface->get_mac_address() : "None"));
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+                // TODO! replace hardcoding when api available in wisun interface. This is only for router node.
+                arm_uc_multicast_interface_configure(1);
+#endif
                 interface_connected = true;
                 return 0;
             }

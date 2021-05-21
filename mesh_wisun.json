@@ -1,17 +1,16 @@
 {
     "macros": [
         "ARM_UC_USE_PAL_BLOCKDEVICE=1",
-        "MBEDTLS_PEM_PARSE_C",
-        "MBEDTLS_NIST_KW_C",
-        "MBEDTLS_SHA1_C",
         "MAX_ERROR_COUNT=0",
-        "MBED_CLOUD_CLIENT_ENDPOINT_TYPE=\"routernode\""
+        "MBED_CLOUD_CLIENT_ENDPOINT_TYPE=\"routernode\"",
+        "MBED_CLOUD_CLIENT_SUPPORT_UPDATE",
+        "MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE",
+        "MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP"
     ],
     "target_overrides": {
         "*": {
             "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
             "target.c_lib"                              : "std",
-            "target.macros_add"                         : ["MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP", "MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE", "ENABLE_ASYNC_REST_RESPONSE"],
             "platform.stdio-baud-rate"                  : 115200,
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
@@ -19,7 +18,7 @@
             "rtos.main-thread-stack-size"               : 5120,
             "client_app.user-config"                    : "\"mbed_cloud_client_user_config_mesh.h\"",
             "mbed-client.reconnection-count"            : 6,
-            "mbed-client.sn-coap-blockwise-max-time-data-stored": 300,
+            "mbed-client.sn-coap-blockwise-max-time-data-stored": 900,
             "client_app.pal_dtls_peer_min_timeout"      : "60000",
             "mbed-client.dtls_peer_max_timeout"         : "600000",
             "mbed-client-pal.pal-max-frag-len"          : 2,
@@ -55,7 +54,7 @@
             "mbed-cloud-client.network-manager"         : 1,
             "mbed-cloud-client.observable-timer"        : 15
         },
-        "NUCLEO_F429ZI_WISUN": {
+        "NUCLEO_F429ZI": {
             "client_app.mbedtls-user-config-file"       : "\"configs/wisun_mbedTLSConfig_mbedOS.h\"",
             "target.network-default-interface-type"     : "MESH",
             "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f429zi-internal_flash-no_rot-v4.1.0.bin",
@@ -75,15 +74,15 @@
             "update-client.delta-storage-address"       : "(MBED_ROM_START + 896*1024)",
             "update-client.delta-storage-size"          : "(1*128*1024)"
         },
-        "NUCLEO_F429ZI_WISUN_SMALL": {
+        "NUCLEO_F429ZI_AGGRESSIVE": {
             "target.macros_add"                         : ["PAL_DEFAULT_STAGGER_ESTIMATE=1", "MBED_CLOUD_CLIENT_MULTICAST_SMALL_NETWORK"]
         },
-        "MIMXRT1050_EVK_WISUN": {
+        "MIMXRT1050_EVK": {
             "client_app.mbedtls-user-config-file"       : "\"configs/wisun_mbedTLSConfig_mbedOS.h\"",
             "target.network-default-interface-type"     : "MESH",
             "target.macros_remove"                      : ["HYPERFLASH_BOOT"],
             "target.tickless-from-us-ticker"            : true,
-            "target.macros_add"                         : ["MBED_APP_COMPILE","SE2435L_PA","DISABLE_AT24MAC","HAVE_AT86RF215M", "ARM_UC_DELTAPAAL_WRITE_BUF_SIZE=256"],
+            "target.macros_add"                         : ["MBED_APP_COMPILE", "DISABLE_AT24MAC", "ARM_UC_DELTAPAAL_WRITE_BUF_SIZE=256"],
             "target.mbed_rom_start"                     : "0x60000000",
             "target.mbed_rom_size"                      : "0x800000",
             "target.sectors"                            : [[1610612736,4096]],
@@ -106,18 +105,9 @@
             "storage_tdb_internal.internal_base_address": "(MBED_ROM_START + 64*1024 + 1984*2*1024 + 64*1024)",
             "storage_tdb_internal.internal_size"        : "(2*128*1024)",
             "storage.storage_type"                      : "TDB_INTERNAL",
-            "atmel-rf.provide-default"                  : true,
-            "atmel-rf.SPI_MOSI"                         : "GPIO_B0_02",
-            "atmel-rf.SPI_MISO"                         : "GPIO_B0_01",
-            "atmel-rf.SPI_SCLK"                         : "GPIO_B0_03",
-            "atmel-rf.SPI_CS"                           : "GPIO_B0_00",
-            "atmel-rf.SPI_RST"                          : "GPIO_AD_B1_09",
-            "atmel-rf.SPI_IRQ"                          : "GPIO_AD_B1_08",
-            "atmel-rf.SE2435L_CSD"                      : "GPIO_B1_02",
-            "atmel-rf.SE2435L_ANT_SEL"                  : "GPIO_B1_03",
-            "atmel-rf.SPI_SLP"                          : "A4"
+            "atmel-rf.provide-default"                  : true
         },
-        "MIMXRT1050_EVK_WISUN_SMALL": {
+        "MIMXRT1050_EVK_AGGRESSIVE": {
             "target.macros_add"                         : ["PAL_DEFAULT_STAGGER_ESTIMATE=1", "MBED_CLOUD_CLIENT_MULTICAST_SMALL_NETWORK"]
         }
     },
@@ -147,13 +137,13 @@
         },
         "cpu-stats-enabled": {
             "macro_name": "MBED_CPU_STATS_ENABLED",
-            "help": "Set to 1 to enable cpu stats. When enabled the function mbed_stats_cpu_get returns non-zero data. See mbed_stats.h for more information",
-            "value": 1
+            "help"      : "Set to 1 to enable cpu stats. When enabled the function mbed_stats_cpu_get returns non-zero data. See mbed_stats.h for more information",
+            "value"     : 1
         },
         "heap-stats-enabled": {
             "macro_name": "MBED_HEAP_STATS_ENABLED",
-            "help": "Set to 1 to enable heap stats. When enabled the function mbed_stats_heap_get returns non-zero data. See mbed_stats.h for more information",
-            "value": 1
+            "help"      : "Set to 1 to enable heap stats. When enabled the function mbed_stats_heap_get returns non-zero data. See mbed_stats.h for more information",
+            "value"     : 1
         }
     }
 }

@@ -29,7 +29,8 @@
             "mbed-trace.enable"                         : null,
             "target.OUTPUT_EXT"                         : "hex",
             "mbed-os-atecc608a.i2c-iface-devtype"       : "ATECC608A",
-            "mbed-os-atecc608a.i2c-iface-slave_address" : "0x6C"
+            "mbed-os-atecc608a.i2c-iface-slave_address" : "0x6C",
+            "mbed-cloud-client.secure-element-support"  : 1
         },
         "K64F": {
             "target.network-default-interface-type"     : "ETHERNET",

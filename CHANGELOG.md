@@ -1,32 +1,40 @@
 # Changelog for Pelion Device Management Client example application
 
-## Release 4.8.0 (19.04.2021)
+## Release 4.9.0 (20.05.2021)
+
+* [Mbed OS] Increased `SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED` stored time to 15min for mesh to account for long retransmission chains during blockwise transfers.
+* [Mbed OS] Updated ISM43362 Wi-Fi driver to #09a71bf with fix to mutex handling.
+* Removed unregister resource `5000/0/1` from the application. Device Management Client library now implements OMA resource ` 1/0/4`, which supports deregistration.
+* Removed delta-tool from the application.
+  * The current supported version (2.2.0 or later) of [manifest-tool](https://github.com/PelionIoT/manifest-tool) provides the functionality internally.
+* Updated cURL to 7.76.0 in `pal-platform`.
+* Fixed Atmel SE configuration.
+* Updated to Mbed OS 6.9.0.
+* [Linux] Updated Mbed TLS to 2.25.0.
+
+## Release 4.8.0 (24.03.2021)
 
 * Updated to Mbed OS 6.8.0.
 * Updated cURL to 7.75.0 in `pal-platform`.
 * Updated parsec-se-driver to 0.4.0.
-* Updated to Pelion end-to-end test library v0.2.10.
+* Updated to Pelion E2E test library v0.2.10.
 * Removed support for SXOS platform in the application.
-* Consolidated the K64F ESP8266 configuration to `wifi_esp8266_minimal.json`.
-* Removed K66F PSA.
-* `DISCO_L475VG_IOT01A` target bootloader increased from 36kB to 38kB.
+* Consolidated the K64F ESP8266 configuration to wifi_esp8266_minimal.json.
+* K66F PSA has been removed.
+* DISCO_L475VG_IOT01A target bootloader was increased from 36kB to 38kB.
 * Introduction of upgraded Update client:
   * The new features of the upgraded Update client:
     * Component update.
     * Resume after power failure.
     * Defer firmware update installation.
     * Candidate encryption on external storage.
-  * Configured Mbed OS non-mesh and Linux targets to use the new upgraded Update client.
-
-    <span class="notes">**Note:** To use legacy Update client in your Mbed OS non mesh target, please refer to the configurations in PDMC example 4.7.1.</span>
-
+  * Mbed OS non-mesh and Linux targets are configured to use the new upgraded Update client.
+     * Note - if you wish to use legacy Update client in your Mbed OS non mesh target, please refer to the configurations in PDMC exmaple 4.7.1.
   * Legacy Update client is still used in Mbed OS mesh targets and SDK's targets (NXP, Renesas).
-  * Upgraded update client bootloaders are located in prebuild-bl folder. Legacy bootloaders are located in tools folder.
-  * On `K64F`, `NUCLEO_F411RE` and `DISCO_L475VG_IOT01A` targets, the update candidate is stored encrypted on the external storage encrypted.
-
-  * Created migration documentation guide for existing customers who wish to migrate legacy Update client to the new Update client.
-
-    <span class="notes">**Note:** After you migrate to the new Update client, only the "Component update" feature is available. To use other features of the new Update client, reflash the device with the new configuration and new bootloader.</span>
+  * Upgraded update client bootloaders are located in prebuild-bl folder. Legacy bootloaders are located in tools folder
+  * On K64F, NUCLEO_F411RE, DISCO_L475VG_IOT01A targets, the update candidate is stored encrypted on the external storage encrypted.
+  * Migration documentation guide was created for existing customers that wish to migrate legacy Update client to the new Update client - [TBD Link to https://github.com/PelionIoT/mbed_Cloud_Docs/pull/1689/files].
+     * Note - once migrated to new Update client, only "Component update" feature will be available. For using other features of new Update client, the device needs to be reflashed with the new configuration and new bootloader.
 
 ## Release 4.7.1 (28.01.2021)
 

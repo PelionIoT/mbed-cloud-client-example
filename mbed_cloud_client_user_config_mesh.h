@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2021 Pelion Ltd.
+// Copyright 2021 Pelion.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
