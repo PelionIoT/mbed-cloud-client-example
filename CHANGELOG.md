@@ -1,5 +1,9 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.9.1 (15.06.2021)
+
+No changes.
+
 ## Release 4.9.0 (20.05.2021)
 
 * [Mbed OS] Increased `SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED` stored time to 15min for mesh to account for long retransmission chains during blockwise transfers.
