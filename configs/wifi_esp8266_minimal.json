@@ -64,7 +64,7 @@
         },
         "led-pinname"   : {
             "help"      : "PinName for led, which is attached to led blink resource.",
-            "value"     : "LED_RED"
+            "value"     : "LED1"
         },
         "mbed-trace-max-level": {
             "help"      : "Max trace level. Must be one of the following: [TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR, TRACE_LEVEL_CMD]",

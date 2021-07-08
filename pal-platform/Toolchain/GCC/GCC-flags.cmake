@@ -60,6 +60,8 @@ endif ()
 # Board specific
 
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_C_FLAGS "-Wall")
+SET_COMPILER_DBG_RLZ_FLAG (CMAKE_CXX_FLAGS "-Wall")
+
 # Board specific
 if (${CPU} MATCHES "x86_64")
     SET_COMPILER_DBG_RLZ_FLAG (CMAKE_C_FLAGS "-m32")
@@ -79,6 +81,7 @@ SET_COMPILER_DBG_RLZ_FLAG (CMAKE_C_FLAGS "-fdata-sections")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_C_FLAGS "-ffreestanding")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_C_FLAGS "-fno-builtin")
 SET_COMPILER_DBG_RLZ_FLAG (CMAKE_C_FLAGS "-std=gnu99")
+SET_COMPILER_DBG_RLZ_FLAG (CMAKE_CXX_FLAGS "-std=gnu++03")
 
 
 ########### Release specific ###########

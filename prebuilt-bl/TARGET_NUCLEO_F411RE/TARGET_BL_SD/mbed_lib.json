@@ -16,7 +16,7 @@
                 "MBED_CLOUD_CLIENT_FOTA_STORAGE_START_ADDR=(MBED_CONF_STORAGE_FILESYSTEM_EXTERNAL_SIZE)",
                 "MBED_CLOUD_CLIENT_FOTA_STORAGE_SIZE=(MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR)" 
             ],
-            "target.bootloader_img": "mbed-bootloader-6121dde.bin",
+            "target.bootloader_img": "mbed-bootloader-95fa885.bin",
             "target.header_offset" : "0x10000",
             "target.app_offset"    : "0x10200",
             "target.header_format": [

@@ -38,7 +38,8 @@
             "target.header_offset"                      : "0xa000",
             "target.app_offset"                         : "0xa200",
             "target.components_add"                     : ["SD"],
-            "fota.encryption-support"                   : true
+            "fota.encryption-support"                   : true,
+            "fota.key-encryption"                       : "FOTA_USE_ENCRYPTED_ONE_TIME_FW_KEY"
         },
         "K66F": {
             "enable-ds-custom-metrics-example"          : 1,
@@ -73,6 +74,7 @@
             "target.components_add"                     : ["SD"],
             "target.macros_remove"                      : ["MBEDTLS_CONFIG_HW_SUPPORT"],
             "fota.encryption-support"                   : true,
+            "fota.key-encryption"                       : "FOTA_USE_ENCRYPTED_ONE_TIME_FW_KEY",
             "sd.SPI_MOSI"                               : "PC_3",
             "sd.SPI_MISO"                               : "PC_2",
             "sd.SPI_CLK"                                : "PC_7",
@@ -95,7 +97,8 @@
             "led-pinname"                               : "LED1",
             "mbed-client.sn-coap-max-blockwise-payload-size" : 256,
             "mbed-client-pal.pal-max-frag-len"          : 1,
-            "fota.encryption-support"                   : true
+            "fota.encryption-support"                   : true,
+            "fota.key-encryption"                       : "FOTA_USE_ENCRYPTED_ONE_TIME_FW_KEY"
         }
     },
     "config": {
@@ -110,7 +113,7 @@
         },
         "led-pinname"   : {
             "help"      : "PinName for led, which is attached to led blink resource.",
-            "value"     : "LED_RED"
+            "value"     : "LED1"
         },
         "bootloader-size": {
             "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",
