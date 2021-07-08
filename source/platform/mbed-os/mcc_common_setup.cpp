@@ -386,11 +386,14 @@ void mcc_platform_sw_build_info(void) {
 int mcc_platform_storage_init(void) {
     // This wait will allow the board more time to initialize
     mcc_platform_do_wait(MCC_PLATFORM_WAIT_BEFORE_BD_INIT * SECONDS_TO_MS);
+    // Normally, TF-M V8M targets don't support KVStore/FLASHIAP and change to PSA Storage API instead.
+#if DEVICE_FLASH
     int status = kv_init_storage_config();
     if (status != MBED_SUCCESS) {
         printf("kv_init_storage_config() - failed, status %d\n", status);
         return status;
     }
+#endif
     return 0;
 }
 
