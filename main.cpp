@@ -51,7 +51,6 @@
 
 #if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER && \
  (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
-#include "NetworkInterface.h"
 #include "NetworkManager.h"
 #endif
 
@@ -208,7 +207,7 @@ static coap_response_code_e read_requested(const M2MResourceBase& resource,
     // Allocate buffer when first request comes in
     if (offset == 0) {
         large_res_data = (uint8_t*)malloc(large_res_size);
-        memset(large_res_data, '0', large_res_size);
+        memset(large_res_data, 0, large_res_size);
     }
 
     if (!large_res_data) {
@@ -294,6 +293,10 @@ void main_application(void)
 
 #if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER &&\
  (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
+    if (network_manager.configure_factory_mac_address(NetworkInterface::get_default_instance()) != NM_ERROR_NONE) {
+        printf("Failed: configure_factory_mac_address\n");
+        return;
+    }
     printf("Configuring Interface\r\n");
     if (network_manager.reg_and_config_iface(NetworkInterface::get_default_instance()) != NM_ERROR_NONE) {
         printf("Failed to register and configure Interface\r\n");

@@ -37,9 +37,13 @@
 #include <chrono>
 #endif
 
+
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+#include "MeshInterfaceNanostack.h"
 #include "multicast.h"
-#endif
+
+static int8_t get_mesh_iface_id();
+#endif // MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
 
 #define TRACE_GROUP "plat"
 
@@ -57,13 +61,13 @@
 #endif
 
 /* local help functions. */
-const char* network_type(NetworkInterface *iface);
+const char *network_type(NetworkInterface *iface);
 
 ////////////////////////////////////////
 // PLATFORM SPECIFIC DEFINES & FUNCTIONS
 ////////////////////////////////////////
 
-static NetworkInterface* network_interface=NULL;
+static NetworkInterface *network_interface = NULL;
 
 /*
  * Callback function which informs about status of connected NetworkInterface.
@@ -86,9 +90,10 @@ static bool volatile async_connect = false;
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
 
-void mcc_platform_interface_init(void) {
+void mcc_platform_interface_init(void)
+{
     network_interface = NetworkInterface::get_default_instance();
-    if(network_interface == NULL) {
+    if (network_interface == NULL) {
         printf("ERROR: No NetworkInterface found!\n");
         return;
     }
@@ -98,19 +103,23 @@ void mcc_platform_interface_init(void) {
     }
 }
 
-int mcc_platform_init_connection(void) {
+int mcc_platform_init_connection(void)
+{
     return mcc_platform_interface_connect();
 }
 
-void* mcc_platform_get_network_interface(void) {
+void *mcc_platform_get_network_interface(void)
+{
     return mcc_platform_interface_get();
 }
 
-int mcc_platform_close_connection(void) {
+int mcc_platform_close_connection(void)
+{
     return mcc_platform_interface_close();
 }
 
-int mcc_platform_interface_connect(void) {
+int mcc_platform_interface_connect(void)
+{
 // Perform number of retries if network init fails.
 #ifndef MCC_PLATFORM_CONNECTION_RETRY_COUNT
 #define MCC_PLATFORM_CONNECTION_RETRY_COUNT 5
@@ -162,6 +171,13 @@ int mcc_platform_interface_connect(void) {
                 } else {
                     printf("IP: %s\n", (sa.get_ip_address() ? sa.get_ip_address() : "None"));
                     printf("MAC address: %s\n", (network_interface->get_mac_address() ? network_interface->get_mac_address() : "None"));
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+                    int8_t iface_id = get_mesh_iface_id();
+                    if (iface_id == -1) {
+                        return -1;
+                    }
+                    arm_uc_multicast_interface_configure(iface_id);
+#endif // MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
                     return 0;
                 }
             }
@@ -181,9 +197,12 @@ int mcc_platform_interface_connect(void) {
                     printf("IP: %s\n", (sa.get_ip_address() ? sa.get_ip_address() : "None"));
                     printf("MAC address: %s\n", (network_interface->get_mac_address() ? network_interface->get_mac_address() : "None"));
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
-                    // TODO! replace hardcoding when api available in wisun interface. This is only for router node.
-                    arm_uc_multicast_interface_configure(1);
-#endif
+                    int8_t iface_id = get_mesh_iface_id();
+                    if (iface_id == -1) {
+                        return -1;
+                    }
+                    arm_uc_multicast_interface_configure(iface_id);
+#endif // MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
                     interface_connected = true;
                     return 0;
                 }
@@ -205,9 +224,12 @@ int mcc_platform_interface_connect(void) {
                 printf("IP: %s\n", (sa.get_ip_address() ? sa.get_ip_address() : "None"));
                 printf("MAC address: %s\n", (network_interface->get_mac_address() ? network_interface->get_mac_address() : "None"));
 #ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
-                // TODO! replace hardcoding when api available in wisun interface. This is only for router node.
-                arm_uc_multicast_interface_configure(1);
-#endif
+                int8_t iface_id = get_mesh_iface_id();
+                if (iface_id == -1) {
+                    return -1;
+                }
+                arm_uc_multicast_interface_configure(iface_id);
+#endif // MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
                 interface_connected = true;
                 return 0;
             }
@@ -222,7 +244,8 @@ int mcc_platform_interface_connect(void) {
     return -1;
 }
 
-int mcc_platform_interface_close(void) {
+int mcc_platform_interface_close(void)
+{
 
     if (network_interface) {
         nsapi_error_t err = network_interface->disconnect();
@@ -236,7 +259,8 @@ int mcc_platform_interface_close(void) {
     return -1;
 }
 
-void* mcc_platform_interface_get(void) {
+void *mcc_platform_interface_get(void)
+{
     if (interface_connected) {
         return network_interface;
     }
@@ -246,7 +270,7 @@ void* mcc_platform_interface_get(void) {
 void network_status_callback(nsapi_event_t status, intptr_t param)
 {
     if (status == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
-        switch(param) {
+        switch (param) {
             case NSAPI_STATUS_GLOBAL_UP:
                 interface_connected = true;
 #ifdef MCC_USE_MBED_EVENTS
@@ -304,7 +328,7 @@ void network_status_callback(nsapi_event_t status, intptr_t param)
 #define xstr(s) str(s)
 #define str(s) #s
 
-const char* network_type(NetworkInterface *iface)
+const char *network_type(NetworkInterface *iface)
 {
     if (iface->ethInterface()) {
         return "Ethernet";
@@ -371,7 +395,8 @@ int mcc_platform_run_program(main_t mainFunc)
     return 1;
 }
 
-void mcc_platform_sw_build_info(void) {
+void mcc_platform_sw_build_info(void)
+{
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
 
     // The Mbed OS' master branch does not define the version numbers at all, so we need
@@ -383,7 +408,8 @@ void mcc_platform_sw_build_info(void) {
 #endif
 }
 
-int mcc_platform_storage_init(void) {
+int mcc_platform_storage_init(void)
+{
     // This wait will allow the board more time to initialize
     mcc_platform_do_wait(MCC_PLATFORM_WAIT_BEFORE_BD_INIT * SECONDS_TO_MS);
     int status = kv_init_storage_config();
@@ -394,7 +420,27 @@ int mcc_platform_storage_init(void) {
     return 0;
 }
 
-void mcc_platform_reboot(void) {
+void mcc_platform_reboot(void)
+{
     NVIC_SystemReset();
 }
 
+#ifdef MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE
+static int8_t get_mesh_iface_id()
+{
+    NetworkInterface *mesh_interface = MeshInterface::get_default_instance();
+    if (mesh_interface == NULL) {
+        printf("Failed to get default MeshInterface\n");
+        return -1;
+    }
+
+    InterfaceNanostack *nano_mesh_if = reinterpret_cast<InterfaceNanostack *>(mesh_interface);
+    int8_t mesh_if_id = nano_mesh_if->get_interface_id();
+    if (mesh_if_id < 0) {
+        return -1;
+    }
+
+    printf("Mesh Interface ID: %d\n", mesh_if_id);
+    return mesh_if_id;
+}
+#endif // MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE

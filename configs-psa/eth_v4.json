@@ -32,7 +32,8 @@
             "target.components_add"                     : ["SD"],
             "fota.num-components"                       : 2,
             "fota.app-default-cb-no-print"              : false,
-            "fota.encryption-support"                   : true
+            "fota.encryption-support"                   : true,
+            "fota.key-encryption"                       : "FOTA_USE_ENCRYPTED_ONE_TIME_FW_KEY"
         }
     },
     "config": {
@@ -47,7 +48,7 @@
         },
         "led-pinname"   : {
             "help"      : "PinName for led, which is attached to led blink resource.",
-            "value"     : "LED_RED"
+            "value"     : "LED1"
         },
         "mbed-trace-max-level": {
             "help"      : "Max trace level. Must be one of the following: [TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR, TRACE_LEVEL_CMD]",

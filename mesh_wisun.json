@@ -1,22 +1,21 @@
 {
     "macros": [
-        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
         "MAX_ERROR_COUNT=0",
         "MBED_CLOUD_CLIENT_ENDPOINT_TYPE=\"routernode\"",
-        "MBED_CLOUD_CLIENT_SUPPORT_UPDATE",
+        "MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP",
         "MBED_CLOUD_CLIENT_SUPPORT_MULTICAST_UPDATE",
-        "MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP"
+        "FOTA_CUSTOM_PLATFORM=1"
     ],
     "target_overrides": {
         "*": {
-            "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "target.features_add"                       : ["STORAGE"],
             "target.c_lib"                              : "std",
             "platform.stdio-baud-rate"                  : 115200,
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
             "rtos.main-thread-stack-size"               : 5120,
-            "client_app.user-config"                    : "\"mbed_cloud_client_user_config_mesh.h\"",
+            "client_app.user-config"                    : "\"mbed_cloud_client_user_config.h\"",
             "mbed-client.reconnection-count"            : 6,
             "mbed-client.sn-coap-blockwise-max-time-data-stored": 900,
             "client_app.pal_dtls_peer_min_timeout"      : "60000",
@@ -25,8 +24,16 @@
             "mbed-client.disable-resource-type"         : 1,
             "nanostack-hal.event_loop_thread_stack_size": 8192,
             "nanostack-hal.use-kvstore"                 : true,
-            "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null,
+            "storage.storage_type"                      : null,
+            "storage_filesystem.filesystem"             : null,
+            "storage_filesystem.blockdevice"            : null,
+            "storage_tdb_internal.internal_base_address": null,
+            "storage_tdb_internal.internal_size"        : null,
+            "storage_filesystem.internal_base_address"  : null,
+            "storage_filesystem.rbp_internal_size"      : null,
+            "storage_filesystem.external_base_address"  : null,
+            "storage_filesystem.external_size"          : null,
             "mbed-mesh-api.wisun-regulatory-domain"     : "3",
             "mbed-mesh-api.wisun-operating-class"       : "2",
             "mbed-mesh-api.wisun-operating-mode"        : "3",
@@ -52,27 +59,24 @@
             "events.shared-highprio-stacksize"          : 3072,
             "events.shared-highprio-eventsize"          : 512,
             "mbed-cloud-client.network-manager"         : 1,
-            "mbed-cloud-client.observable-timer"        : 15
+            "mbed-cloud-client.observable-timer"        : 15,
+            "fota.enable"                               : true,
+            "fota.multicast-support"                    : "FOTA_MULTICAST_NODE_MODE",
+            "fota.resume-support"                       : "FOTA_RESUME_UNSUPPORTED",
+            "fota.num-components"                       : 2,
+            "fota.app-default-cb-no-print"              : false,
+            "fota.encryption-support"                   : false,
+            "fota.default-app-ifs"                      : false
         },
         "NUCLEO_F429ZI": {
             "client_app.mbedtls-user-config-file"       : "\"configs/wisun_mbedTLSConfig_mbedOS.h\"",
             "target.network-default-interface-type"     : "MESH",
-            "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f429zi-internal_flash-no_rot-v4.1.0.bin",
+            "target.extra_labels_add"                   : ["BL_INTERNAL_FLASH"],
             "target.header_offset"                      : "0x8000",
-            "target.app_offset"                         : "0x8400",
+            "target.app_offset"                         : "0x8200",
             "target.restrict_size"                      : "0xD7C00",
-            "update-client.bootloader-details"          : "0x080078CC",
-            "update-client.application-details"         : "(MBED_ROM_START + MBED_BOOTLOADER_SIZE)",
-            "update-client.storage-address"             : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS+MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
-            "update-client.storage-size"                : "(1024*1024-MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
-            "update-client.storage-page"                : 1,
-            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
-            "storage_tdb_internal.internal_base_address": "(MBED_ROM_START+1024*1024)",
-            "storage_tdb_internal.internal_size"        : "(128*1024)",
-            "storage.storage_type"                      : "TDB_INTERNAL",
-            "s2lp.provide-default"                      : true,
-            "update-client.delta-storage-address"       : "(MBED_ROM_START + 896*1024)",
-            "update-client.delta-storage-size"          : "(1*128*1024)"
+            "s2lp.provide-default"                      : true
+
         },
         "NUCLEO_F429ZI_AGGRESSIVE": {
             "target.macros_add"                         : ["PAL_DEFAULT_STAGGER_ESTIMATE=1", "MBED_CLOUD_CLIENT_MULTICAST_SMALL_NETWORK"]
@@ -86,25 +90,13 @@
             "target.mbed_rom_start"                     : "0x60000000",
             "target.mbed_rom_size"                      : "0x800000",
             "target.sectors"                            : [[1610612736,4096]],
-            "target.bootloader_img"                     : "tools/mbed-bootloader-rt1050-qspi-internal_flash-no_rot-94579e9.bin",
+            "target.extra_labels_add"                   : ["BL_INTERNAL_FLASH"],
             "target.header_offset"                      : "0x10000",
-            "target.app_offset"                         : "0x10400",
+            "target.app_offset"                         : "0x10200",
             "target.restrict_size"                      : "0x1EFC00",
             "bootloader-size"                           : "(64*1024)",
             "led-pinname"                               : "NC",
             "button-pinname"                            : "NC",
-            "update-client.bootloader-details"          : "0x6000F000",
-            "update-client.application-details"         : "0x60010000",
-            "update-client.storage-address"             : "(MBED_ROM_START + 64*1024 + 1984*1024)",
-            "update-client.storage-size"                : "(1984*1024)",
-            "update-client.storage-locations"           : 1,
-            "update-client.storage-page"                : 256,
-            "update-client.delta-storage-address"       : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS + MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
-            "update-client.delta-storage-size"          : "(1024*1024)",
-            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
-            "storage_tdb_internal.internal_base_address": "(MBED_ROM_START + 64*1024 + 1984*2*1024 + 64*1024)",
-            "storage_tdb_internal.internal_size"        : "(2*128*1024)",
-            "storage.storage_type"                      : "TDB_INTERNAL",
             "atmel-rf.provide-default"                  : true
         },
         "MIMXRT1050_EVK_AGGRESSIVE": {
@@ -128,7 +120,7 @@
         },
         "led-pinname"   : {
             "help"      : "PinName for led, which is attached to led blink resource.",
-            "value"     : "LED_RED"
+            "value"     : "LED1"
         },
         "bootloader-size": {
             "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",

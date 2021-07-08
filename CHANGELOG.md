@@ -1,10 +1,22 @@
 # Changelog for Pelion Device Management Client example application
 
-## Release 4.9.1 (15.06.2021)
+## Release 4.10.0 (07.07.2021)
 
-No changes.
+- NXP_LPC54628 target configured to use the new upgraded Update client with `FOTA_USE_ENCRYPTED_ONE_TIME_FW_KEY` key.
+- Mesh configuration in `mesh_wisun.json` is based on the new update FOTA implementation.
+- Changes to the implementation of update candidate image encryption:
+   - Added a new `FOTA_USE_ENCRYPTED_ONE_TIME_FW_KEY` option to `MBED_CLOUD_CLIENT_FOTA_KEY_ENCRYPTION`.
+   - Replaced `FOTA_USE_DEVICE_KEY` with `FOTA_USE_ENCRYPTED_ONE_TIME_FW_KEY` as the default value for `MBED_CLOUD_CLIENT_FOTA_KEY_ENCRYPTION` due to a security vulnerability found in `FOTA_USE_DEVICE_KEY`.
+      - For Mbed OS devices, the change to using `FOTA_USE_ENCRYPTED_ONE_TIME_FW_KEY` is a breaking change and requires a new bootloader that supports this feature.
+   - This release uses bootloaders compiled with the above improvement by default.
+   - Deprecated the `FOTA_USE_DEVICE_KEY` option, which will be removed in a future version.
+* Updated to Mbed OS 6.12.0.
 
-## Release 4.9.0 (20.05.2021)
+## Release 4.9.1 (17.06.2021)
+
+* No changes.
+
+## Release 4.9.0 (21.05.2021)
 
 * [Mbed OS] Increased `SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED` stored time to 15min for mesh to account for long retransmission chains during blockwise transfers.
 * [Mbed OS] Updated ISM43362 Wi-Fi driver to #09a71bf with fix to mutex handling.
