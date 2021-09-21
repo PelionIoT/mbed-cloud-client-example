@@ -30,11 +30,10 @@ include_directories(${CMAKE_SOURCE_DIR}/source/platform/include)
 SET(APP_SRCS
     ${CMAKE_SOURCE_DIR}/main.cpp
     ${CMAKE_SOURCE_DIR}/update_ui_example.cpp
-    ${CMAKE_SOURCE_DIR}/source/app_platform_setup.c
+    ${CMAKE_SOURCE_DIR}/source/pdmc_example.cpp
     ${CMAKE_SOURCE_DIR}/source/application_init.cpp
     ${CMAKE_SOURCE_DIR}/source/blinky.cpp
     ${CMAKE_SOURCE_DIR}/source/certificate_enrollment_user_cb.cpp
-    ${CMAKE_SOURCE_DIR}/source/resource.cpp
     ${CMAKE_SOURCE_DIR}/source/platform/ZephyrOS/mcc_common_button_and_led.c
     ${CMAKE_SOURCE_DIR}/source/platform/ZephyrOS/mcc_common_setup.c
     ${CMAKE_SOURCE_DIR}/mbed_cloud_dev_credentials.c

@@ -16,21 +16,31 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
-#ifndef APPLICATION_INIT_H
-#define APPLICATION_INIT_H
+#ifndef PDMC_EXAMPLE_H
+#define PDMC_EXAMPLE_H
 
-/*
- * Initializes tracing library.
- */
-bool application_init_mbed_trace(void);
+#include "m2minterface.h"
 
-/*
- * application_init() runs the following initializations:
- *  1. platform initialization
- *  2. print memory statistics if MEMORY_TESTS_HEAP is defined
- *  3. FCC initialization.
- */
-bool application_init(void);
+// Starting with 5s, after every iteration waiting time is multiplied by 2 -> max waiting time is with 9 is 1280s (~21min)
+// it is this long as with bad cellular rssi register and plmn selection might take 5mins so we wan't to give it a few tries.
+#define MAX_PDMC_CLIENT_CONNECTION_ERROR_COUNT 9
 
-#endif //APPLICATION_INIT_H
+void pdmc_init();
 
+void pdmc_close();
+
+bool pdmc_connect();
+
+void pdmc_resume();
+
+bool pdmc_registered();
+
+bool pdmc_paused();
+
+bool pdmc_register_called();
+
+M2MObjectList *pdmc_get_object_list();
+
+bool create_pdmc_resources();
+
+#endif // PDMC_EXAMPLE_H

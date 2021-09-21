@@ -21,14 +21,13 @@
 #include "task.h"
 #include "pal_plat_rtos.h"
 #include "mcc_common_setup.h"
-
+#include "MbedCloudClientConfig.h"
 
 int mcc_platform_run_program(main_t mainFunc)
 {
-    BaseType_t status = xTaskCreate((TaskFunction_t)mainFunc, "_main_", (uint32_t)1024*8, NULL, tskIDLE_PRIORITY + 1, NULL);
+    BaseType_t status = xTaskCreate((TaskFunction_t)mainFunc, "_main_", (uint32_t)1024 * 8, NULL, tskIDLE_PRIORITY + 1, NULL);
 
-    if (status == pdPASS)
-    {
+    if (status == pdPASS) {
         vTaskStartScheduler();
     }
     return 1;
@@ -42,6 +41,7 @@ void mcc_platform_do_wait(int timeout_ms)
 void mcc_platform_sw_build_info(void)
 {
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\r\n");
+    printf("PDMC version %d.%d.%d\r\n", PDMC_MAJOR_VERSION, PDMC_MINOR_VERSION, PDMC_PATCH_VERSION);
 }
 
 int mcc_platform_reformat_storage(void)
@@ -57,7 +57,7 @@ int mcc_platform_reformat_storage(void)
 int mcc_platform_storage_init(void)
 {
     // printf("mcc_platform_storage_init()\n");
-    
+
     // XXX: some of the existing users of this module actually call mcc_platform_storage_init()
     // BEFORE mcc_platform_init().
     //

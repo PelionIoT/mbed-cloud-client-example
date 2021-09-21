@@ -10,7 +10,7 @@ manifest:
     - name: pelion-dm
       repo-path: mbed-cloud-client
       remote: PelionIoT
-      revision: d7edc529ed3722c811ff401440ef58ea980bf543
+      revision: 105a1846277c80e5eb15ad74de7e4d7b15e57c26
       path: modules/lib/pelion-dm
     - name: zephyr
       remote: zephyrproject-rtos

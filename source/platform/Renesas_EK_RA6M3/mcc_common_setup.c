@@ -21,6 +21,7 @@
 ///////////
 #include "mcc_common_setup.h"
 #include "pal.h"
+#include "MbedCloudClientConfig.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -31,7 +32,7 @@
 // PLATFORM SPECIFIC DEFINES & FUNCTIONS
 ////////////////////////////////////////
 static void *network_interface = 0;
-extern void* mcc_platform_GetNetWorkInterfaceContext();
+extern void *mcc_platform_GetNetWorkInterfaceContext();
 
 static int init_FreeRTOS = 0;
 extern int mcc_platform_initFreeRTOSPlatform();
@@ -50,29 +51,35 @@ extern int fileSystemMountDrive();
 // SETUP_COMMON.H IMPLEMENTATION
 ////////////////////////////////
 
-int mcc_platform_init_connection(void) {
+int mcc_platform_init_connection(void)
+{
     return mcc_platform_interface_connect();
 }
 
-void* mcc_platform_get_network_interface(void) {
+void *mcc_platform_get_network_interface(void)
+{
     return mcc_platform_interface_get();
 }
 
-int mcc_platform_close_connection(void) {
+int mcc_platform_close_connection(void)
+{
     return mcc_platform_interface_close();
 }
 
-int mcc_platform_interface_connect(void) {
+int mcc_platform_interface_connect(void)
+{
     network_interface = mcc_platform_GetNetWorkInterfaceContext();
     return networkInit();
 }
 
-int mcc_platform_interface_close(void) {
+int mcc_platform_interface_close(void)
+{
     // XXX: Ignore the fact that this is not implemented.
     return 0;
 }
 
-void* mcc_platform_interface_get(void) {
+void *mcc_platform_interface_get(void)
+{
     return network_interface;
 }
 
@@ -105,14 +112,13 @@ int mcc_platform_storage_init(void)
 
 int mcc_platform_init(void)
 {
-    if(init_FreeRTOS) {
+    if (init_FreeRTOS) {
         return 0;
     }
     init_FreeRTOS = 1;
-    if(mcc_platform_initFreeRTOSPlatform()) {
+    if (mcc_platform_initFreeRTOSPlatform()) {
         return 0;
-    }
-    else {
+    } else {
         return -1;
     }
 }
@@ -122,10 +128,13 @@ void mcc_platform_do_wait(int timeout_ms)
     vTaskDelay(pdMS_TO_TICKS(timeout_ms));
 }
 
-void mcc_platform_sw_build_info(void) {
+void mcc_platform_sw_build_info(void)
+{
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
+    printf("PDMC version %d.%d.%d\n", PDMC_MAJOR_VERSION, PDMC_MINOR_VERSION, PDMC_PATCH_VERSION);
 }
 
-void mcc_platform_reboot(void) {
+void mcc_platform_reboot(void)
+{
     pal_osReboot();
 }

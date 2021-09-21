@@ -15,15 +15,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------------------------------------------------------
+#include <stdint.h>
+#include <inttypes.h>
 
-#include "mbed-cloud-client/MbedCloudClient.h"
+#ifdef MBED_CLOUD_CLIENT_FOTA_ENABLE
 
-#if defined(MBED_CLOUD_CLIENT_FOTA_MULTICAST_SUPPORT) && (MBED_CLOUD_CLIENT_FOTA_MULTICAST_SUPPORT != 0) && defined(FOTA_CUSTOM_PLATFORM) && (defined(TARGET_LIKE_MBED))
-#include "fota_app_ifs.h"
-#include "fota_platform_hooks.h"
+#define TRACE_GROUP "FOTA"
 
-static fota_component_desc_info_t external_component_info;
+#include "fota/fota_app_ifs.h"    // required for implementing custom install callback for Linux like targets
+#include <stdio.h>
+#include <assert.h>
 
+#if !(defined (FOTA_DEFAULT_APP_IFS) && FOTA_DEFAULT_APP_IFS==1)
 int fota_app_on_complete(int32_t status)
 {
     if (status == FOTA_STATUS_SUCCESS) {
@@ -53,7 +56,7 @@ int fota_app_on_install_authorization()
     return FOTA_STATUS_SUCCESS;
 }
 
-int fota_app_on_download_authorization(
+int  fota_app_on_download_authorization(
     const manifest_firmware_info_t *candidate_info,
     fota_component_version_t curr_fw_version)
 {
@@ -87,57 +90,31 @@ int fota_app_on_download_authorization(
 
     return FOTA_STATUS_SUCCESS;
 }
+#endif //#if !(defined (FOTA_DEFAULT_APP_IFS) && FOTA_DEFAULT_APP_IFS==1)
 
-static int install_iterate_handler(fota_candidate_iterate_callback_info *info)
+
+#if defined(TARGET_LIKE_LINUX) && !defined(USE_ACTIVATION_SCRIPT)  // e.g. Yocto target have different update activation logic residing outside of the example
+// Simplified Linux use case example.
+// For MAIN component update the the binary file current process is running.
+// Simulate component update by just printing its name.
+// After the installation callback returns, FOTA will "reboot" by calling pal_osReboot().
+
+int fota_app_on_install_candidate(const char *candidate_fs_name, const manifest_firmware_info_t *firmware_info)
 {
-    switch (info->status) {
-        case FOTA_CANDIDATE_ITERATE_START:
-            printf("fota candidate iterate start \n");
-            return FOTA_STATUS_SUCCESS;
-        case FOTA_CANDIDATE_ITERATE_FRAGMENT:
-            printf(".");
-            return FOTA_STATUS_SUCCESS;
-        case FOTA_CANDIDATE_ITERATE_FINISH:
-            printf("\nfota candidate iterate finish \n");
-            printf("\nApplication received external update\n"); // Use same phrase than in UCHub case. Test case is polling this line.
-            return FOTA_STATUS_SUCCESS;
-        default:
-            return FOTA_STATUS_INTERNAL_ERROR;
+    int ret = FOTA_STATUS_SUCCESS;
+    if (0 == strncmp(FOTA_COMPONENT_MAIN_COMPONENT_NAME, firmware_info->component_name, FOTA_COMPONENT_MAX_NAME_SIZE)) {
+        // installing MAIN component
+        ret = fota_app_install_main_app(candidate_fs_name);
+        if (FOTA_STATUS_SUCCESS == ret) {
+            FOTA_APP_PRINT("Successfully installed MAIN component\n");
+            // FOTA does support a case where installer method reboots the system.
+        }
+    } else {
+        FOTA_APP_PRINT("fota_app_on_install_candidate deprecated for component %s, use component_install_cb\n", firmware_info->component_name);
     }
-    return 0;
+    return ret;
 }
+#endif // defined(TARGET_LIKE_LINUX) && !defined(USE_ACTIVATION_SCRIPT)
 
-static int pdmc_component_verifier(const char *comp_name, const fota_header_info_t *expected_header_info)
-{
-    printf("pdmc_component_verifier called for %s\n", comp_name);
-    return FOTA_STATUS_SUCCESS;
-}
+#endif  // MBED_CLOUD_CLIENT_FOTA_ENABLE
 
-int fota_platform_init_hook(bool after_upgrade)
-{
-    external_component_info.install_alignment = 1;
-    external_component_info.support_delta = false;
-    external_component_info.need_reboot = true;
-    external_component_info.component_verify_install_cb = pdmc_component_verifier;
-    external_component_info.curr_fw_read = 0; // only needed if support_delta = true
-    external_component_info.curr_fw_get_digest = 0; // only needed if support_delta = true
-    external_component_info.candidate_iterate_cb = install_iterate_handler;
-
-    return fota_component_add(&external_component_info, "METER", "0.0.0");
-}
-
-int fota_platform_start_update_hook(const char *comp_name)
-{
-    return FOTA_STATUS_SUCCESS;
-}
-
-int fota_platform_finish_update_hook(const char *comp_name)
-{
-    return FOTA_STATUS_SUCCESS;
-}
-
-int fota_platform_abort_update_hook(const char *comp_name)
-{
-    return FOTA_STATUS_SUCCESS;
-}
-#endif

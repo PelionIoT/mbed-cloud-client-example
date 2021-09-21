@@ -21,13 +21,11 @@
 
 #include "sal-stack-nanostack-eventloop/nanostack-event-loop/eventOS_event.h"
 
-class SimpleM2MClient;
 class M2MResource;
 
 #include <stdint.h>
 
-class Blinky
-{
+class Blinky {
     typedef enum {
         STATE_IDLE,
         STATE_STARTED,
@@ -38,9 +36,9 @@ public:
 
     ~Blinky();
 
-    void init(SimpleM2MClient &client, M2MResource *resource);
+    void init(M2MResource *resource);
 
-    bool start(const char* pattern, size_t length, bool pattern_restart);
+    bool start(const char *pattern, size_t length, bool pattern_restart);
 
     void stop();
 
@@ -67,8 +65,6 @@ private:
 
     char *_pattern;
     const char *_curr_pattern;
-
-    SimpleM2MClient *_client;
 
     M2MResource     *_button_resource;
 

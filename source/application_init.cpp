@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2020 ARM Ltd.
+// Copyright 2016-2021 Pelion.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -23,27 +23,50 @@
 #include "mbed-trace/mbed_trace.h"
 #include "mbed-trace-helper.h"
 #include "factory_configurator_client.h"
-#include "app_platform_setup.h"
 #include "mcc_common_setup.h"
 #include "mcc_common_button_and_led.h"
+#include "application_init.h"
+
 #if defined (MEMORY_TESTS_HEAP)
 #include "memory_tests.h"
 #endif
+
 #if defined (MBED_CONF_APP_ENABLE_DS_CUSTOM_METRICS_EXAMPLE)
 #include "ds_custom_metrics_app.h"
 #endif
-#include "application_init.h"
-#include "mbed-client-randlib/mbed-client-randlib/randLIB.h"
+
 #ifdef MBED_CONF_MBED_CLOUD_CLIENT_SECURE_ELEMENT_SUPPORT
 #include "mcc_se_init.h"
 #endif
 
-void print_fcc_status(int fcc_status)
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
+#ifdef PAL_USER_DEFINED_CONFIGURATION
+#include PAL_USER_DEFINED_CONFIGURATION
+#endif
+#endif // #if MBED_CONF_APP_DEVELOPER_MODE == 1
+
+// Include this only for Developer mode and device which doesn't have in-built TRNG support
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
+#ifdef PAL_USER_DEFINED_CONFIGURATION
+#define FCC_ROT_SIZE                       16
+const uint8_t MBED_CLOUD_DEV_ROT[FCC_ROT_SIZE] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16 };
+#if !PAL_USE_HW_TRNG
+#define FCC_ENTROPY_SIZE                   48
+const uint8_t MBED_CLOUD_DEV_ENTROPY[FCC_ENTROPY_SIZE] = { 0xf6, 0xd6, 0xc0, 0x09, 0x9e, 0x6e, 0xf2, 0x37, 0xdc, 0x29, 0x88, 0xf1, 0x57, 0x32, 0x7d, 0xde, 0xac, 0xb3, 0x99, 0x8c, 0xb9, 0x11, 0x35, 0x18, 0xeb, 0x48, 0x29, 0x03, 0x6a, 0x94, 0x6d, 0xe8, 0x40, 0xc0, 0x28, 0xcc, 0xe4, 0x04, 0xc3, 0x1f, 0x4b, 0xc2, 0xe0, 0x68, 0xa0, 0x93, 0xe6, 0x3a };
+#endif // PAL_USE_HW_TRNG = 0
+#endif // PAL_USER_DEFINED_CONFIGURATION
+#endif // #if MBED_CONF_APP_DEVELOPER_MODE == 1
+
+static int reset_storage(void);
+static int fcc_initialize(void);
+static int sotp_initialize(void);
+
+static void print_fcc_status(int fcc_status)
 {
-#ifndef MCC_MINIMAL
+#ifndef PDMC_EXAMPLE_MINIMAL
 #ifndef DISABLE_ERROR_DESCRIPTION
     const char *error;
-    switch(fcc_status) {
+    switch (fcc_status) {
         case FCC_STATUS_SUCCESS:
             return;
         case FCC_STATUS_ERROR :
@@ -162,33 +185,30 @@ void print_fcc_status(int fcc_status)
 #if defined(__SXOS__) || defined(__RTX)
 
 extern "C"
-void trace_printer(const char* str)
+void trace_printer(const char *str)
 {
     printf("%s\r\n", str);
 }
 
-#endif 
+#endif
 
 bool application_init_mbed_trace(void)
 {
-#ifndef MCC_MINIMAL
+#ifndef PDMC_EXAMPLE_MINIMAL
     // Create mutex for tracing to avoid broken lines in logs
-    if(!mbed_trace_helper_create_mutex()) {
+    if (!mbed_trace_helper_create_mutex()) {
         printf("ERROR - Mutex creation for mbed_trace failed!\n");
-        return 1;
+        return false;
     }
 #endif
 
     // Initialize mbed trace
-    (void) mbed_trace_init();
-    // If you want, you can filter out the trace set.
-    // For example  mbed_trace_include_filters_set("COAP");
-    // would enable only the COAP level traces.
-    // Or           mbed_trace_exclude_filters_set("COAP");
-    // would leave them out.
-    // More details on mbed_trace.h file.
+    if (mbed_trace_init() != 0) {
+        printf("ERROR - mbed_trace_init failed!\n");
+        return false;
+    }
 
-#ifndef MCC_MINIMAL
+#ifndef PDMC_EXAMPLE_MINIMAL
     mbed_trace_mutex_wait_function_set(mbed_trace_helper_mutex_wait);
     mbed_trace_mutex_release_function_set(mbed_trace_helper_mutex_release);
 #endif
@@ -197,10 +217,11 @@ bool application_init_mbed_trace(void)
     mbed_trace_print_function_set(trace_printer);
 #endif
 
-    return 0;
+
+    return true;
 }
 
-static bool application_init_verify_cloud_configuration()
+static bool verify_cloud_configuration()
 {
     int status;
     bool result = 0;
@@ -216,7 +237,7 @@ static bool application_init_verify_cloud_configuration()
         result = 1;
     }
 #endif
-#ifndef MCC_MINIMAL
+#ifndef PDMC_EXAMPLE_MINIMAL
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
     status = fcc_verify_device_configured_4mbed_cloud();
     print_fcc_status(status);
@@ -228,24 +249,24 @@ static bool application_init_verify_cloud_configuration()
     return result;
 }
 
-static bool application_init_fcc(void)
+static bool initialize_fcc(void)
 {
     int status;
-    status = mcc_platform_fcc_init();
-    if(status != FCC_STATUS_SUCCESS) {
-        printf("application_init_fcc fcc_init failed with status %d! - exit\r\n", status);
+    status = fcc_initialize();
+    if (status != FCC_STATUS_SUCCESS) {
+        printf("initialize_fcc fcc_init failed with status %d! - exit\r\n", status);
         return 1;
     }
 #if RESET_STORAGE
-    status = mcc_platform_reset_storage();
-    if(status != FCC_STATUS_SUCCESS) {
-        printf("application_init_fcc reset_storage failed with status %d! - exit\r\n", status);
+    status = reset_storage();
+    if (status != FCC_STATUS_SUCCESS) {
+        printf("initialize_fcc reset_storage failed with status %d! - exit\r\n", status);
         return 1;
     }
     // Reinitialize SOTP
-    status = mcc_platform_sotp_init();
+    status = sotp_initialize();
     if (status != FCC_STATUS_SUCCESS) {
-        printf("application_init_fcc sotp_init failed with status %d! - exit\r\n", status);
+        printf("initialize_fcc sotp_init failed with status %d! - exit\r\n", status);
         return 1;
     }
 #endif
@@ -258,22 +279,22 @@ static bool application_init_fcc(void)
         return 1;
     }
 #endif
-    status = application_init_verify_cloud_configuration();
+    status = verify_cloud_configuration();
     if (status != 0) {
-#ifndef MCC_MINIMAL
-    // This is designed to simplify user-experience by auto-formatting the
-    // primary storage if no valid certificates exist.
-    // This should never be used for any kind of production devices.
+#ifndef PDMC_EXAMPLE_MINIMAL
+        // This is designed to simplify user-experience by auto-formatting the
+        // primary storage if no valid certificates exist.
+        // This should never be used for any kind of production devices.
 #ifndef MBED_CONF_APP_MCC_NO_AUTO_FORMAT
-        status = mcc_platform_reset_storage();
+        status = reset_storage();
         if (status != FCC_STATUS_SUCCESS) {
             return 1;
         }
-        status = mcc_platform_sotp_init();
+        status = sotp_initialize();
         if (status != FCC_STATUS_SUCCESS) {
             return 1;
         }
-        status = application_init_verify_cloud_configuration();
+        status = verify_cloud_configuration();
         if (status != 0) {
             return 1;
         }
@@ -302,21 +323,84 @@ bool application_init(void)
 
     printf("Start Device Management Client\r\n");
 
-    if (application_init_fcc() != 0) {
-        printf("Failed initializing FCC\r\n" );
+    if (initialize_fcc() != 0) {
+        printf("Failed initializing FCC\r\n");
         return false;
     }
 
     return true;
 }
 
-void wait_application_startup_delay()
+static int reset_storage(void)
 {
-#if (STARTUP_MIN_RANDOM_DELAY > STARTUP_MAX_RANDOM_DELAY)
-#error "STARTUP_MAX_RANDOM_DELAY must be larger than STARTUP_MIN_RANDOM_DELAY"
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
+    printf("Resets storage to an empty state.\r\n");
+    int status = fcc_storage_delete();
+    if (status != FCC_STATUS_SUCCESS) {
+        printf("Failed to delete storage - %d\r\n", status);
+    }
+    return status;
+#else
+    return FCC_STATUS_SUCCESS;
 #endif
-    randLIB_seed_random();
-    uint16_t delay = randLIB_get_random_in_range(STARTUP_MIN_RANDOM_DELAY, STARTUP_MAX_RANDOM_DELAY);
-    printf("Delaying registration by %d seconds\r\n", delay);
-    mcc_platform_do_wait(delay * 1000);
+}
+
+static int fcc_initialize(void)
+{
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
+    int status = fcc_init();
+    // Ignore pre-existing RoT/Entropy in SOTP
+    if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ENTROPY_ERROR && status != FCC_STATUS_ROT_ERROR) {
+        printf("fcc_initialize failed with status %d! - exit\r\n", status);
+        return status;
+    }
+    status = sotp_initialize();
+    if (status != FCC_STATUS_SUCCESS) {
+        printf("fcc_initialize failed sotp_initialize() with status %d! - exit\r\n", status);
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
+        (void)fcc_finalize();
+#endif
+    } else {
+        // We can return SUCCESS here as preexisting RoT/Entropy is expected flow.
+        status = FCC_STATUS_SUCCESS;
+    }
+    return status;
+#else
+    return FCC_STATUS_SUCCESS;
+#endif
+}
+
+static int sotp_initialize(void)
+{
+    int status = FCC_STATUS_SUCCESS;
+// Include this only for Developer mode and a device which doesn't have in-built TRNG support.
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
+#if defined (PAL_USER_DEFINED_CONFIGURATION) && !PAL_USE_HW_TRNG
+    status = fcc_entropy_set(MBED_CLOUD_DEV_ENTROPY, FCC_ENTROPY_SIZE);
+
+    if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ENTROPY_ERROR) {
+        printf("fcc_entropy_set failed with status %d! - exit\r\n", status);
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
+        (void)fcc_finalize();
+#endif
+        return status;
+    }
+#endif // PAL_USE_HW_TRNG = 0
+    /* Include this only for Developer mode. The application will use fixed RoT to simplify user-experience with the application.
+     * With this change the application be reflashed/SOTP can be erased safely without invalidating the application credentials.
+     */
+    status = fcc_rot_set(MBED_CLOUD_DEV_ROT, FCC_ROT_SIZE);
+
+    if (status != FCC_STATUS_SUCCESS && status != FCC_STATUS_ROT_ERROR) {
+        printf("fcc_rot_set failed with status %d! - exit\r\n", status);
+#if MBED_CONF_APP_DEVELOPER_MODE == 1
+        (void)fcc_finalize();
+#endif
+    } else {
+        // We can return SUCCESS here as preexisting RoT/Entropy is expected flow.
+        printf("Using hardcoded Root of Trust, not suitable for production use.\r\n");
+        status = FCC_STATUS_SUCCESS;
+    }
+#endif // #if MBED_CONF_APP_DEVELOPER_MODE == 1
+    return status;
 }

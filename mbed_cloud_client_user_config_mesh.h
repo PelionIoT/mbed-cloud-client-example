@@ -37,9 +37,7 @@
     #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE      512
 #endif
 
-#if !defined(MBED_CLOUD_CLIENT_SUPPORT_UPDATE) && !defined(MBED_CLOUD_CLIENT_FOTA_ENABLE)
-    #define MBED_CLOUD_CLIENT_SUPPORT_UPDATE
-#endif
+#define MBED_CLOUD_CLIENT_SUPPORT_UPDATE
 
 /* Sets the download buffer for update client in bytes (min. 2048 bytes).
  * This must be at least twice the SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE value.

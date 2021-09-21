@@ -1,5 +1,17 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.11.0 (17.09.2021)
+
+- Application restructuring:
+   - `M2MInterfaceFactory::create_resource()` function used for creating object and resources.
+   - Replaced the deprecated status APIs with the `on_status_changed()` API.
+   - Removed the `MCC_MEMORY` flag.
+   - Replaced the `MCC_MINIMAL` flag with the `PDMC_EXAMPLE_MINIMAL` flag.
+- Updated to Mbed OS 6.14.0.
+- Updated Mbed TLS to 2.27.0 in `pal-platform`.
+- Added a demonstration of FOTA component update. Placed component registration and callback examples in `source/fota_platform_hooks_imp.cpp`.
+- [Linux] Added demonstration of FOTA combined update. Placed subcomponent registration and callback examples in `source/fota_platform_hooks_imp.cpp` under the `MBED_CLOUD_CLIENT_FOTA_SUB_COMPONENT_SUPPORT` flag.
+
 ## Release 4.10.0 (07.07.2021)
 
 - NXP_LPC54628 target configured to use the new upgraded Update client with `FOTA_USE_ENCRYPTED_ONE_TIME_FW_KEY` key.
@@ -11,6 +23,7 @@
    - This release uses bootloaders compiled with the above improvement by default.
    - Deprecated the `FOTA_USE_DEVICE_KEY` option, which will be removed in a future version.
 * Updated to Mbed OS 6.12.0.
+  - Changed LED configuration from `LED_RED` to `LED1`.
 
 ## Release 4.9.1 (17.06.2021)
 
