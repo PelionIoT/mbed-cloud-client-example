@@ -18,6 +18,7 @@
 #include "RTE_Components.h"
 #include "cmsis_os2.h"
 #include "pal.h"
+#include "MbedCloudClientConfig.h"
 
 #ifdef RTE_Compiler_EventRecorder
 #include "EventRecorder.h"
@@ -38,8 +39,8 @@
 
 uint64_t app_main_stk[APP_MAIN_STK_SZ / 8];
 const osThreadAttr_t app_main_attr = {
-  .stack_mem  = &app_main_stk[0],
-  .stack_size = sizeof(app_main_stk)
+    .stack_mem  = &app_main_stk[0],
+    .stack_size = sizeof(app_main_stk)
 };
 
 static void *network_interface = NULL;
@@ -66,7 +67,7 @@ int mcc_platform_init_connection(void)
 #ifdef RTE_IoT_Socket_WiFi
     printf("Connecting to WiFi ...\r\n");
 
-    if (Driver_WiFi0.Initialize  (NULL) != ARM_DRIVER_OK) {
+    if (Driver_WiFi0.Initialize(NULL) != ARM_DRIVER_OK) {
         printf("Failed to initialize wifi!\n");
         return -1;
     }
@@ -98,20 +99,20 @@ int mcc_platform_init_connection(void)
     // Loop until link is up
     uint32_t addr;
     do {
-       osDelay(1000U);
-       netIF_GetOption(NET_IF_CLASS_ETH | 0,
-                       netIF_OptionIP4_Address,
-                      (uint8_t *)&addr, sizeof (addr));
+        osDelay(1000U);
+        netIF_GetOption(NET_IF_CLASS_ETH | 0,
+                        netIF_OptionIP4_Address,
+                        (uint8_t *)&addr, sizeof(addr));
     } while (addr == 0U);
 
     uint8_t ip4_addr[NET_ADDR_IP4_LEN];
     char    ip4_ascii[16];
 
 
-    if (netIF_GetOption (NET_IF_CLASS_ETH | 0, netIF_OptionIP4_Address,
-                                         ip4_addr, sizeof(ip4_addr)) == netOK) {
+    if (netIF_GetOption(NET_IF_CLASS_ETH | 0, netIF_OptionIP4_Address,
+                        ip4_addr, sizeof(ip4_addr)) == netOK) {
 
-        netIP_ntoa (NET_ADDR_IP4, ip4_addr, ip4_ascii, sizeof(ip4_ascii));
+        netIP_ntoa(NET_ADDR_IP4, ip4_addr, ip4_ascii, sizeof(ip4_ascii));
         printf("IP4=%s\n", ip4_ascii);
     }
 #endif
@@ -131,7 +132,7 @@ int mcc_platform_close_connection(void)
     return 0;
 }
 
-void* mcc_platform_get_network_interface(void)
+void *mcc_platform_get_network_interface(void)
 {
     return network_interface;
 }
@@ -187,6 +188,7 @@ int mcc_platform_run_program(main_t mainFunc)
 void mcc_platform_sw_build_info(void)
 {
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
+    printf("PDMC version %d.%d.%d\n", PDMC_MAJOR_VERSION, PDMC_MINOR_VERSION, PDMC_PATCH_VERSION);
 }
 
 void mcc_platform_reboot(void)

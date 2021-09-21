@@ -31,6 +31,7 @@
 #include "mcc_common_config.h"
 #include "kv_config.h"
 #include "mbed_trace.h"
+#include "MbedCloudClientConfig.h"
 
 #if MBED_MAJOR_VERSION > 5
 #include "DeviceKey.h"
@@ -398,6 +399,7 @@ int mcc_platform_run_program(main_t mainFunc)
 void mcc_platform_sw_build_info(void)
 {
     printf("Application ready. Build at: " __DATE__ " " __TIME__ "\n");
+    printf("PDMC version %d.%d.%d\n", PDMC_MAJOR_VERSION, PDMC_MINOR_VERSION, PDMC_PATCH_VERSION);
 
     // The Mbed OS' master branch does not define the version numbers at all, so we need
     // some ifdeffery to keep compilations running.
@@ -414,8 +416,15 @@ int mcc_platform_storage_init(void)
     mcc_platform_do_wait(MCC_PLATFORM_WAIT_BEFORE_BD_INIT * SECONDS_TO_MS);
     int status = kv_init_storage_config();
     if (status != MBED_SUCCESS) {
-        printf("kv_init_storage_config() - failed, status %d\n", status);
-        return status;
+#ifdef MBED_CONF_MBED_CLOUD_CLIENT_PSA_SUPPORT
+        if (status == MBED_ERROR_UNSUPPORTED) {
+            printf("PSA enabled, ignore kv_init_storage_config() is not supported\n");
+        } else
+#endif
+        {
+            printf("kv_init_storage_config() - failed, status %d\n", status);
+            return status;
+        }
     }
     return 0;
 }

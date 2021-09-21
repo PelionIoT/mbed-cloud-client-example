@@ -1,8 +1,7 @@
 {
     "macros": [
-        "MCC_MINIMAL",
-        "DISABLE_ERROR_DESCRIPTION",
-        "MCC_MEMORY"
+        "PDMC_EXAMPLE_MINIMAL",
+        "DISABLE_ERROR_DESCRIPTION"
     ],
     "target_overrides": {
         "*": {

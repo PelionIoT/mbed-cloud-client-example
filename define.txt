@@ -57,4 +57,5 @@ option(FOTA_ENABLE "Enable FOTA client module" ON)
 
 add_definitions(-DFOTA_DEFAULT_APP_IFS=1)
 add_definitions(-DTARGET_LIKE_LINUX=1)
-
+add_definitions(-DFOTA_CUSTOM_PLATFORM=1)
+add_definitions(-DMBED_CLOUD_CLIENT_FOTA_SUB_COMPONENT_SUPPORT=1)

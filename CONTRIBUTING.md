@@ -8,3 +8,4 @@ Due to the release process, all new releases are squashed code drops. Therefore,
 
 | Author         | Pull Request  | Change title/summary                                     |
 |----------------|---------------|----------------------------------------------------------|
+| ccli8 ([@ccli8](https://github.com/ccli8)) | [#81](https://github.com/PelionIoT/mbed-cloud-client-example/pull/81) | Fix KV init on platforms using PSA Storage API |

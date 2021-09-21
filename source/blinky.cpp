@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2018-2020 ARM Ltd.
+// Copyright 2018-2021 Pelion.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,21 +16,18 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
-#include "blinky.h"
-
-#include "sal-stack-nanostack-eventloop/nanostack-event-loop/eventOS_event.h"
-#include "sal-stack-nanostack-eventloop/nanostack-event-loop/eventOS_event_timer.h"
-#include "ns-hal-pal/ns_hal_init.h"
-#include "mbed-trace/mbed_trace.h"
-
-#include "mcc_common_button_and_led.h"
-#include "simplem2mclient.h"
-#include "m2mresource.h"
 
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
-#define TRACE_GROUP "blky"
+#include "blinky.h"
+#include "sal-stack-nanostack-eventloop/nanostack-event-loop/eventOS_event.h"
+#include "sal-stack-nanostack-eventloop/nanostack-event-loop/eventOS_event_timer.h"
+#include "ns-hal-pal/ns_hal_init.h"
+#include "mcc_common_button_and_led.h"
+#include "pdmc_example.h"
+#include "m2mresource.h"
 
 #define BLINKY_TASKLET_LOOP_INIT_EVENT 0
 #define BLINKY_TASKLET_PATTERN_INIT_EVENT 1
@@ -50,27 +47,26 @@ int8_t Blinky::_tasklet = -1;
 
 extern "C" {
 
-static void blinky_event_handler_wrapper(arm_event_s *event)
-{
-    assert(event);
-    if (event->event_type != BLINKY_TASKLET_LOOP_INIT_EVENT) {
-        // the init event will not contain instance pointer
-        Blinky *instance = (Blinky *)event->data_ptr;
-        if(instance) {
-            instance->event_handler(*event);
+    static void blinky_event_handler_wrapper(arm_event_s *event)
+    {
+        assert(event);
+        if (event->event_type != BLINKY_TASKLET_LOOP_INIT_EVENT) {
+            // the init event will not contain instance pointer
+            Blinky *instance = (Blinky *)event->data_ptr;
+            if (instance) {
+                instance->event_handler(*event);
+            }
         }
     }
-}
 
 }
 
 Blinky::Blinky()
-: _pattern(NULL),
-  _curr_pattern(NULL),
-  _client(NULL),
-  _button_resource(NULL),
-  _state(STATE_IDLE),
-  _restart(false)
+    : _pattern(NULL),
+      _curr_pattern(NULL),
+      _button_resource(NULL),
+      _state(STATE_IDLE),
+      _restart(false)
 {
     _button_count = 0;
 }
@@ -90,21 +86,20 @@ void Blinky::create_tasklet()
 }
 
 // use references to encourage caller to pass this existing object
-void Blinky::init(SimpleM2MClient &client, M2MResource *resource)
+void Blinky::init(M2MResource *resource)
 {
     // Do not start if resource has not been allocated.
     if (!resource) {
         return;
     }
 
-    _client = &client;
     _button_resource = resource;
 
     // create the tasklet, if not done already
     create_tasklet();
 }
 
-bool Blinky::start(const char* pattern, size_t length, bool pattern_restart)
+bool Blinky::start(const char *pattern, size_t length, bool pattern_restart)
 {
     assert(pattern);
 
@@ -116,7 +111,7 @@ bool Blinky::start(const char* pattern, size_t length, bool pattern_restart)
     // allow one to start multiple times before previous sequence has completed
     stop();
 
-    _pattern = (char*)malloc(length+1);
+    _pattern = (char *)malloc(length + 1);
     if (_pattern == NULL) {
         return false;
     }
@@ -153,7 +148,7 @@ int Blinky::get_next_int()
         } else if (*endptr == '\0') { // end of
             result = conv_result;
         } else {
-            tr_debug("invalid char %c", *endptr);
+            printf("invalid char %c\n", *endptr);
         }
     }
 
@@ -165,8 +160,6 @@ int Blinky::get_next_int()
 bool Blinky::run_step()
 {
     int32_t delay = get_next_int();
-
-    // tr_debug("patt: %s, curr: %s, delay: %d", _pattern, _curr_pattern, delay);
 
     if (delay < 0) {
         _state = STATE_IDLE;
@@ -209,7 +202,6 @@ void Blinky::handle_pattern_event()
     bool success = run_step();
 
     if ((!success) && (_restart)) {
-        // tr_debug("Blinky restart pattern");
         _curr_pattern = _pattern;
         run_step();
     }
@@ -249,19 +241,18 @@ bool Blinky::request_timed_event(uint8_t event_type, arm_library_event_priority_
 
 void Blinky::handle_buttons()
 {
-    assert(_client);
     assert(_button_resource);
 
     // this might be stopped now, but the loop should then be restarted after re-registration
     request_next_loop_event();
 
-    if (_client->is_client_registered()) {
+    if (pdmc_registered()) {
         if (mcc_platform_button_clicked()) {
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
-        if(_client->is_client_paused()) {
-            printf("Calling Pelion Client resumed()\r\n");
-            _client->client_resumed();
-        }
+            if (pdmc_paused()) {
+                printf("Calling Pelion Client resumed()\r\n");
+                pdmc_resume();
+            }
 #endif
             _button_count = _button_resource->get_value_int() + 1;
             _button_resource->set_value(_button_count);
@@ -272,17 +263,16 @@ void Blinky::handle_buttons()
 
 void Blinky::handle_automatic_increment()
 {
-    assert(_client);
     assert(_button_resource);
 
     // this might be stopped now, but the loop should then be restarted after re-registration
     request_automatic_increment_event();
 
-    if (_client->is_client_registered()) {
+    if (pdmc_registered()) {
 #ifdef MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP_QUEUE
-        if(_client->is_client_paused()) {
+        if (pdmc_paused()) {
             printf("Calling Pelion Client resumed()\r\n");
-            _client->client_resumed();
+            pdmc_resume();
         }
 #endif
         _button_count = _button_resource->get_value_int() + 1;
