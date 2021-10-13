@@ -52,11 +52,11 @@
         "to": "Middleware/trusted_storage/trusted_storage"
       },
       "parsec_se_driver": {
-        "version": "0.5.0",
+        "version": "0.6.0",
         "from": {
           "protocol": "git",
           "location": "https://github.com/parallaxsecond/parsec-se-driver.git",
-          "tag": "0.5.0"
+          "tag": "0.6.0"
         },
         "to": "Middleware/parsec_se_driver/parsec_se_driver"
       },
