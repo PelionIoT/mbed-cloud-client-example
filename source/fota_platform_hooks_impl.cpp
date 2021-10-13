@@ -37,13 +37,17 @@ static fota_component_desc_info_t external_component_info;
 /*Subcomponent callbacks*/
 int sub_component_rollback_handler(const char *comp_name, const char *sub_comp_name, const uint8_t *vendor_data, size_t vendor_data_size, void *app_ctx)
 {
-    printf("sub_component_rollback_handler sub_comp_name: %s, vendor_data: %.*s", sub_comp_name, (int)vendor_data_size, vendor_data);
+    printf("-----------------------------------------------------------------------------------\n");
+    printf("sub_component_rollback_handler CB invoked for sub_comp_name: %s, vendor_data: %.*s\n", sub_comp_name, (int)vendor_data_size, vendor_data);
+
     return FOTA_STATUS_SUCCESS;
 }
 
 int sub_component_finalize_handler(const char *comp_name, const char *sub_comp_name, const uint8_t *vendor_data, size_t vendor_data_size, fota_status_e fota_status, void *app_ctx)
 {
-    printf("sub_component_finalize_handler sub_comp_name: %s, vendor_data: %.*s", sub_comp_name, (int)vendor_data_size, vendor_data);
+    printf("-----------------------------------------------------------------------------------\n");
+    printf("sub_component_finalize_handler CB invoked for sub_comp_name: %s, vendor_data: %.*s\n", sub_comp_name, (int)vendor_data_size, vendor_data);
+    
     return FOTA_STATUS_SUCCESS;
 }
 #endif //#if defined(TARGET_LIKE_LINUX) && (MBED_CLOUD_CLIENT_FOTA_SUB_COMPONENT_SUPPORT == 1)
@@ -60,9 +64,11 @@ static void print_component_info(const char *comp_name, const char *sub_comp_nam
 }
 
 static int pdmc_component_verifier(const char *comp_name, const char *sub_comp_name, const uint8_t *vendor_data, size_t vendor_data_size, void* app_ctx)
-{ 
-    printf("pdmc_component_verifier called for %s\n", comp_name);
+{     
+    printf("-----------------------------------------------------------------------------------\n");
+    printf("pdmc_component_verifier CB invoked for sub_comp_name: %s, vendor_data: %.*s\n", sub_comp_name, (int)vendor_data_size, vendor_data);
     print_component_info(comp_name, sub_comp_name, vendor_data, vendor_data_size);
+    
     return FOTA_STATUS_SUCCESS;
 }
 
@@ -89,6 +95,8 @@ static int pdmc_component_installer(const char *comp_name, const char *sub_comp_
 #else
 static int pdmc_component_installer(const char *comp_name, const char *sub_comp_name, const char *file_name, const uint8_t *vendor_data, size_t vendor_data_size, void *app_ctx)
 {
+    printf("-----------------------------------------------------------------------------------\n");
+    printf("pdmc_component_installer CB invoked\n");
     print_component_info(comp_name, sub_comp_name, vendor_data, vendor_data_size);
     return FOTA_STATUS_SUCCESS;
 }
@@ -127,7 +135,7 @@ int fota_platform_init_hook(bool after_upgrade)
     dummy_sub_component_desc.rollback_order = 2;
     dummy_sub_component_desc.verify_cb= pdmc_component_verifier;
     dummy_sub_component_desc.verify_order = 1;
-    ret = fota_sub_component_add("MAIN","img1_id", &dummy_sub_component_desc); //Component MAIN registered by default during fota initialization, no need to call `fota_component_add` for MAIN component.
+    ret = fota_sub_component_add("MAIN","BL", &dummy_sub_component_desc); //Component MAIN registered by default during fota initialization, no need to call `fota_component_add` for MAIN component.
     if (ret != 0){
         return ret;
     }
@@ -141,7 +149,7 @@ int fota_platform_init_hook(bool after_upgrade)
     dummy_sub_component_desc2.rollback_order = 1;
     dummy_sub_component_desc2.verify_cb = pdmc_component_verifier;
     dummy_sub_component_desc2.verify_order = 2;
-    ret = fota_sub_component_add("MAIN","img2_id", &dummy_sub_component_desc2);//Component MAIN registered by default during fota initialization, no need to call `fota_component_add` for MAIN component.
+    ret = fota_sub_component_add("MAIN","rootfs", &dummy_sub_component_desc2);//Component MAIN registered by default during fota initialization, no need to call `fota_component_add` for MAIN component.
 #endif
 
     return ret;
