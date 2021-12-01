@@ -1,5 +1,9 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.11.2 (01.12.2021)
+
+Updated to Mbed OS 6.15.0.
+
 ## Release 4.11.1 (11.10.2021)
 
 - Updated Parsec to 0.6.0 version. This version is compatible with Mbed TLS 2.27.0.
