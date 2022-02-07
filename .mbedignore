@@ -2,3 +2,4 @@ __*/*
 pal-platform/*
 storage-selector/littlefs/*
 delta-tool/*
+venv/*
