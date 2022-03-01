@@ -1,0 +1,93 @@
+{    
+    "target_overrides": {
+        "*": {
+            "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "target.c_lib"                              : "std",
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.stdio-convert-newlines"           : true,
+            "platform.stdio-buffered-serial"            : true,
+            "platform.stdio-flush-at-exit"              : true,
+            "rtos.main-thread-stack-size"               : 5120,
+            "events.shared-stacksize"                   : 2048,
+            "events.shared-eventsize"                   : 2048,
+            "update-client.storage-locations"           : 1,
+            "mbed-trace.enable"                         : 0,
+            "nsapi.default-wifi-security"               : "WPA_WPA2",
+            "nsapi.default-wifi-ssid"                   : "\"SSID\"",
+            "nsapi.default-wifi-password"               : "\"Password\"",
+            "target.macros_add"                         : ["LWM2M_COMPLIANT","DISABLE_SERVER_CERT_VERIFY","RESET_STORAGE"],
+            "client_app.pal-user-defined-configuration" : "\"pal_config_MbedOS_LWM2M_Compliant.h\"",
+            "lwip.mem-size"                             : 18432,
+            "mbed-client.disable-bootstrap-feature"     : null,
+            "mbed-client.max-certificate-size"          : 2048
+        },
+        "K64F": {
+            "target.network-default-interface-type"     : "ETHERNET",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-k64f-block_device-kvstore-v4.1.0.bin",		
+            "target.header_offset"                      : "0xa000",
+            "target.app_offset"                         : "0xa400",
+            "target.components_add"                     : ["SD"],
+            "update-client.bootloader-details"          : "0x00007188",
+            "update-client.application-details"         : "(40*1024)",
+            "update-client.storage-address"             : "(1024*1024*64)",
+            "update-client.storage-size"                : "((MBED_ROM_START + MBED_ROM_SIZE - APPLICATION_ADDR) * MBED_CONF_UPDATE_CLIENT_STORAGE_LOCATIONS)",
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP_BLOCKDEVICE",
+            "storage_filesystem.internal_base_address"  : "(32*1024)",
+            "storage_filesystem.rbp_internal_size"      : "(8*1024)",
+            "storage_filesystem.external_base_address"  : "(0x0)",
+            "storage_filesystem.external_size"          : "(1024*1024*64)",
+            "storage.storage_type"                      : "FILESYSTEM",
+            "storage_filesystem.filesystem"             : "LITTLE",
+            "storage_filesystem.blockdevice"            : "SD"
+        },
+        "NUCLEO_F429ZI": {
+            "target.network-default-interface-type"     : "ETHERNET",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-nucleo_f429zi-internal_flash-no_rot-v4.1.0.bin",
+            "target.header_offset"                      : "0x8000",
+            "target.app_offset"                         : "0x8400",
+            "target.restrict_size"                      : "0xF7C00",
+            "update-client.bootloader-details"          : "0x080078CC",
+            "update-client.application-details"         : "(MBED_ROM_START + MBED_BOOTLOADER_SIZE)",
+            "update-client.storage-address"             : "(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS+MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
+            "update-client.storage-size"                : "(1024*1024-MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE)",
+            "update-client.storage-page"                : 1,
+            "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
+            "storage_tdb_internal.internal_base_address": "(MBED_ROM_START+1024*1024)",
+            "storage_tdb_internal.internal_size"        : "(128*1024)",
+            "storage.storage_type"                      : "TDB_INTERNAL"
+        }
+    },
+    "config": {
+        "developer-mode": {
+            "help"      : "Enable Developer mode to skip Factory enrollment",
+            "options"   : [null, 1],
+            "value"     : 1
+        },
+        "button-pinname": {
+            "help"      : "PinName for button.",
+            "value"     : "BUTTON1"
+        },
+        "led-pinname"   : {
+            "help"      : "PinName for led, which is attached to led blink resource.",
+            "value"     : "LED1"
+        },
+        "bootloader-size": {
+            "help"      : "Helper macro to enable calculation of rom regions. target.header_offset and target.app_offset still needs to be calculated manually, though.",
+            "value"     : "(32*1024)",
+            "macro_name": "MBED_BOOTLOADER_SIZE"
+        },
+        "mbed-trace-max-level": {
+            "help"      : "Max trace level. Must be one of the following: [TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR, TRACE_LEVEL_CMD]",
+            "macro_name": "MBED_TRACE_MAX_LEVEL",
+            "value"     : "TRACE_LEVEL_DEBUG"
+        },
+        "mbed-cloud-client-update-buffer-size": {
+            "value"     : null
+        },
+        "enable-ds-custom-metrics-example": {
+            "help"      : "Enable Device Sentry custom metrics example applicaton",
+            "options"   : [null, 1],
+            "value"     : null
+        }
+    }
+}

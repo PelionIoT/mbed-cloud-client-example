@@ -1,8 +1,14 @@
 # Changelog for Pelion Device Management Client example application
 
+## Release 4.12.0 (01.03.2022)
+
+- Updated to Mbed OS 6.15.1.
+- [Linux] Add a new `define_lwm2m_compliant.txt` that enables communication with a LwM2M compliant service / interoperability (IoP) testing.
+- [Mbed OS] Add a new `mbed_app_lwm2m_compliant.json` that enables communication with a LwM2M compliant service / interoperability (IOP) testing with FRDM K64F device.
+
 ## Release 4.11.2 (01.12.2021)
 
-Updated to Mbed OS 6.15.0.
+- Updated to Mbed OS 6.15.0.
 
 ## Release 4.11.1 (11.10.2021)
 
