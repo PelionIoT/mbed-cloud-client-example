@@ -1,0 +1,70 @@
+cmake_policy(SET CMP0005 OLD)  # definitions escaped explicitly (default)
+cmake_policy(SET CMP0011 OLD)  # policy flow old way (default)
+
+if (NOT (${OS_BRAND} MATCHES "Linux"))
+    message(FATAL_ERROR "define.txt to be used only with Linux builds.")
+endif()
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
+
+add_definitions(-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE="\\"mbed_cloud_client_user_config.h"\\")
+add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="\\"sotp_fs_config_linux_lwm2m_compliant.h"\\")
+add_definitions(-DTARGET_LIKE_POSIX)
+add_definitions(-DPAL_DTLS_PEER_MIN_TIMEOUT=5000)
+
+#  More ciphers
+add_definitions(-DPAL_MAX_ALLOWED_CIPHER_SUITES=4)
+
+# enable fota
+add_definitions(-DMBED_CLOUD_CLIENT_FOTA_ENABLE=1)
+add_definitions(-DMBED_CLOUD_CLIENT_FOTA_LINUX_SINGLE_MAIN_FILE=1)
+
+# Set to 1 to enable tracing
+add_definitions(-DMBED_CONF_MBED_TRACE_ENABLE=0)
+
+add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=1)
+
+add_definitions(-DPLATFORM_ENABLE_BUTTON=1)
+add_definitions(-DPLATFORM_ENABLE_LED=1)
+
+add_definitions(-DMBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT)
+add_definitions(-DLWM2M_COMPLIANT)
+add_definitions(-DDISABLE_SERVER_CERT_VERIFY)
+
+add_definitions(-DFOTA_DEFAULT_APP_IFS=1)
+add_definitions(-DTARGET_LIKE_LINUX=1)
+add_definitions(-DFOTA_CUSTOM_PLATFORM=1)
+add_definitions(-DMBED_CLOUD_CLIENT_FOTA_SUB_COMPONENT_SUPPORT=1)
+
+if(RESET_STORAGE)
+    add_definitions(-DRESET_STORAGE)
+endif(RESET_STORAGE)
+
+SET(PAL_TLS_BSP_DIR ${NEW_CMAKE_SOURCE_DIR}/mbed-cloud-client/mbed-client-pal/Configs/${TLS_LIBRARY})
+
+if (${TLS_LIBRARY} MATCHES mbedTLS)
+    add_definitions(-DMBEDTLS_CONFIG_FILE="\\"${PAL_TLS_BSP_DIR}/mbedTLSConfig_Linux_LWM2M_Compliant.h"\\")
+endif()
+
+if(PAL_SIMULATOR_FILE_SYSTEM_OVER_RAM)
+    message(WARNING "You are using simulation of File System over RAM")
+    add_definitions(-DPAL_SIMULATOR_FILE_SYSTEM_OVER_RAM=${PAL_SIMULATOR_FILE_SYSTEM_OVER_RAM})
+endif(PAL_SIMULATOR_FILE_SYSTEM_OVER_RAM)
+
+# This definition controls application automatic reboot if network errors exceed certain limit.
+# Disabled when set to 0.
+add_definitions(-DMAX_ERROR_COUNT=0)
+
+if(ENABLE_DEVICE_SENTRY)
+    add_definitions(-DMBED_CONF_MBED_CLOUD_CLIENT_ENABLE_DEVICE_SENTRY)
+    message("Enable Device Sentry feature")
+    add_definitions(-DMBED_CONF_APP_ENABLE_DS_CUSTOM_METRICS_EXAMPLE)
+    message("Enable Device Sentry example application")
+endif(ENABLE_DEVICE_SENTRY)
+
+# Enable FOTA Update
+option(FOTA_ENABLE "Enable FOTA client module" ON)
+
+if(DISABLE_BOOTSTRAP)
+   add_definitions(-DMBED_CONF_MBED_CLIENT_DISABLE_BOOTSTRAP_FEATURE)
+endif()
