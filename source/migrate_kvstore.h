@@ -1,6 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2019 ARM Ltd.
-// Copyright (c) 2022 Izuma Networks. All rights reserved.
+// Copyright 2016-2022 Pelion.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,22 +16,28 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
-#ifndef PSA_STORAGE_USER_CONFIG_H
-#define PSA_STORAGE_USER_CONFIG_H
+#ifndef MIGRATE_KVSTORE_H
+#define MIGRATE_KVSTORE_H
 
-/**
-* \def PSA_STORAGE_FILE_C_STORAGE_PREFIX
-*
-* Define the path to the directory for Internal Trusted Storage
-* (PSA ITS) files representing persisted objects. For example,
-* to store files in "/home/username" define
-* PSA_STORAGE_FILE_C_STORAGE_PREFIX "/home/username/"
-* (note the appended "/").
+/* migrate_kvstore      Change the bootstrap server address.
+                        NOTE! Supports only Mbed OS / KVStore and production mode.
+
+    There are two sets of keys that need to be updated.
+    Working set and backup set. They both need to be deleted and re-recreated with the new value.
+
 */
-#ifdef PSA_STORAGE_FILE_C_STORAGE_PREFIX
-    #undef PSA_STORAGE_FILE_C_STORAGE_PREFIX
+#if defined __MBED__
+int migrate_kvstore(const char *new_value);
+#else
+    #if  defined MBED_CLOUD_CLIENT_MIGRATE_BOOTSTRAP
+        #error "No migration_kvstore implementation for other than Mbed OS using KVStore."
+    #endif
+// Dummy implementation for other OSes
+int migrate_kvstore(const char *new_value) {
+    (void) new_value;
+    return 0;
+}
 #endif
 
-#define PSA_STORAGE_FILE_C_STORAGE_PREFIX "psa/"
+#endif //MIGRATE_KVSTORE_H
 
-#endif /* PSA_STORAGE_USER_CONFIG_H */

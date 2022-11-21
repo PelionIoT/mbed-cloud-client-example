@@ -34,11 +34,11 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.27.0",
+        "version": "2.28.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.27.0"
+          "tag": "mbedtls-2.28.1"
         },
         "to": "Middleware/mbedtls/mbedtls"
       },
@@ -61,11 +61,11 @@
         "to": "Middleware/parsec_se_driver/parsec_se_driver"
       },
       "curl": {
-        "version": "7.76.0",
+        "version": "7.85.0",
         "from": {
           "protocol": "git",
           "location": "https://github.com/curl/curl.git",
-          "tag": "curl-7_76_0"
+          "tag": "curl-7_85_0"
         },
         "to": "Middleware/curl/curl"
       }
@@ -81,20 +81,20 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.27.0",
+        "version": "2.28.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.27.0"
+          "tag": "mbedtls-2.28.1"
         },
         "to": "Middleware/mbedtls/mbedtls"
       },
       "curl": {
-        "version": "7.76.0",
+        "version": "7.85.0",
         "from": {
           "protocol": "git",
           "location": "https://github.com/curl/curl.git",
-          "tag": "curl-7_76_0"
+          "tag": "curl-7_85_0"
         },
         "to": "Middleware/curl/curl"
       }
@@ -109,20 +109,20 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.27.0",
+        "version": "2.28.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.27.0"
+          "tag": "mbedtls-2.28.1"
         },
         "to": "Middleware/mbedtls/mbedtls"
       },
       "curl": {
-        "version": "7.76.0",
+        "version": "7.85.0",
         "from": {
           "protocol": "git",
           "location": "https://github.com/curl/curl.git",
-          "tag": "curl-7_76_0"
+          "tag": "curl-7_85_0"
         },
         "to": "Middleware/curl/curl"
       }
@@ -201,11 +201,11 @@
     },
     "middleware": {
       "mbedtls": {
-        "version": "2.27.0",
+        "version": "2.28.1",
         "from": {
           "protocol": "git",
           "location": "https://github.com/ARMmbed/mbedtls.git",
-          "tag": "mbedtls-2.27.0"
+          "tag": "mbedtls-2.28.1"
         },
         "to": "Middleware/mbedtls/mbedtls"
       },

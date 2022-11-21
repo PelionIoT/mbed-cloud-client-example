@@ -28,7 +28,6 @@ import sys
 from helpers import ExecuteHelper
 from helpers import _str_to_resolved_path
 
-dummy_accountID = "123456"
 bs_public_cert_file = "bs_cert.der"
 bs_private_key_file = "bs_key.der"
 csr_file = "csr.pem"
@@ -487,16 +486,10 @@ def main():
             )
         )
         output_data.write(
-            'const char {}ACCOUNT_ID[] = "{}";\n'.format(
-                prefix, dummy_accountID
-            )
-        )
-        output_data.write(
             'const char {}BOOTSTRAP_SERVER_URI[] = "{}";\n\n'.format(
                 prefix, args.uri
             )
         )
-
         _process_data(
             private_key_file,
             output_data,

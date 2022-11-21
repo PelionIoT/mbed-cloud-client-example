@@ -29,7 +29,6 @@ add_definitions(-DPLATFORM_ENABLE_LED=1)
 
 add_definitions(-DMBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT)
 add_definitions(-DLWM2M_COMPLIANT)
-add_definitions(-DDISABLE_SERVER_CERT_VERIFY)
 
 add_definitions(-DFOTA_DEFAULT_APP_IFS=1)
 add_definitions(-DTARGET_LIKE_LINUX=1)

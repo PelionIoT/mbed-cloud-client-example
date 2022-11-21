@@ -1,4 +1,27 @@
-# Changelog for Pelion Device Management Client example application
+# Changelog for Izuma Device Management Client example application
+
+## Release 4.13.0 (21.11.2022)
+
+- [Mbed OS] Add DISCO_L496AG board. The cellular settings are for example use only.
+- Enable EST flow for `LWM2M_COMPLIANT` mode.
+- Enable server certificate verification in `LWM2M_COMPLIANT` mode.
+- [Mbed OS] New feature for migrating the boostrap server URI to another URI.
+   * This allows moving a device from one Device Management region to another, for example from US to EU.
+   * Works only with KVStore based storage.
+   * More details in [PDMC Migration Tutorial](pdmc-migration-tutorial.md) document.
+- Updated `libcurl` from 7.76.0 to 7.85.0 for Linux targets.
+- Updated `mbedTLS` from 2.27.0 to 2.28.1 for Linux targets.
+- Branding changes to Izuma.
+- Add following files to `.gitignore`:
+    * `mbed_cloud_client_user_config.h`
+    * `mbed_cloud_dev_credentials.c` and 
+    * `update_default_resources.c` to minimize risk of leaking credentials/private configs.
+    * You can still update these files if you wish, but you have to use `git add -f`.
+- Zephyr OS updated to 2.7.3.
+- Alternating port fallback config example for `MBED_CLOUD_CLIENT_CUSTOM_URI_PORT` added to `mbed_cloud_client_user_config.h`.
+   * If a socket error is encountered, next try will be done with original CoaP port `5684`.
+   * After 2nd fail we alternate back to custom port.
+   * NOTE! Only port 443 can be used as a alternative customer port with Izuma Networks.
 
 ## Release 4.12.0 (01.03.2022)
 
@@ -258,7 +281,7 @@ No changes.
   * Change the target offsets to match the `block_device` bootloader.
   * Change the update storage to point to the external storage.
   * Change the KVstore configuration to match the external storage configuration.
-  * See the [porting guide](https://www.pelion.com/docs/device-management/current/porting/index.html) for reference.
+  * See the [porting guide](https://developer.izumanetworks.com/docs/device-management/current/porting/index.html) for reference.
 * K66F default configuration now provides the full Client feature. This target enables all the RAM/ROM intensive features by default.
   * Enabled certificate enrollment client features.
   * Increased the main stack size to reflect higher RAM requirements for features.

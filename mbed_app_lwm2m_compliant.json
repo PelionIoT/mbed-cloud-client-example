@@ -15,10 +15,11 @@
             "nsapi.default-wifi-security"               : "WPA_WPA2",
             "nsapi.default-wifi-ssid"                   : "\"SSID\"",
             "nsapi.default-wifi-password"               : "\"Password\"",
-            "target.macros_add"                         : ["LWM2M_COMPLIANT","DISABLE_SERVER_CERT_VERIFY","RESET_STORAGE"],
+            "target.macros_add"                         : ["LWM2M_COMPLIANT"],
             "client_app.pal-user-defined-configuration" : "\"pal_config_MbedOS_LWM2M_Compliant.h\"",
             "lwip.mem-size"                             : 18432,
             "mbed-client.disable-bootstrap-feature"     : null,
+            "mbed-cloud-client.disable-certificate-enrollment": null,
             "mbed-client.max-certificate-size"          : 2048
         },
         "K64F": {
@@ -39,6 +40,31 @@
             "storage.storage_type"                      : "FILESYSTEM",
             "storage_filesystem.filesystem"             : "LITTLE",
             "storage_filesystem.blockdevice"            : "SD"
+        },
+        "DISCO_L496AG": {
+            "target.network-default-interface-type"     : "CELLULAR",
+            "target.bootloader_img"                     : "tools/mbed-bootloader-disco_l496ag-internal_kvstore-qspif-v4.1.3.bin",
+            "target.header_offset"                      : "0x11000",
+            "target.app_offset"                         : "0x11400",
+            "target.components_add": [
+              "STMOD_CELLULAR",
+              "FLASHIAP",
+              "QSPIF"
+            ],
+            "cellular.radio-access-technology"          : "CellularNetwork::RadioAccessTechnology::RAT_GSM",
+            "nsapi.default-cellular-apn"                : "\"pp.vodafone.co.uk\"",
+            "nsapi.default-cellular-username"           : "\"wap\"",
+            "nsapi.default-cellular-password"           : "\"wap\"",
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.stdio-convert-newlines"           : 1,
+            "stmod_cellular.provide-default"            : "true",
+            "target.macros_add": [
+              "CELLULAR_DEVICE=STModCellular"
+            ],
+            "target.features_add"                       : ["STORAGE"],
+            "storage.storage_type"                      : "TDB_INTERNAL",
+            "storage_tdb_internal.internal_base_address": "(MBED_ROM_START + (36 * 1024))",
+            "storage_tdb_internal.internal_size"        : "(32 * 1024)"
         },
         "NUCLEO_F429ZI": {
             "target.network-default-interface-type"     : "ETHERNET",

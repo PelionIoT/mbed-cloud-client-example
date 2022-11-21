@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2021 Pelion.
+// Copyright 2016-2022 Pelion.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -26,6 +26,7 @@
 #include "mcc_common_setup.h"
 #include "mcc_common_button_and_led.h"
 #include "application_init.h"
+#include "migrate_kvstore.h"
 
 #if defined (MEMORY_TESTS_HEAP)
 #include "memory_tests.h"
@@ -223,7 +224,7 @@ bool application_init_mbed_trace(void)
 
 static bool verify_cloud_configuration()
 {
-    int status;
+    int status = 0;
     bool result = 0;
 
 #if MBED_CONF_APP_DEVELOPER_MODE == 1
@@ -308,6 +309,20 @@ static bool initialize_fcc(void)
 
 bool application_init(void)
 {
+#if defined MBED_CLOUD_CLIENT_MIGRATE_BOOTSTRAP
+    #if (defined MBED_CONF_APP_DEVELOPER_MODE && MBED_CONF_APP_DEVELOPER_MODE == 1)
+        #error "Migration can only be used with factory flow."
+    #endif
+    int ret;
+
+    printf("Migration mode on.\n");
+    ret = migrate_kvstore(MBED_CLOUD_CLIENT_MIGRATE_BOOTSTRAP_TO);
+    if (ret != 0) {
+        printf("ERROR - migrate_kvstore failed with %d\n", ret);
+        return false;
+    }
+#endif // MBED_CLOUD_CLIENT_MIGRATE_BOOTSTRAP_TO
+
     // The function always returns 0.
     (void) mcc_platform_init_button_and_led();
 

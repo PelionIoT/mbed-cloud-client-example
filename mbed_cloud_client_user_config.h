@@ -26,6 +26,16 @@
 
 #define MBED_CLOUD_CLIENT_LIFETIME                  (3*60)
 
+// Option to migrate the bootstrap server to another URI.
+// You must specify both, activate feature via 
+// #define MBED_CLOUD_CLIENT_MIGRATE_BOOTSTRAP and
+// new address via 
+// #define MBED_CLOUD_CLIENT_MIGRATE_BOOTSTRAP_TO "coaps://new-bootstrap-server-uri.com:port"
+/*
+#define MBED_CLOUD_CLIENT_MIGRATE_BOOTSTRAP
+#define MBED_CLOUD_CLIENT_MIGRATE_BOOTSTRAP_TO "coaps://new-bootstrap-server-uri.com:port"
+*/
+
 #ifdef LWM2M_COMPLIANT
 #define MBED_CLOUD_CLIENT_TRANSPORT_MODE_UDP
 #define MBED_CONF_MBED_CLIENT_MAX_CERTIFICATE_SIZE   2048
@@ -37,6 +47,8 @@
 
 #ifdef MBED_CONF_MBED_CLIENT_SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
     #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE      MBED_CONF_MBED_CLIENT_SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+#elif defined LWM2M_COMPLIANT
+    #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE      1024
 #else
     #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE      512
 #endif
@@ -47,5 +59,10 @@
     #define MBED_CLOUD_DEV_UPDATE_ID
 #endif /* MBED_CONF_APP_DEVELOPER_MODE */
 
+/*
+// Try port 443 instead of default CoAP port, will fallback to CoAP port 5684 if 443 fails.
+// NOTE! Only port 443 is supported as alternative port in the cloud service.
+*/
+//#define MBED_CLOUD_CLIENT_CUSTOM_URI_PORT           443
 
 #endif /* MBED_CLOUD_CLIENT_USER_CONFIG_H */

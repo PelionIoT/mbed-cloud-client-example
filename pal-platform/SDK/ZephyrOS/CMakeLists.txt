@@ -11,11 +11,11 @@ endif()
 configure_file(${CMAKE_SOURCE_DIR}/pal-platform/SDK/ZephyrOS/Kconfig ${CMAKE_SOURCE_DIR} COPYONLY)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project("Pelion Client")
+project("Izuma Client")
 
 ################################################################################
 
-add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=$<BOOL:${CONFIG_PELION_EXAMPLE_DEVELOPER_MODE}>)
+add_definitions(-DMBED_CONF_APP_DEVELOPER_MODE=$<BOOL:${CONFIG_IZUMA_EXAMPLE_DEVELOPER_MODE}>)
 
 add_definitions(-DMBED_CLOUD_APPLICATION_NONSTANDARD_ENTRYPOINT=1)
 add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="pal_config_zephyr.h")
@@ -42,7 +42,7 @@ SET(APP_SRCS
 
 target_sources(app PRIVATE ${CMAKE_SOURCE_DIR}/pal-platform/SDK/ZephyrOS/src/main.cpp ${APP_SRCS})
 
-if(CONFIG_PELION_SOURCES)
+if(CONFIG_IZUMA_SOURCES)
   target_include_directories(app PRIVATE ${ZEPHYR_BASE}/subsys/storage/flash_map)
   # Copy configuration file to include directory visible for all libraries.
   # Needed for the file to be visible by Zephyr's mbedtls library.

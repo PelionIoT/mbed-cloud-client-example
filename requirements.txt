@@ -1,5 +1,5 @@
  # ----------------------------------------------------------------------------
-# Copyright 2021 Pelion
+# Copyright (c) 2022 Izuma Networks
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -17,7 +17,7 @@
 # ----------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------
-# This file lists Pelion device management client requirements.
+# This file lists Izuma Device Management client requirements.
 # Install the requirements by calling
 #   pip install -r requirements.txt
 

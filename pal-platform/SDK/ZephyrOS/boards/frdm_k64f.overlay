@@ -12,8 +12,8 @@
 };
 &flash0 {
     partitions {
-        pelion_partition: partition@0x000FA000 {
-            label = "pelion_storage";
+        izuma_partition: partition@0x000FA000 {
+            label = "izuma_storage";
             reg = <0x000FA000 0x00006000>;
         };
     };

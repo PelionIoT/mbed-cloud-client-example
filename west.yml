@@ -1,18 +1,18 @@
 manifest:
   self:
-    path: pelion-dm-example
+    path: izuma-dm-example
   remotes:
     - name: PelionIoT
       url-base: https://github.com/PelionIoT
     - name: zephyrproject-rtos
       url-base: https://github.com/zephyrproject-rtos
   projects:
-    - name: pelion-dm
+    - name: izuma-dm
       repo-path: mbed-cloud-client
       remote: PelionIoT
-      revision: 54282bc27ed9c404524e15a0de93dc9a59516f79
-      path: modules/lib/pelion-dm
+      revision: bed292c4a7778cbc55ac01fc832e2469d439c7f1
+      path: modules/lib/izuma-dm
     - name: zephyr
       remote: zephyrproject-rtos
-      revision: v2.6.0-rc1
+      revision: zephyr-v2.7.3
       import: true
