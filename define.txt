@@ -59,3 +59,6 @@ add_definitions(-DFOTA_DEFAULT_APP_IFS=1)
 add_definitions(-DTARGET_LIKE_LINUX=1)
 add_definitions(-DFOTA_CUSTOM_PLATFORM=1)
 add_definitions(-DMBED_CLOUD_CLIENT_FOTA_SUB_COMPONENT_SUPPORT=1)
+
+# curl fix - https://github.com/curl/curl/issues/7988
+set (CURL_USE_OPENSSL OFF CACHE BOOL "disable openssl" FORCE)

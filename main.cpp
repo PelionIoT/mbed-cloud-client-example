@@ -1,5 +1,6 @@
 // ----------------------------------------------------------------------------
-// Copyright 2016-2021 Pelion.
+// Copyright 2022-2021 Pelion.
+// Copyright 2022 Izuma Networks.
 //
 // SPDX-License-Identifier: Apache-2.0
 //

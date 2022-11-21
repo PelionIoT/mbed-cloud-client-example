@@ -1,5 +1,6 @@
 // ----------------------------------------------------------------------------
 // Copyright 2016-2020 ARM Ltd.
+// Copyright (c) 2022 Izuma Networks.
 //
 // SPDX-License-Identifier: Apache-2.0
 //

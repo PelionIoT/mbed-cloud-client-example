@@ -11,4 +11,6 @@ add_definitions(-DMBED_CLOUD_CLIENT_FOTA_LINUX_UPDATE_STORAGE_FILENAME="\\"/mnt/
 add_definitions(-DMBED_CLOUD_CLIENT_FOTA_LINUX_CANDIDATE_FILENAME="\\"/mnt/cache/fota_raw_candidate\\"")
 add_definitions(-DMBED_CLOUD_CLIENT_FOTA_LINUX_HEADER_FILENAME="\\"/mnt/cache/fota_fw_metadata\\"")
 
+# curl fix - https://github.com/curl/curl/issues/7988
+set (CURL_USE_OPENSSL OFF CACHE BOOL "disable openssl" FORCE)
 

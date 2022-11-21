@@ -1,18 +1,18 @@
-# Copyright (c) 2021 Pelion
+# Copyright (c) 2022 Izuma Networks
 # SPDX-License-Identifier: Apache-2.0
 
-menu "Pelion Device Management Client Example"
+menu "Izuma Device Management Client Example"
 
 comment "    Example application configuration                         "
 
-config PELION_EXAMPLE_DEVELOPER_MODE
+config IZUMA_EXAMPLE_DEVELOPER_MODE
     bool "Enable developer mode to skip Factory enrollment"
     default y
     help
-      Connect to Pelion DM using developer credentials.
+      Connect to Izuma DM using developer credentials.
 
 comment "    Library configuration can be found under:                 "
-comment "        Modules -> Pelion Device Management Client Library    "
+comment "        Modules -> Izuma Device Management Client Library    "
 
 endmenu
 

@@ -21,3 +21,7 @@ if(PARSEC_TPM_SE_SUPPORT)
         -DMBED_CONF_MBED_CLOUD_CLIENT_NON_PROVISIONED_SECURE_ELEMENT
     )
 endif()
+
+# curl fix - https://github.com/curl/curl/issues/7988
+set (CURL_USE_OPENSSL OFF CACHE BOOL "disable openssl" FORCE)
+
