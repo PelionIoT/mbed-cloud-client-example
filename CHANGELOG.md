@@ -2,26 +2,26 @@
 
 ## Release 4.13.0 (21.11.2022)
 
-- [Mbed OS] Add DISCO_L496AG board. The cellular settings are for example use only.
+- [Mbed OS] Add DISCO_L496AG board. The cellular settings are for example only.
 - Enable EST flow for `LWM2M_COMPLIANT` mode.
 - Enable server certificate verification in `LWM2M_COMPLIANT` mode.
-- [Mbed OS] New feature for migrating the boostrap server URI to another URI.
+- [Mbed OS] New feature for migrating the bootstrap server URI to another URI.
    * This allows moving a device from one Device Management region to another, for example from US to EU.
-   * Works only with KVStore based storage.
+   * Works only with KVStore-based storage.
    * More details in [PDMC Migration Tutorial](pdmc-migration-tutorial.md) document.
 - Updated `libcurl` from 7.76.0 to 7.85.0 for Linux targets.
 - Updated `mbedTLS` from 2.27.0 to 2.28.1 for Linux targets.
 - Branding changes to Izuma.
-- Add following files to `.gitignore`:
+- Add the following files to `.gitignore`:
     * `mbed_cloud_client_user_config.h`
     * `mbed_cloud_dev_credentials.c` and 
-    * `update_default_resources.c` to minimize risk of leaking credentials/private configs.
-    * You can still update these files if you wish, but you have to use `git add -f`.
+    * `update_default_resources.c` to minimize the risk of leaking credentials/private configs.
+    * You can still update these files if you wish, but you have to use `git add -f <file>`.
 - Zephyr OS updated to 2.7.3.
 - Alternating port fallback config example for `MBED_CLOUD_CLIENT_CUSTOM_URI_PORT` added to `mbed_cloud_client_user_config.h`.
-   * If a socket error is encountered, next try will be done with original CoaP port `5684`.
-   * After 2nd fail we alternate back to custom port.
-   * NOTE! Only port 443 can be used as a alternative customer port with Izuma Networks.
+   * If a socket error is encountered, the next try will be done with the original CoaP port `5684`.
+   * After 2nd fail we alternate back to the custom port.
+   * NOTE! Only port 443 can be used as an alternative customer port with Izuma Networks.
 
 ## Release 4.12.0 (01.03.2022)
 
