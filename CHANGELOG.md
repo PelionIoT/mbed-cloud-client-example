@@ -21,7 +21,7 @@
 - Alternating port fallback config example for `MBED_CLOUD_CLIENT_CUSTOM_URI_PORT` added to `mbed_cloud_client_user_config.h`.
    * If a socket error is encountered, the next try will be done with the original CoaP port `5684`.
    * After 2nd fail we alternate back to the custom port.
-   * NOTE! Only port 443 can be used as an alternative customer port with Izuma Networks.
+   * NOTE! Only port `443` can be used as an alternative customer port with Izuma Networks.
 
 ## Release 4.12.0 (01.03.2022)
 
