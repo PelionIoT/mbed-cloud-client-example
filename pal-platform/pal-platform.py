@@ -508,7 +508,7 @@ class GitSource(Source):
             git_fetch(self.location, self.tag, dst, self.submodules, **self.stream_kwargs)
         except Exception as e:
             logger.error(e)
-            logger.error("** failed to fetch %s from git - please check that remote is correct and avialable **", name)
+            logger.error("** failed to fetch %s from git - please check that remote is correct and available **", name)
             sys.exit()
 
 class LocalSource(Source):

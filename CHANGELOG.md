@@ -1,5 +1,15 @@
 # Changelog for Izuma Device Management Client example application
 
+## Release 4.13.1 (16.02.2023)
+
+- Updated `mbedTLS` from 2.28.1 to 2.28.2 for Linux targets and updated GitHub domain for it (from ArmMbed to Mbed-TLS).
+- Updated `libcurl` from 7.85.0 to 7.87.0 for Linux targets.
+
+### Known issues
+
+- [Linux/Zephyr] Asynchronous DNS does not work well, and the device fails to reconnect to the cloud if some of the pods are restarted. In such a scenario, the device needs to be restarted.
+  The default DNS setting was changed to synchronous DNS.
+
 ## Release 4.13.0 (21.11.2022)
 
 - [Mbed OS] Add DISCO_L496AG board. The cellular settings are for example only.
@@ -22,6 +32,13 @@
    * If a socket error is encountered, the next try will be done with the original CoaP port `5684`.
    * After 2nd fail we alternate back to the custom port.
    * NOTE! Only port `443` can be used as an alternative customer port with Izuma Networks.
+   
+### Known issues
+
+- [Linux/Zephyr] Asynchronous DNS does not work well, and the device fails to reconnect to the cloud if some of the pods are restarted. In such a scenario, the device needs to be restarted.
+  To address this issue, the default DNS settings should be overridden to synchronous DNS in the application level:
+  - For Linux devices, set the `PAL_DNS_API_VERSION` flag to 0.
+  - For Zephyr devices, set the `DNS API` selection to POSIX.
 
 ## Release 4.12.0 (01.03.2022)
 
@@ -29,13 +46,34 @@
 - [Linux] Add a new `define_lwm2m_compliant.txt` that enables communication with a LwM2M compliant service / interoperability (IoP) testing.
 - [Mbed OS] Add a new `mbed_app_lwm2m_compliant.json` that enables communication with a LwM2M compliant service / interoperability (IOP) testing with FRDM K64F device.
 
+### Known issues
+
+- [Linux/Zephyr] Asynchronous DNS does not work well, and the device fails to reconnect to the cloud if some of the pods are restarted. In such a scenario, the device needs to be restarted.
+  To address this issue, the default DNS settings should be overridden to synchronous DNS in the application level:
+  - For Linux devices, set the `PAL_DNS_API_VERSION` flag to 0.
+  - For Zephyr devices, set the `DNS API` selection to POSIX.
+
 ## Release 4.11.2 (01.12.2021)
 
 - Updated to Mbed OS 6.15.0.
 
+### Known issues
+
+- [Linux/Zephyr] Asynchronous DNS does not work well, and the device fails to reconnect to the cloud if some of the pods are restarted. In such a scenario, the device needs to be restarted.
+  To address this issue, the default DNS settings should be overridden to synchronous DNS in the application level:
+  - For Linux devices, set the `PAL_DNS_API_VERSION` flag to 0.
+  - For Zephyr devices, set the `DNS API` selection to POSIX.
+
 ## Release 4.11.1 (11.10.2021)
 
 - Updated Parsec to 0.6.0 version. This version is compatible with Mbed TLS 2.27.0.
+
+### Known issues
+
+- [Linux/Zephyr] Asynchronous DNS does not work well, and the device fails to reconnect to the cloud if some of the pods are restarted. In such a scenario, the device needs to be restarted.
+  To address this issue, the default DNS settings should be overridden to synchronous DNS in the application level:
+  - For Linux devices, set the `PAL_DNS_API_VERSION` flag to 0.
+  - For Zephyr devices, set the `DNS API` selection to POSIX.
 
 ## Release 4.11.0 (17.09.2021)
 
@@ -48,6 +86,13 @@
 - Updated Mbed TLS to 2.27.0 in `pal-platform`.
 - Added a demonstration of FOTA component update. Placed component registration and callback examples in `source/fota_platform_hooks_imp.cpp`.
 - [Linux] Added demonstration of FOTA combined update. Placed subcomponent registration and callback examples in `source/fota_platform_hooks_imp.cpp` under the `MBED_CLOUD_CLIENT_FOTA_SUB_COMPONENT_SUPPORT` flag.
+
+### Known issues
+
+- [Linux/Zephyr] Asynchronous DNS does not work well, and the device fails to reconnect to the cloud if some of the pods are restarted. In such a scenario, the device needs to be restarted.
+  To address this issue, the default DNS settings should be overridden to synchronous DNS in the application level:
+  - For Linux devices, set the `PAL_DNS_API_VERSION` flag to 0.
+  - For Zephyr devices, set the `DNS API` selection to POSIX.
 
 ## Release 4.10.0 (07.07.2021)
 
@@ -62,9 +107,19 @@
 * Updated to Mbed OS 6.12.0.
   - Changed LED configuration from `LED_RED` to `LED1`.
 
+### Known issues
+
+- [Zephyr] Asynchronous DNS does not work well. The device fails to reconnect to the cloud if some of the pods are restarted. In such a scenario, the device needs to be restarted.
+  To address this issue, the default DNS settings should be overridden to synchronous DNS in the application level by setting the DNS API selection to POSIX in the application's configuration settings. 
+
 ## Release 4.9.1 (17.06.2021)
 
 * No changes.
+
+### Known issues
+
+- [Zephyr] Asynchronous DNS does not work well. The device fails to reconnect to the cloud if some of the pods are restarted. In such a scenario, the device needs to be restarted.
+  To address this issue, the default DNS settings should be overridden to synchronous DNS in the application level by setting the DNS API selection to POSIX in the application's configuration settings. 
 
 ## Release 4.9.0 (21.05.2021)
 
@@ -77,6 +132,11 @@
 * Fixed Atmel SE configuration.
 * Updated to Mbed OS 6.9.0.
 * [Linux] Updated Mbed TLS to 2.25.0.
+
+### Known issues
+
+- [Zephyr] Asynchronous DNS does not work well. The device fails to reconnect to the cloud if some of the pods are restarted. In such a scenario, the device needs to be restarted.
+  To address this issue, the default DNS settings should be overridden to synchronous DNS in the application level by setting the DNS API selection to POSIX in the application's configuration settings. 
 
 ## Release 4.8.0 (24.03.2021)
 
