@@ -8,7 +8,7 @@ Basic requirements for Pelion capabilities:
 
 Installation of the test-library:
 
-- Install the prerequisites listed in the README of the [pelion-e2e-python-test-library](https://github.com/ARMmbed/pelion-e2e-python-test-library).
+- Install the prerequisites listed in the README of the [pelion-e2e-python-test-library](https://github.com/PelionIoT/pelion-e2e-python-test-library).
 - Configure your API-key as instructed in the same README.
 
 
