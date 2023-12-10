@@ -195,7 +195,7 @@ void main_application(void)
 
 #if defined MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER &&\
  (MBED_CONF_MBED_CLOUD_CLIENT_NETWORK_MANAGER == 1)
-    // Wait untill client is registered.
+    // Wait until client is registered.
     while (pdmc_registered() == false) {
         mcc_platform_do_wait(100);
     }

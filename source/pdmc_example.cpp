@@ -138,7 +138,7 @@ bool pdmc_connect()
     /* Set callback functions for authorizing updates and monitoring progress.
        Code is implemented in update_ui_example.cpp
        Both callbacks are completely optional. If no authorization callback
-       is set, the update process will procede immediately in each step.
+       is set, the update process will proceed immediately in each step.
     */
     update_ui_set_cloud_client(&pdmc_client);
     pdmc_client.set_update_authorize_priority_handler(update_authorize_priority_handler);
