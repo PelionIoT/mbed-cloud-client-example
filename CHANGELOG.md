@@ -1,5 +1,11 @@
 # Changelog for Izuma Device Management Client example application
 
+## Release 4.13.2 (10.12.2023)
+
+- Extend the lifetime from 3 minutes to 2 hours. 
+  Default lifetimes that are too frequent can deplete battery-operated devices. 
+  It needs to be adjusted according to the specific usage scenario of the device.
+
 ## Release 4.13.1 (16.02.2023)
 
 - Updated `mbedTLS` from 2.28.1 to 2.28.2 for Linux targets and updated GitHub domain for it (from ArmMbed to Mbed-TLS).
@@ -155,7 +161,7 @@
     * Defer firmware update installation.
     * Candidate encryption on external storage.
   * Mbed OS non-mesh and Linux targets are configured to use the new upgraded Update client.
-     * Note - if you wish to use legacy Update client in your Mbed OS non mesh target, please refer to the configurations in PDMC exmaple 4.7.1.
+     * Note - if you wish to use legacy Update client in your Mbed OS non mesh target, please refer to the configurations in PDMC example 4.7.1.
   * Legacy Update client is still used in Mbed OS mesh targets and SDK's targets (NXP, Renesas).
   * Upgraded update client bootloaders are located in prebuild-bl folder. Legacy bootloaders are located in tools folder
   * On K64F, NUCLEO_F411RE, DISCO_L475VG_IOT01A targets, the update candidate is stored encrypted on the external storage encrypted.
@@ -350,7 +356,7 @@ No changes.
 ## Release 3.0.0 (27.03.2019)
 
 * Updated to Mbed OS 5.12.0.
-* [Mbed OS] Use asyncronous DNS by default for all targets.
+* [Mbed OS] Use asynchronous DNS by default for all targets.
 * [Mbed OS] Preview support for Platform Security Architecture (PSA) enabled boards.
    * PSA configuration for PSA-enabled Cypress PSoC6 and NXP LPC55S69 boards. Configuration is in the `configs-psa/` folder.
    * Both PSA-enabled boards use ESP8266 Wi-Fi.
@@ -414,7 +420,7 @@ No changes.
     * The example uses Mbed OS bootloader binaries and the new Mbed OS feature `FEATURE_BOOTLOADER`. This feature makes the `combine_bootloader_with_app.py` script obsolete. We have removed the obsolete script and old bootloader binaries from the application repository.
 * The bootloader is now automatically combined with the application binary at compile time:
     * `mbed-cloud-client-example.bin` is the binary you need to flash on the development board.
-    * You can use `mbed-cloud-client-example_update.bin` for the firmware update as long as the prequisites for firmware update are fullfilled. (See the application tutorial).
+    * You can use `mbed-cloud-client-example_update.bin` for the firmware update as long as the prequisites for firmware update are fulfilled. (See the application tutorial).
 * Removed the legacy configuration file `configs/eth_v4_legacy.json` that was used for Mbed Cloud Client 1.2.6.
 * Removed the `.autostart` configurations used by the online compiler.
 * Enabled serial buffer in all `.json` files.

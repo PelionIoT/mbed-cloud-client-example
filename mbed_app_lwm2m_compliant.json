@@ -111,7 +111,7 @@
             "value"     : null
         },
         "enable-ds-custom-metrics-example": {
-            "help"      : "Enable Device Sentry custom metrics example applicaton",
+            "help"      : "Enable Device Sentry custom metrics example application",
             "options"   : [null, 1],
             "value"     : null
         }

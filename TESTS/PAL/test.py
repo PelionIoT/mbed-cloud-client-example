@@ -95,7 +95,7 @@ class SuiteBuilder(object):
                     except KeyError:
                         self.logger.error(
                             "Cannot find \"bin_fullpath\" from "
-                            "build_data.json, did build complete succesfully?")
+                            "build_data.json, did build complete successfully?")
                         exit(-1)
                     else:
                         bin_fullpath = os.path.normpath(value)
