@@ -1,0 +1,65 @@
+name: PDMC example PR checker
+
+on: [push, workflow_dispatch]
+
+# This allows a subsequently queued workflow run to interrupt previous runs
+concurrency:
+  group: mcce-public-${{ github.event.pull_request.head.label || github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  MCCE-Test-MbedOS:
+    runs-on: ubuntu-22.04
+    env:
+      MCCE_REPO: PelionIoT/mbed-cloud-client-example
+      MCCE_ROOT_DIR: mbed-cloud-client-example
+    strategy:
+      fail-fast: true
+      matrix:
+        target: [ K64F, K66F, NUCLEO_F429ZI, NUCLEO_F411RE, DISCO_L475VG_IOT01A ]
+        json: [ mbed_app.json ]
+        include:
+          - target: K64F
+            json: configs-psa/eth_v4.json
+          - target: K64F
+            json: configs-psa/eth_v4_with_se_atmel.json
+          - target: K64F
+            json: configs/wifi_esp8266_minimal.json
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+
+      - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: '9-2019-q4'
+
+      - name: Install mbed-cli
+        run: pip install mbed-cli
+
+      - name: Check out ${{ env.MCCE_REPO }} repository code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.MCCE_REPO }}
+          path: ${{ env.MCCE_ROOT_DIR }}
+
+      - name: Compile
+        run: |
+          cd $MCCE_ROOT_DIR
+          mbed config root .
+          mbed deploy
+          mbed target ${{ matrix.target }}
+          mbed toolchain GCC_ARM
+          mbed compile --app-config ${{ matrix.json }} -v
+
+      - name: Extract the json file name
+        run: echo "JSON_FILE_NAME=$(basename ${{ matrix.json }})" >> $GITHUB_ENV
+
+      - name: Archive ${{ matrix.target }}-${{ env.JSON_FILE_NAME }}-${{ matrix.mbedos }} tests results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.target }}-${{ env.JSON_FILE_NAME }}-${{ matrix.mbedos }}-artifacts
+          path: |
+            ${{ env.MCCE_ROOT_DIR }}/BUILD/**/mbed-cloud-client-example-internal.bin
+            ${{ env.MCCE_ROOT_DIR }}/BUILD/**/mbed-cloud-client-example-internal.hex
+          if-no-files-found: error
