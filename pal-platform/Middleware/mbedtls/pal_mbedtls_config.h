@@ -2646,7 +2646,7 @@
 #endif
 
 
-#include "check_config.h"
+// #include "check_config.h" // Removed for mbedTLS 3.x compatibility - included automatically
 
 #if defined(MBEDTLS_TEST_NULL_ENTROPY)
 #warning "MBEDTLS_TEST_NULL_ENTROPY has been enabled. This " \

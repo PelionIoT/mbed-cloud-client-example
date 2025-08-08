@@ -94,7 +94,7 @@
 // This will reduce the RAM consumption roughly by 1500 bytes.
 #undef MBEDTLS_SSL_KEEP_PEER_CERTIFICATE
 
-#include "mbedtls/check_config.h"
+// #include "mbedtls/check_config.h" // Removed for mbedTLS 3.x compatibility - included automatically
 
 #if defined(MBEDTLS_TEST_NULL_ENTROPY)
 #warning "MBEDTLS_TEST_NULL_ENTROPY has been enabled. This " \
