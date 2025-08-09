@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include <zephyr.h>
-#include <net/net_if.h>
-#include <net/dhcpv4.h>
-#include <net/net_mgmt.h>
+#include <zephyr/zephyr.h>
+#include <zephyr/net/net_if.h>
+#include <zephyr/net/dhcpv4.h>
+#include <zephyr/net/net_mgmt.h>
 
 #include <stdio.h>
 
 extern "C" int mbed_cloud_application_entrypoint(void);
 
-void main(void)
+int main(void)
 {
 	printf("Izuma Device Management Client Example\r\n");
 
@@ -34,4 +34,6 @@ void main(void)
     net_mgmt_event_wait(NET_EVENT_IPV4_ADDR_ADD, NULL, NULL, NULL, NULL, K_FOREVER);
 
 	mbed_cloud_application_entrypoint();
+	
+	return 0;
 }

@@ -22,8 +22,9 @@
 #include "mcc_common_setup.h"
 #include "MbedCloudClientConfig.h"
 
-#include <net/net_if.h>
-#include <zephyr.h>
+#include <zephyr/net/net_if.h>
+#include <zephyr/zephyr.h>
+#include <zephyr/sys/reboot.h>
 
 #include <stdio.h>
 
@@ -158,5 +159,5 @@ void mcc_platform_sw_build_info(void)
 
 void mcc_platform_reboot(void)
 {
-    NVIC_SystemReset();
+    sys_reboot(SYS_REBOOT_COLD);
 }

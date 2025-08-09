@@ -1,18 +1,23 @@
-&slot0_partition {
-    label = "image-0";
-    reg = <0x00020000 0x00065000>;
+/ {
+    chosen {
+        zephyr,code-partition = &slot0_partition;
+        zephyr,scratch = &scratch_partition;
+    };
 };
-&slot1_partition {
-    label = "image-1";
-    reg = <0x00085000 0x00065000>;
-};
-&scratch_partition {
-    label = "image-scratch";
-    reg = <0x000EA000 0x00010000>;
-};
+
+/* Override existing slots by label */
+&slot0_partition { reg = <0x00020000 0x00065000>; label = "image-0"; };
+&slot1_partition { reg = <0x00085000 0x00065000>; label = "image-1"; };
+
+/* Create missing partitions */
 &flash0 {
     partitions {
-        izuma_partition: partition@0x000FA000 {
+        scratch_partition: partition@ea000 {
+            label = "image-scratch";
+            reg = <0x000EA000 0x00010000>;
+        };
+
+        izuma_partition: partition@fa000 {
             label = "izuma_storage";
             reg = <0x000FA000 0x00006000>;
         };
