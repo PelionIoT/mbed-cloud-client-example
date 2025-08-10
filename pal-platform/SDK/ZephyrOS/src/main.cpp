@@ -25,7 +25,7 @@ extern "C" int mbed_cloud_application_entrypoint(void);
 
 int main(void)
 {
-	printf("Izuma Device Management Client Example\r\n");
+	printf("Izuma Device Management Client Example - 2.0.0\r\n");
 
     struct net_if *iface = net_if_get_default();
 
