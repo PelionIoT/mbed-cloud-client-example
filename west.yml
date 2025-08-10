@@ -10,7 +10,7 @@ manifest:
     - name: izuma-dm
       repo-path: mbed-cloud-client
       remote: PelionIoT
-      revision: 571ac19a028abe553d11bcca58bca8e2f4d7c561
+      revision: 333485f4b3106e2ef8cb7e7dcc926be6b1972e08
       path: modules/lib/izuma-dm
     - name: zephyr
       remote: zephyrproject-rtos
