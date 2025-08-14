@@ -1,20 +1,44 @@
-&slot0_partition {
-    label = "image-0";
-    reg = <0x00020000 0x00065000>;
-};
-&slot1_partition {
-    label = "image-1";
-    reg = <0x00085000 0x00065000>;
-};
-&scratch_partition {
-    label = "image-scratch";
-    reg = <0x000EA000 0x00010000>;
-};
+/* Align partitions to fit a larger signed image and trailer while staying within 1 MiB
+ * Layout summary (addresses in hex):
+ *   MCUBoot          : 00000000 - 0001FFFF (128 KiB)
+ *   slot0 (image-0)  : 00020000 - 0008AFFF (0x6B000 = 438,272 B)
+ *   slot1 (image-1)  : 0008B000 - 000F0FFF (0x6B000)
+ *   image-scratch    : 000F1000 - 000F4FFF (0x4000 = 16 KiB)
+ *   storage          : 000F5000 - 000FAFFF (0x6000 = 24 KiB)
+ *   izuma_storage    : 000FB000 - 000FFFFF (0x5000 = 20 KiB)
+ */
+/ { chosen { zephyr,code-partition = &slot0_partition; zephyr,settings-partition = &storage_partition; }; };
+/delete-node/ &scratch_partition;
+
+
+
+/* Common to both MCUboot and APP overlays */
+&slot0_partition { reg = <0x00020000 0x0006B000>; label = "image-0"; };
 &flash0 {
-    partitions {
-        izuma_partition: partition@0x000FA000 {
-            label = "izuma_storage";
-            reg = <0x000FA000 0x00006000>;
-        };
+  partitions {
+    scratch_partition: partition@f1000 {   /* 0xF1000–0xF4FFF (16 KiB) */
+      label = "image-scratch";
+      reg = <0x000F1000 0x00004000>;
     };
+  };
+};
+
+&slot1_partition { reg = <0x0008B000 0x0006B000>; label = "image-1"; };
+
+&flash0 {
+  partitions {
+    izuma_partition: partition@fa000 {     /* 0xFA000–0xFFFFF (24 KiB) */
+      label = "izuma_storage";
+      reg = <0x000FA000 0x00006000>;
+    };
+    /* We intentionally do not redefine scratch_partition here to avoid duplicating the board-defined label.
+     * The board DTS defines scratch_partition with label "image-scratch"; we keep it but shrink it via a
+     * delete+recreate below with the same label and a new address range.
+     */
+  };
+};
+
+/* Reposition existing settings/storage partition provided by the board DTS */
+&storage_partition {
+  reg = <0x000F5000 0x00005000>;
 };

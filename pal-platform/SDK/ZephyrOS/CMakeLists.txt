@@ -21,6 +21,13 @@ add_definitions(-DMBED_CLOUD_APPLICATION_NONSTANDARD_ENTRYPOINT=1)
 add_definitions(-DPAL_USER_DEFINED_CONFIGURATION="pal_config_zephyr.h")
 add_definitions(-DPAL_USE_HW_TRNG=1)
 
+# Keep Izuma tracing enabled but limit verbosity to reduce rodata
+# and disable certificate enrollment to save flash.
+target_compile_definitions(zephyr_interface INTERFACE
+    MBED_TRACE_MAX_LEVEL=TRACE_LEVEL_INFO
+    MBED_CONF_MBED_CLOUD_CLIENT_DISABLE_CERTIFICATE_ENROLLMENT=1
+)
+
 include_directories(${CMAKE_SOURCE_DIR}/pal-platform/SDK/ZephyrOS)
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/source)
