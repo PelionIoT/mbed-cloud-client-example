@@ -1,0 +1,38 @@
+/* App executes from slot0; Settings use 'storage' */
+&{/chosen} {
+	zephyr,code-partition = &slot0_partition;
+	zephyr,settings-partition = &storage_partition;
+};
+
+/* Storage/NVS: 256 KiB */
+&storage_partition {
+	reg = <0x00020000 0x00040000>;
+	label = "storage";
+};
+
+/* Slots: 640 KiB each */
+&slot0_partition {
+	reg = <0x00060000 0x000A0000>;
+	label = "image-0";
+};
+
+&slot1_partition {
+	reg = <0x00140000 0x000A0000>;
+	label = "image-1";
+};
+
+/* Scratch: 128 KiB */
+&scratch_partition {
+	reg = <0x001E0000 0x00020000>;
+	label = "image-scratch";
+};
+
+/* Izuma creds: 256 KiB */
+&flash0 {
+	partitions {
+		izuma_partition: partition@100000 {
+			label = "izuma_storage";
+			reg = <0x00100000 0x00040000>;
+		};
+	};
+};
