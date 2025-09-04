@@ -1,0 +1,22 @@
+&{/chosen} { zephyr,code-partition = &boot_partition; };
+
+/* Common to both MCUboot and APP overlays */
+&slot0_partition { reg = <0x00020000 0x00065000>; label = "image-0"; };
+&slot1_partition { reg = <0x00085000 0x00065000>; label = "image-1"; };
+
+&flash0 {
+  partitions {
+    storage_partition: partition@e1000 {  /* 0xE1000–0xE9FFF (36 KiB) */
+      label = "storage";
+      reg = <0x000E1000 0x00009000>;
+    };
+    scratch_partition: partition@ea000 {   /* 0xEA000–0xF9FFF (64 KiB) */
+      label = "image-scratch";
+      reg = <0x000EA000 0x00010000>;
+    };
+    izuma_partition: partition@fa000 {     /* 0xFA000–0xFFFFF (24 KiB) */
+      label = "izuma_storage";
+      reg = <0x000FA000 0x00006000>;
+    };
+  };
+};

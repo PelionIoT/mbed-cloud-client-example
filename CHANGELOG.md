@@ -1,5 +1,11 @@
 # Changelog for Izuma Device Management Client example application
 
+## Release 4.14.0 (09.04.2025)
+
+- Updated Zephyr OS to 3.6.0, using the default Mbed TLS 3.5.2.
+- Added support for NUCLEO-H753ZI on Zephyr OS.
+- Added Zephyr tutorial.
+
 ## Release 4.13.2 (10.12.2023)
 
 - Extend the lifetime from 3 minutes to 2 hours. 
