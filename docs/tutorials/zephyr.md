@@ -166,7 +166,7 @@ To flash the bootloader and application to the device:
    --version 1.0.0
    ```
 
-## Flashing the binary to the Freedom-K64F device
+## Flashing the binary to the Nucelo-H753ZI device
 
 To flash the bootloader and application to the device:
 
