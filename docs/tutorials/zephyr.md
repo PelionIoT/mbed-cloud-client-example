@@ -128,38 +128,51 @@ pip install -r zephyr/scripts/requirements.txt
 
 ## Flashing the binary to the Freedom-K64F device
 
-To flash the bootloader and application to the device:
+To flash the bootloader and application to the device using `pyocd`:
 
-   ```
+   ```sh
    # mcuboot
-   west flash -d build/mcuboot --runner pyocd
+   pyocd flash -t k64f build/mcuboot/zephyr/zephyr.elf
    
    # dmc
    pyocd flash -t k64f build/dmc/zephyr/zephyr.signed.hex
+   ```
+
+   or using `west`
+
+   ```sh
+   # mcuboot
+   west flash -d build/mcuboot
+
+   # dmc
+   west flash -d build/mcuboot --hex-file build/dmc/zephyr/zephyr.signed.hex
    ```
 
 <h2 id="qs-compiling">Compiling and flashing Device Management Client on Nucelo-H753ZI</h2>
 
 1. Build the MCUboot bootloader using the memory overlay file `nucleo_h753zi_mcuboot.overlay` by executing this command from the top-level `zephyr-workspace` directory:
 
-   ```
-   west build -p always -b nucleo_h753zi -d build/mcuboot -s bootloader/mcuboot/boot/zephyr -- \
+   ```sh
+   mkdir keys
+   imgtool keygen -k keys/dev_ecdsa.pem -t ecdsa-p256
+
+   west build -p always -b nucleo_h753zi -d build/mcuboot \
+   -s bootloader/mcuboot/boot/zephyr -- \
    -DDTC_OVERLAY_FILE="$PWD/izuma-dm-example/pal-platform/SDK/ZephyrOS/boards/mcuboot/nucleo_h753zi_mcuboot.overlay" \
-   -DCONFIG_MCUBOOT_CLEANUP_ARM_CORE=y
+   -DCONFIG_MCUBOOT_CLEANUP_ARM_CORE=y \
+   -DCONFIG_BOOT_SIGNATURE_TYPE_ECDSA_P256=y \
+   -DCONFIG_BOOT_SIGNATURE_KEY_FILE=\"$PWD/keys/dev_ecdsa.pem\"
    ```
 
    <span class="notes">**Note:** See the [flash layout section](#flash-layout) for more about overlay files.</span>
 
 1. Build and sign the example application:
 
-   ```
+   ```sh
    west build -p always -b nucleo_h753zi -d build/dmc -s izuma-dm-example -- \
    -DOVERLAY_CONFIG="$PWD/izuma-dm-example/pal-platform/SDK/ZephyrOS/boards/nucleo_h753zi.conf" \
    -DDTC_OVERLAY_FILE="$PWD/izuma-dm-example/pal-platform/SDK/ZephyrOS/boards/nucleo_h753zi.overlay" \
    -DCONFIG_BOOTLOADER_MCUBOOT=y
-   
-   mkdir keys
-   imgtool keygen -k keys/dev_ecdsa.pem -t ecdsa-p256
 
    west sign -d build/dmc -t imgtool -- \
    --key keys/dev_ecdsa.pem \
@@ -168,14 +181,25 @@ To flash the bootloader and application to the device:
 
 ## Flashing the binary to the Nucelo-H753ZI device
 
-To flash the bootloader and application to the device:
+To flash the bootloader and application to the device using `pyocd`:
 
-   ```
+   ```sh
    # mcuboot
-   west flash -d build/mcuboot -r openocd
+   pyocd flash -t stm32h753zitx build/mcuboot/zephyr/zephyr.elf
+
    
    # dmc
    pyocd flash -t stm32h753zitx build/dmc/zephyr/zephyr.signed.hex
+   ```
+
+   or using `west`
+   
+   ```sh
+   # mcuboot
+   west flash -d build/mcuboot
+
+   # dmc
+   west flash -d build/mcuboot --hex-file build/dmc/zephyr/zephyr.signed.hex
    ```
 
 <h2 id="qs-connecting">Connecting and performing a firmware update on your device</h2>

@@ -16,14 +16,8 @@
 };
 
 &slot1_partition {
-	reg = <0x00140000 0x000A0000>;
+	reg = <0x00100000 0x000A0000>;
 	label = "image-1";
-};
-
-/* Scratch: 128 KiB at end of flash */
-&scratch_partition {
-	reg = <0x001E0000 0x00020000>;
-	label = "image-scratch";
 };
 
 /* Izuma creds: 256 KiB (2 x 128 KiB) */
@@ -31,7 +25,13 @@
 	partitions {
 		izuma_partition: partition@100000 {
 			label = "izuma_storage";
-			reg = <0x00100000 0x00040000>;
+			reg = <0x001A0000 0x00040000>;
 		};
 	};
+};
+
+/* Scratch: 128 KiB at end of flash */
+&scratch_partition {
+	reg = <0x001E0000 0x00020000>;
+	label = "image-scratch";
 };
